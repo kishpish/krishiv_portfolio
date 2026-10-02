@@ -1,13 +1,14 @@
 // A quiet code theme that matches the paper palette: ink for most tokens,
 // the link blue for keywords, a dark amber for strings, muted ink for comments.
+/** A raw Shiki theme. `settings` is the TextMate key Shiki expects. */
 export const paperTheme = {
   name: 'paper',
-  type: 'light',
+  type: /** @type {const} */ ('light'),
   colors: {
     'editor.background': '#f4f2ea',
     'editor.foreground': '#1b1a17',
   },
-  tokenColors: [
+  settings: [
     { scope: ['comment', 'punctuation.definition.comment'], settings: { foreground: '#6b6860', fontStyle: 'italic' } },
     { scope: ['keyword', 'storage', 'storage.type', 'keyword.control', 'keyword.operator.new'], settings: { foreground: '#1563b5' } },
     { scope: ['string', 'string.quoted', 'string.template'], settings: { foreground: '#8a4b08' } },

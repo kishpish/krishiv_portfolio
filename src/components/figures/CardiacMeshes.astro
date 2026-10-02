@@ -76,7 +76,7 @@ const short = (id: string) => id.replace(/^SCD0*/, '').replace(/01$/, '');
   {
     pts.map((p, i) => (
       <>
-        <text class="fig-tiny" x={xBand(i, x1)} y={m.t + ih + 14} text-anchor="middle" fill={PALETTE.ink4 ?? '#9a968b'}>
+        <text class="fig-tiny" x={xBand(i, x1)} y={m.t + ih + 14} text-anchor="middle" fill={PALETTE.ink4}>
           {short(p.id)}
         </text>
         <text class="fig-tiny" x={xBand(i, x2)} y={m.t + ih + 14} text-anchor="middle" fill="#9a968b">

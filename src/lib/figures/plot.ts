@@ -105,6 +105,7 @@ export const PALETTE = {
   ink: '#1b1a17',
   ink2: '#45433d',
   ink3: '#66635b',
+  ink4: '#9a968b',
   rule: '#cdc8b9',
   highlight: '#ffffd0',
   /** Series colours, ordered. Checked for AA contrast on #fbfaf6 paper. */

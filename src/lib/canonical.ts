@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { load as parseYaml } from 'js-yaml';
 import { z } from 'astro/zod';
 
-const link = z.object({ label: z.string(), href: z.string().url() });
+const link = z.object({ label: z.string(), href: z.url() });
 
 const schema = z.object({
   person: z.object({
@@ -15,14 +15,14 @@ const schema = z.object({
     family_name: z.string(),
     tagline: z.string(),
     location: z.string(),
-    email: z.string().email(),
+    email: z.email(),
     affiliation: z.object({
       role: z.string(),
       group: z.string(),
-      group_url: z.string().url(),
+      group_url: z.url(),
       institute: z.string(),
       institute_short: z.string(),
-      institute_url: z.string().url(),
+      institute_url: z.url(),
       university: z.string(),
       university_short: z.string(),
       advisor: z.string(),
@@ -35,16 +35,16 @@ const schema = z.object({
       coursework_beyond: z.string(),
     }),
     profiles: z.object({
-      github: z.string().url(),
+      github: z.url(),
       github_handle: z.string(),
-      linkedin: z.string().url(),
-      orcid: z.string().url(),
+      linkedin: z.url(),
+      orcid: z.url(),
       orcid_id: z.string(),
-      scholar: z.string().url().nullable(),
+      scholar: z.url().nullable(),
     }),
   }),
   cv: z.object({ path: z.string(), updated_fallback: z.string(), label: z.string() }),
-  site: z.object({ title: z.string(), description: z.string(), repo: z.string().url(), repo_branch: z.string() }),
+  site: z.object({ title: z.string(), description: z.string(), repo: z.url(), repo_branch: z.string() }),
   research_statement: z.object({ short: z.string(), program: z.string(), interests: z.array(z.string()) }),
   publications: z.array(
     z.object({
@@ -69,7 +69,7 @@ const schema = z.object({
       year: z.number(),
       kind: z.string(),
       note: z.string().optional(),
-      href: z.string().url().optional(),
+      href: z.url().optional(),
     }),
   ),
   honors: z.array(
@@ -78,7 +78,7 @@ const schema = z.object({
       title: z.string(),
       org: z.string(),
       detail: z.string().optional(),
-      href: z.string().url().optional(),
+      href: z.url().optional(),
       featured: z.boolean().optional(),
     }),
   ),
@@ -89,7 +89,7 @@ const schema = z.object({
       advisor: z.string().optional(),
       period: z.string(),
       summary: z.string(),
-      href: z.string().url().optional(),
+      href: z.url().optional(),
     }),
   ),
   hackathons: z.array(
@@ -103,18 +103,18 @@ const schema = z.object({
     }),
   ),
   media: z.array(
-    z.object({ id: z.string(), title: z.string(), outlet: z.string(), year: z.number(), href: z.string().url() }),
+    z.object({ id: z.string(), title: z.string(), outlet: z.string(), year: z.number(), href: z.url() }),
   ),
   beyond: z.array(z.object({ label: z.string(), title: z.string(), body: z.string() })),
   methods: z.array(z.object({ area: z.string(), items: z.string() })),
   notion: z.object({
-    index_url: z.string().url(),
+    index_url: z.url(),
     index_title: z.string(),
     verified_public: z.boolean(),
     posts: z.array(
       z.object({
         title: z.string(),
-        url: z.string().url(),
+        url: z.url(),
         tag: z.string(),
         summary: z.string(),
         minutes: z.number().nullable(),
