@@ -16,7 +16,10 @@ export const toView = (x: number, y: number): [number, number] => [
   VIEW.h - ((y - DOMAIN.y0) / (DOMAIN.y1 - DOMAIN.y0)) * VIEW.h,
 ];
 
-const f1 = (n: number) => (Math.round(n * 10) / 10).toString();
+// Path coordinates are rounded to a half pixel in the 600-unit view box. At the
+// sizes this figure is ever displayed that is below a device pixel, and it cuts
+// the inline SVG roughly in half.
+const f1 = (n: number) => (Math.round(n * 2) / 2).toString();
 
 function polyline(points: [number, number][]): string {
   return points.map(([x, y], i) => `${i ? 'L' : 'M'}${f1(x)} ${f1(y)}`).join('');
@@ -90,7 +93,7 @@ let cached: LandscapeFigure | null = null;
 
 export function buildLandscape(): LandscapeFigure {
   if (cached) return cached;
-  const nx = 157;
+  const nx = 129;
   const ny = Math.round((nx * VIEW.h) / VIEW.w);
   const grid = sampleGrid(V, nx, ny, DOMAIN);
   const sx = VIEW.w / (nx - 1);

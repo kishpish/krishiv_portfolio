@@ -48,6 +48,9 @@ if (pub) {
     abstract: clean(d.problem),
   });
 }
+// Math is rendered at build time; this stylesheet is only loaded on the pages
+// that can contain it.
+import 'katex/dist/katex.min.css';
 ---
 
 <Base title={d.short} description={clean(d.question)} og={`research-${entry.id}`} type="article" jsonLd={jsonLd}>

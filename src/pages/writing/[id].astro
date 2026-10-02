@@ -41,6 +41,9 @@ const jsonLd = {
   isAccessibleForFree: true,
   image: absolute(`/og/writing-${entry.id}.png`),
 };
+// Math is rendered at build time; this stylesheet is only loaded on the pages
+// that can contain it.
+import 'katex/dist/katex.min.css';
 ---
 
 <Base
