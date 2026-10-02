@@ -2,8 +2,8 @@
 #
 # One-time setup in the repository: Settings → Pages → Build and deployment →
 # Source: "GitHub Actions". Nothing else is needed. The base path comes from
-# actions/configure-pages, so this works unchanged at
-# https://<user>.github.io/<repo>/ and at a custom domain served from "/".
+# actions/configure-pages, so this works unchanged at https://<user>.github.io/,
+# at https://<user>.github.io/<repo>/, and at a custom domain served from "/".
 name: Deploy to GitHub Pages
 
 on:
@@ -52,7 +52,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # e.g. https://kishpish.github.io and /krishiv_portfolio
+          # e.g. https://kishpish.github.io and an empty base path
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
 

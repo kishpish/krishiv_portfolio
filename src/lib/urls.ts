@@ -1,5 +1,5 @@
-// Every internal link goes through url(), so the site works both at
-// https://kishpish.github.io/krishiv_portfolio/ and at a custom domain root.
+// Every internal link goes through url(), so the site works at the root of
+// https://kishpish.github.io, under a project-page subpath, and on a custom domain.
 const BASE = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 
 /** Base-aware internal URL. Pass a root-relative path such as "/writing/". */

@@ -1,6 +1,6 @@
 // Prefix root-relative links and image sources in Markdown with the site base,
 // so a post can link to "/writing/some-post/" and still work when the site is
-// served from a project-page subpath such as /krishiv_portfolio/.
+// served from a project-page subpath rather than from the root.
 import { visit } from 'unist-util-visit';
 
 export function rehypeBaseLinks({ base = '/' } = {}) {
