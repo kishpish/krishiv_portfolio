@@ -1,0 +1,71 @@
+---
+// The interface-refinement funnel, as logged in the project repository.
+// Data: src/data/figures/tem171-funnel.json.
+import raw from '../../data/figures/tem171-funnel.json';
+import { linear, fmt, PALETTE } from '../../lib/figures/plot';
+
+const pts = raw.points as { x: number; y: number; len: number; id: string }[];
+const W = 560;
+const H = 380;
+const m = { t: 20, r: 16, b: 46, l: 50 };
+const iw = W - m.l - m.r;
+const ih = H - m.t - m.b;
+
+const xs = pts.map((p) => p.x);
+const x = linear([Math.min(...xs) - 3, Math.max(...xs) + 3], [m.l, m.l + iw]);
+const y = linear([0, 1], [m.t + ih, m.t]);
+const r = (len: number) => 2.6 + Math.min(3.4, len / 40);
+const thr = raw.threshold as number;
+const best = pts.reduce((a, b) => (b.y > a.y || (b.y === a.y && b.x < a.x) ? b : a), pts[0]);
+---
+
+<svg class="fig-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Scatter plot of interface-design trajectories by interface energy and predicted interface confidence.">
+  <!-- the region that passes the filter -->
+  <rect x={m.l} y={m.t} width={iw} height={y(thr) - m.t} fill={PALETTE.highlight} opacity="0.55" />
+  <line x1={m.l} x2={m.l + iw} y1={y(thr)} y2={y(thr)} stroke={PALETTE.ink3} stroke-width="1" stroke-dasharray="4 3" />
+  <text class="fig-label" x={m.l + iw - 4} y={y(thr) - 6} text-anchor="end" fill={PALETTE.ink2}>
+    i_pTM &gt; {thr} · {raw.above} of {raw.n}
+  </text>
+
+  <!-- axes -->
+  <g stroke={PALETTE.ink3} stroke-width="1" fill="none">
+    <path d={`M${m.l} ${m.t} L${m.l} ${m.t + ih} L${m.l + iw} ${m.t + ih}`} />
+    {x.ticks(5).map((t) => <path d={`M${x(t)} ${m.t + ih} l0 4`} />)}
+    {y.ticks(5).map((t) => <path d={`M${m.l} ${y(t)} l-4 0`} />)}
+  </g>
+  <g class="fig-tick" fill={PALETTE.ink3}>
+    {x.ticks(5).map((t) => <text x={x(t)} y={m.t + ih + 16} text-anchor="middle">{fmt(t, 0)}</text>)}
+    {y.ticks(5).map((t) => <text x={m.l - 8} y={y(t) + 3.5} text-anchor="end">{fmt(t, 1)}</text>)}
+  </g>
+
+  <text class="fig-axis" x={m.l + iw / 2} y={H - 8} text-anchor="middle" fill={PALETTE.ink2}>
+    ←  stronger   interface energy ΔG (Rosetta units)
+  </text>
+  <text class="fig-axis" transform={`translate(13 ${m.t + ih / 2}) rotate(-90)`} text-anchor="middle" fill={PALETTE.ink2}>
+    predicted interface confidence
+  </text>
+
+  <!-- trajectories -->
+  <g>
+    {
+      pts.map((p) => (
+        <circle
+          cx={x(p.x)}
+          cy={y(p.y)}
+          r={r(p.len)}
+          fill={p.y > thr ? PALETTE.blue : PALETTE.ink3}
+          fill-opacity={p.y > thr ? 0.68 : 0.3}
+          stroke={p.y > thr ? PALETTE.blue : PALETTE.ink3}
+          stroke-opacity="0.6"
+          stroke-width="0.7"
+        />
+      ))
+    }
+  </g>
+
+  <!-- the best-scoring trajectory -->
+  <circle cx={x(best.x)} cy={y(best.y)} r={r(best.len) + 4} fill="none" stroke={PALETTE.orange} stroke-width="1.4" />
+  <text class="fig-call" x={x(best.x) + 11} y={y(best.y) + 3.5} fill={PALETTE.ink}>best-scoring</text>
+
+  <text class="fig-label" x={m.l + 6} y={m.t + ih - 8} fill={PALETTE.ink3}>point size ∝ binder length</text>
+</svg>

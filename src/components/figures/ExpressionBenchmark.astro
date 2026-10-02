@@ -1,0 +1,68 @@
+---
+// Same fifteen genes, same held-out individuals, two methods, with each gene's
+// heritability ceiling. Data: src/data/figures/expression-benchmark.json.
+import raw from '../../data/figures/expression-benchmark.json';
+import { linear, fmt, PALETTE } from '../../lib/figures/plot';
+
+const genes = raw.genes as { g: string; h2: number; ceil: number; lin: number; enf: number }[];
+const W = 560;
+const rowH = 20;
+const m = { t: 40, r: 18, b: 42, l: 92 };
+const H = m.t + genes.length * rowH + m.b;
+const iw = W - m.l - m.r;
+
+const lo = Math.min(0, ...genes.map((g) => g.enf), ...genes.map((g) => g.lin)) - 0.05;
+const hi = Math.max(...genes.map((g) => g.lin), ...genes.map((g) => g.ceil)) + 0.05;
+const x = linear([lo, hi], [m.l, m.l + iw]);
+const yOf = (i: number) => m.t + i * rowH + rowH / 2;
+---
+
+<svg class="fig-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Dumbbell chart comparing per-gene linear models against a pretrained sequence model on fifteen genes.">
+  <!-- zero line -->
+  <line x1={x(0)} x2={x(0)} y1={m.t - 6} y2={m.t + genes.length * rowH} stroke={PALETTE.ink3} stroke-width="1" />
+
+  <!-- gridlines -->
+  <g stroke={PALETTE.rule} stroke-width="0.6" stroke-dasharray="2 4">
+    {x.ticks(5).filter((t) => t !== 0).map((t) => <line x1={x(t)} x2={x(t)} y1={m.t - 6} y2={m.t + genes.length * rowH} />)}
+  </g>
+
+  <!-- rows -->
+  {
+    genes.map((g, i) => {
+      const yy = yOf(i);
+      return (
+        <g>
+          <text class="fig-label" x={m.l - 10} y={yy + 3.5} text-anchor="end" fill={PALETTE.ink2}>
+            {g.g}
+          </text>
+          <line x1={x(Math.min(g.lin, g.enf))} x2={x(Math.max(g.lin, g.enf))} y1={yy} y2={yy} stroke={PALETTE.rule} stroke-width="1.6" />
+          <line x1={x(g.ceil)} x2={x(g.ceil)} y1={yy - 5} y2={yy + 5} stroke={PALETTE.ink3} stroke-width="1.1" opacity="0.65" />
+          <circle cx={x(g.enf)} cy={yy} r="4" fill={PALETTE.orange} />
+          <circle cx={x(g.lin)} cy={yy} r="4" fill={PALETTE.blue} />
+        </g>
+      );
+    })
+  }
+
+  <!-- axis -->
+  <g stroke={PALETTE.ink3} stroke-width="1" fill="none">
+    <path d={`M${m.l} ${m.t + genes.length * rowH} L${m.l + iw} ${m.t + genes.length * rowH}`} />
+    {x.ticks(5).map((t) => <path d={`M${x(t)} ${m.t + genes.length * rowH} l0 4`} />)}
+  </g>
+  <g class="fig-tick" fill={PALETTE.ink3}>
+    {x.ticks(5).map((t) => <text x={x(t)} y={m.t + genes.length * rowH + 16} text-anchor="middle">{fmt(t, 1)}</text>)}
+  </g>
+  <text class="fig-axis" x={m.l + iw / 2} y={H - 8} text-anchor="middle" fill={PALETTE.ink2}>
+    Spearman ρ across 55 held-out individuals
+  </text>
+
+  <!-- legend -->
+  <g class="fig-legend" transform={`translate(${m.l} 16)`}>
+    <circle cx="4" cy="-3.5" r="4" fill={PALETTE.blue} />
+    <text x="13" y="0" fill={PALETTE.ink2}>per-gene model</text>
+    <circle cx="128" cy="-3.5" r="4" fill={PALETTE.orange} />
+    <text x="137" y="0" fill={PALETTE.ink2}>pretrained, zero-shot</text>
+    <line x1="268" x2="268" y1="-8.5" y2="1.5" stroke={PALETTE.ink3} stroke-width="1.1" opacity="0.65" />
+    <text x="275" y="0" fill={PALETTE.ink2}>√h² ceiling</text>
+  </g>
+</svg>

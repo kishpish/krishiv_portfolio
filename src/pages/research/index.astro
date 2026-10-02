@@ -1,0 +1,95 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ResearchCard from '../../components/ResearchCard.astro';
+import CVLink from '../../components/CVLink.astro';
+import { data, clean } from '../../lib/canonical';
+import { url } from '../../lib/urls';
+
+const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
+const description =
+  'Five research projects in machine learning for biology and physics-based simulation: antibody design as transition-path control, an energy landscape of leukemic cell states, de novo protein inhibitors, patient-specific cardiac biomaterials, and a leakage-audited expression benchmark.';
+---
+
+<Base title="Research" description={description} og="research">
+  <div class="wrap">
+    <PageHeader
+      eyebrow="research"
+      title="Research"
+      lede={clean(data.research_statement.program)}
+    >
+      <div class="rhead__aside">
+        <CVLink variant="button" />
+        <p class="rhead__note">
+          Every project page states the problem, the approach, the result, and what I would
+          push back on. Code and papers are linked from each.
+        </p>
+      </div>
+    </PageHeader>
+
+    <!-- interests, as a researcher's homepage states them -->
+    <section class="rint" aria-labelledby="interests">
+      <h2 id="interests" class="eyebrow">current directions</h2>
+      <ul>
+        {data.research_statement.interests.map((i) => <li>{i}</li>)}
+      </ul>
+    </section>
+
+    <section class="rlist" aria-label="Projects">
+      {projects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} />)}
+    </section>
+
+    <p class="rfoot mono">
+      <a href={url('/publications/')}>Publications, talks, and media →</a>
+    </p>
+  </div>
+</Base>
+
+<style>
+  .rhead__aside {
+    margin-top: var(--sp-5);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-5);
+  }
+  .rhead__note {
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    max-width: 48ch;
+    flex: 1 1 22rem;
+  }
+  .rint {
+    margin-bottom: var(--sp-7);
+  }
+  .rint ul {
+    margin-top: var(--sp-3);
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--sp-2) var(--sp-5);
+    max-width: 62rem;
+  }
+  .rint li {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    padding-left: 1.1em;
+    position: relative;
+    text-wrap: pretty;
+  }
+  .rint li::before {
+    content: '·';
+    position: absolute;
+    left: 0.1em;
+    color: var(--orange);
+  }
+  .rlist {
+    border-bottom: 1px solid var(--rule);
+  }
+  .rfoot {
+    margin-top: var(--sp-5);
+    font-size: var(--fs-small);
+  }
+</style>

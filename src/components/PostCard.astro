@@ -1,0 +1,83 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/urls';
+import { readingMinutes, tagSlug } from '../lib/posts';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  showSection?: boolean;
+  /** heading level for the card title, so pages keep a correct outline */
+  level?: 2 | 3;
+}
+const { post, showSection = false, level = 3 } = Astro.props;
+const H = `h${level}` as 'h2' | 'h3';
+const d = post.data;
+const minutes = readingMinutes(post.body);
+---
+
+<article class="pcard">
+  <H class="pcard__title">
+    <a href={url(`/writing/${post.id}/`)}>{d.title}</a>
+    {d.status === 'in progress' && <span class="badge badge--in-progress pcard__status">in progress</span>}
+  </H>
+  <p class="pcard__desc">{d.description}</p>
+  <p class="pcard__meta meta">
+    {showSection && <span>{d.section}</span>}
+    <span>{minutes} min</span>
+    <span class="pcard__tags">
+      {
+        d.tags.map((t, i) => (
+          <>
+            {i > 0 && <span class="pcard__comma">, </span>}
+            <a href={url(`/writing/tags/${tagSlug(t)}/`)}>{t}</a>
+          </>
+        ))
+      }
+    </span>
+  </p>
+</article>
+
+<style>
+  .pcard {
+    padding-block: var(--sp-4);
+    border-top: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+  .pcard__title {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em;
+  }
+  .pcard__title a {
+    color: var(--ink);
+  }
+  .pcard__title a:hover,
+  .pcard__title a:focus-visible {
+    color: var(--orange);
+  }
+  .pcard__status {
+    font-weight: 400;
+  }
+  .pcard__desc {
+    margin-top: var(--sp-2);
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .pcard__meta {
+    margin-top: var(--sp-3);
+  }
+  .pcard__tags a {
+    color: var(--ink-3);
+  }
+  .pcard__tags a:hover,
+  .pcard__tags a:focus-visible {
+    color: var(--orange);
+  }
+  .pcard__comma {
+    color: var(--ink-4);
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/urls';
+import { data } from '../lib/canonical';
+---
+
+<Base title="Not found" description="That page does not exist." noindex>
+  <div class="wrap nf">
+    <p class="eyebrow">404</p>
+    <h1>You fell off the landscape</h1>
+    <p class="nf__lede">
+      There is no page at this address. The surface is only defined over a finite window, and
+      you have wandered outside it.
+    </p>
+    <nav class="nf__nav" aria-label="Where to go instead">
+      <ul>
+        <li><a href={url('/')}>Back to the global minimum</a> <span class="mono muted">home</span></li>
+        <li><a href={url('/research/')}>Research</a> <span class="mono muted">five projects</span></li>
+        <li><a href={url('/writing/')}>Writing</a> <span class="mono muted">notes</span></li>
+        <li><a href={url('/publications/')}>Publications</a></li>
+        <li><a href={`mailto:${data.person.email}`}>Email me</a> <span class="mono muted">if a link here is broken</span></li>
+      </ul>
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    padding-block: var(--sp-9) var(--sp-9);
+    max-width: var(--measure);
+  }
+  .nf__lede {
+    margin-top: var(--sp-4);
+    color: var(--ink-2);
+  }
+  .nf__nav {
+    margin-top: var(--sp-6);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule);
+  }
+  .nf__nav ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .nf__nav .muted {
+    font-size: var(--fs-small);
+    margin-left: 0.5em;
+  }
+</style>

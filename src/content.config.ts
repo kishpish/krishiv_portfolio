@@ -40,6 +40,8 @@ const research = defineCollection({
     evidence: z
       .array(z.object({ value: z.string(), label: z.string() }))
       .default([]),
+    /** compact "number + unit" for the home-page index, e.g. "38,193 cells" */
+    headline: z.string().optional(),
     figure: z
       .object({
         id: z.string(), // key into src/lib/figures

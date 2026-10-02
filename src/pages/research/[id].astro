@@ -1,0 +1,296 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Evidence from '../../components/Evidence.astro';
+import ProjectFigure from '../../components/ProjectFigure.astro';
+import CVLink from '../../components/CVLink.astro';
+import { data, publication, statusLabel, clean } from '../../lib/canonical';
+import { url, absolute } from '../../lib/urls';
+import { allPosts, readingMinutes } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((entry, i) => ({
+    params: { id: entry.id },
+    props: { entry, n: i + 1, prev: projects[i - 1], next: projects[i + 1] },
+  }));
+}
+
+const { entry, n, prev, next } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const pub = d.paper ? publication(d.paper) : null;
+const posts = await allPosts();
+const related = d.related.map((id) => posts.find((p) => p.id === id)).filter(Boolean) as typeof posts;
+
+const jsonLd: object[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Research', item: absolute('/research/') },
+      { '@type': 'ListItem', position: 2, name: d.title, item: absolute(`/research/${entry.id}/`) },
+    ],
+  },
+];
+if (pub) {
+  jsonLd.push({
+    '@context': 'https://schema.org',
+    '@type': 'ScholarlyArticle',
+    headline: clean(pub.title),
+    name: clean(pub.title),
+    author: pub.authors.map((name) => ({ '@type': 'Person', name })),
+    datePublished: String(pub.year),
+    ...(pub.doi ? { identifier: `https://doi.org/${pub.doi}`, sameAs: `https://doi.org/${pub.doi}` } : {}),
+    publication: pub.venue_long,
+    creativeWorkStatus: statusLabel[pub.status],
+    url: absolute(`/research/${entry.id}/`),
+    abstract: clean(d.problem),
+  });
+}
+---
+
+<Base title={d.short} description={clean(d.question)} og={`research-${entry.id}`} type="article" jsonLd={jsonLd}>
+  <article class="wrap proj">
+    <header class="proj__head">
+      <p class="eyebrow">
+        <a href={url('/research/')}>research</a> / {String(n).padStart(2, '0')}
+      </p>
+      <h1>{d.title}</h1>
+
+      <p class="proj__badges">
+        {pub && <span class="badge badge--venue">{pub.venue}</span>}
+        {pub && <span class:list={['badge', `badge--${pub.status}`]}>{statusLabel[pub.status]}</span>}
+        {!pub && d.status && <span class="badge badge--in-progress">{d.status}</span>}
+        {d.honor && <span class="badge badge--honor">{d.honor}</span>}
+      </p>
+
+      <p class="proj__q">{clean(d.question)}</p>
+
+      <dl class="proj__facts">
+        <div><dt>role</dt><dd>{d.role}</dd></div>
+        <div><dt>period</dt><dd>{d.period}</dd></div>
+        {pub && <div><dt>venue</dt><dd>{pub.venue_long}</dd></div>}
+      </dl>
+
+      {d.links.length > 0 && (
+        <p class="links proj__links">
+          {d.links.map((l) => <a href={l.href} rel="noopener">{l.label}</a>)}
+        </p>
+      )}
+    </header>
+
+    <!-- problem, approach, result: the ten-second version -->
+    <section class="par" aria-label="Problem, approach, result">
+      <div class="par__item">
+        <h2 class="par__h">Problem</h2>
+        <p>{clean(d.problem)}</p>
+      </div>
+      <div class="par__item">
+        <h2 class="par__h">Approach</h2>
+        <p>{clean(d.approach)}</p>
+      </div>
+      <div class="par__item">
+        <h2 class="par__h">Result</h2>
+        <p>{clean(d.result)}</p>
+      </div>
+    </section>
+
+    {d.evidence.length > 0 && (
+      <section class="proj__ev" aria-label="Evidence">
+        <p class="eyebrow">the numbers</p>
+        <Evidence items={d.evidence} />
+      </section>
+    )}
+
+    {d.figure && (
+      <section class="proj__fig">
+        <ProjectFigure id={d.figure.id} caption={clean(d.figure.caption)} alt={clean(d.figure.alt)} n={String(n)} />
+      </section>
+    )}
+
+    {d.landscape && (
+      <aside class="proj__landscape">
+        <p class="eyebrow">where the landscape is</p>
+        <p>{clean(d.landscape)}</p>
+      </aside>
+    )}
+
+    <div class="prose proj__body">
+      <Content />
+    </div>
+
+    {related.length > 0 && (
+      <section class="proj__related" aria-labelledby="related">
+        <p class="eyebrow" id="related">notes on this</p>
+        <ul>
+          {related.map((p) => (
+            <li>
+              <a href={url(`/writing/${p.id}/`)}>{p.data.title}</a>
+              <span class="mono muted"> {readingMinutes(p.body)} min</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <footer class="proj__foot">
+      <nav class="projnav" aria-label="Other projects">
+        {prev ? (
+          <a class="projnav__link" href={url(`/research/${prev.id}/`)}>
+            <span class="mono projnav__dir">← previous</span>
+            <span class="projnav__t">{prev.data.short}</span>
+          </a>
+        ) : <span />}
+        {next ? (
+          <a class="projnav__link projnav__link--next" href={url(`/research/${next.id}/`)}>
+            <span class="mono projnav__dir">next →</span>
+            <span class="projnav__t">{next.data.short}</span>
+          </a>
+        ) : <span />}
+      </nav>
+      <p class="proj__cv"><CVLink variant="inline" /></p>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .proj {
+    padding-block: var(--sp-7) var(--sp-6);
+  }
+  .proj__head {
+    max-width: var(--measure);
+    padding-bottom: var(--sp-6);
+    border-bottom: 1px solid var(--rule);
+  }
+  .proj__head h1 {
+    text-wrap: balance;
+  }
+  .proj__badges {
+    margin-top: var(--sp-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+  }
+  .proj__q {
+    margin-top: var(--sp-4);
+    font-size: calc(var(--fs-body) * 1.08);
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .proj__facts {
+    margin-top: var(--sp-5);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--sp-3) var(--sp-5);
+    font-size: var(--fs-small);
+  }
+  .proj__facts dt {
+    font-family: var(--mono);
+    font-size: var(--fs-tiny);
+    color: var(--ink-4);
+    text-transform: lowercase;
+  }
+  .proj__facts dd {
+    margin: 0.1em 0 0;
+    color: var(--ink-2);
+  }
+  .proj__links {
+    margin-top: var(--sp-4);
+  }
+
+  .par {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--sp-5) var(--sp-6);
+    padding-block: var(--sp-6);
+    border-bottom: 1px solid var(--rule);
+  }
+  .par__h {
+    font-family: var(--mono);
+    font-size: var(--fs-small);
+    font-weight: 400;
+    text-transform: lowercase;
+    color: var(--ink-3);
+    letter-spacing: 0.01em;
+    padding-bottom: var(--sp-2);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--sp-3);
+  }
+  .par p {
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .proj__ev {
+    padding-block: var(--sp-6);
+    border-bottom: 1px solid var(--rule);
+  }
+  .proj__ev .eyebrow {
+    margin-bottom: var(--sp-4);
+  }
+  .proj__fig {
+    padding-block: var(--sp-6);
+    max-width: 46rem;
+  }
+  .proj__landscape {
+    max-width: var(--measure);
+    padding: var(--sp-4) var(--sp-5);
+    background: var(--paper-2);
+    border-left: 2px solid var(--orange);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: var(--sp-6);
+  }
+  .proj__landscape p:not(.eyebrow) {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .proj__body {
+    padding-bottom: var(--sp-6);
+  }
+
+  .proj__related {
+    padding-block: var(--sp-5);
+    border-top: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+  .proj__related ul {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--sp-2);
+    display: grid;
+    gap: var(--sp-2);
+    font-size: var(--fs-small);
+  }
+
+  .proj__foot {
+    margin-top: var(--sp-5);
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--rule);
+  }
+  .projnav {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-4);
+  }
+  .projnav__link {
+    display: grid;
+    gap: 0.15em;
+    max-width: 18rem;
+  }
+  .projnav__link--next {
+    text-align: right;
+  }
+  .projnav__dir {
+    font-size: var(--fs-tiny);
+    color: var(--ink-4);
+  }
+  .projnav__t {
+    font-weight: 700;
+  }
+  .proj__cv {
+    margin-top: var(--sp-5);
+    font-size: var(--fs-small);
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+// The numbers that carry a claim. Tabular figures, highlighter behind the
+// value, label in mono underneath. Used on research cards and project pages.
+interface Props {
+  items: { value: string; label: string }[];
+  size?: 'sm' | 'md';
+  class?: string;
+}
+const { items, size = 'md', class: cls = '' } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <dl class:list={['evidence', `evidence--${size}`, cls]}>
+      {items.map((it) => (
+        <div class="evidence__item">
+          <dt class="evidence__v">
+            <span class="hl">{it.value}</span>
+          </dt>
+          <dd class="evidence__l">{it.label}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+<style>
+  .evidence {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: var(--sp-4) var(--sp-5);
+    margin: 0;
+  }
+  .evidence__item {
+    display: grid;
+    gap: 0.15em;
+    align-content: start;
+  }
+  .evidence__v {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .evidence--sm .evidence__v {
+    font-size: calc(var(--fs-body) * 1.1);
+  }
+  .evidence__l {
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    color: var(--ink-3);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  @media (max-width: 30rem) {
+    .evidence {
+      grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+      gap: var(--sp-3) var(--sp-4);
+    }
+  }
+</style>

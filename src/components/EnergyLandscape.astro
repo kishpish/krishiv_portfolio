@@ -1,0 +1,255 @@
+---
+// Figure 0. The Müller-Brown potential: contours, the minimum-energy path
+// between its two deepest basins, its stationary points, and a walker.
+//
+// The SVG below is the whole figure. It is computed at build time, needs no
+// JavaScript, and is what a reader sees with scripts off, with reduced motion
+// set, and in the first frame before anything loads. When motion is allowed, a
+// canvas overlays the orange layer and runs the same physics live: Langevin
+// dynamics with well-tempered metadynamics, so a basin visibly fills until the
+// walker escapes over a saddle. The cursor adds a repulsive Gaussian, which is
+// the drug-as-a-force idea from the leukemia work made literal.
+import { buildLandscape } from '../lib/landscape/figure';
+
+interface Props {
+  /** `hero` is interactive; `still` is the static figure only. */
+  mode?: 'hero' | 'still';
+  caption?: string;
+  class?: string;
+}
+const { mode = 'hero', caption, class: cls = '' } = Astro.props;
+const f = buildLandscape();
+const { w, h } = f.view;
+// room for the axis furniture around the plotted square
+const pad = { l: 26, r: 8, t: 8, b: 24 };
+const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
+---
+
+<figure class:list={['landscape', `landscape--${mode}`, cls]} data-landscape={mode === 'hero' ? '' : undefined}>
+  <div class="landscape__stage">
+    <svg
+      class="landscape__svg"
+      viewBox={vb}
+      role="img"
+      aria-labelledby="landscape-title landscape-desc"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <title id="landscape-title">A two-dimensional energy landscape with three basins</title>
+      <desc id="landscape-desc">
+        A contour map of the Müller-Brown potential. Three basins are labelled A, B, and C, and two
+        saddle points are marked with a double dagger. A dashed line traces the minimum-energy path
+        from basin A over the first saddle, through basin C, over the second saddle, and down into
+        basin B. An orange trajectory shows a particle dropped onto the upper right of the surface
+        descending into basin A.
+      </desc>
+
+      <!-- shading: low energy is darker, so basins read as basins -->
+      <image href={f.shading} x="0" y="0" width={w} height={h} preserveAspectRatio="none" class="landscape__shade" />
+
+      <!-- contours -->
+      <g class="landscape__contours" fill="none" stroke-linejoin="round">
+        {
+          f.contours.map((c) => (
+            <path
+              d={c.d}
+              stroke="var(--blue)"
+              stroke-opacity={c.index ? 0.72 : 0.34}
+              stroke-width={c.index ? 1.1 : 0.65}
+            />
+          ))
+        }
+      </g>
+
+      <!-- minimum-energy path from the string method -->
+      <path class="landscape__mep" d={f.mep} fill="none" stroke="var(--ink-2)" stroke-width="1.15" stroke-dasharray="1 4.5" stroke-linecap="round" opacity="0.8" />
+
+      <!-- static trajectory: fades in along its direction of travel -->
+      <g class="landscape__traj" data-static-traj>
+        {f.trajectory.map((seg) => <path d={seg.d} fill="none" stroke="var(--orange)" stroke-width="1.6" stroke-opacity={seg.opacity} stroke-linejoin="round" stroke-linecap="round" />)}
+        <circle cx={f.trajectoryEnd[0]} cy={f.trajectoryEnd[1]} r="4.2" fill="var(--orange)" stroke="var(--paper)" stroke-width="1.6" />
+      </g>
+
+      <!-- stationary points -->
+      <g class="landscape__points">
+        {
+          f.saddles.map((p) => (
+            <text x={p.x} y={p.y + 4.5} class="landscape__saddle" text-anchor="middle">
+              ‡
+            </text>
+          ))
+        }
+        {
+          f.minima.map((p) => (
+            <>
+              <circle cx={p.x} cy={p.y} r="2" fill="var(--ink)" />
+              <text x={p.x + 6.5} y={p.y + 4} class="landscape__label">
+                {p.label}
+              </text>
+            </>
+          ))
+        }
+      </g>
+
+      <!-- axes: a quiet frame, ticks in mono -->
+      <g class="landscape__axes" stroke="var(--rule-2)" fill="none">
+        <path d={`M0 0 L0 ${h} L${w} ${h}`} />
+        {f.ticks.x.map((t) => <path d={`M${t.px} ${h} l0 4`} />)}
+        {f.ticks.y.map((t) => <path d={`M0 ${t.px} l-4 0`} />)}
+      </g>
+      <g class="landscape__ticks" fill="var(--ink-3)">
+        {f.ticks.x.map((t) => <text x={t.px} y={h + 15} text-anchor="middle">{t.v}</text>)}
+        {f.ticks.y.map((t) => <text x={-7} y={t.px + 3} text-anchor="end">{t.v}</text>)}
+      </g>
+    </svg>
+
+    {
+      mode === 'hero' && (
+        <>
+          <canvas class="landscape__canvas" data-landscape-canvas aria-hidden="true" />
+          <div class="landscape__readout mono" data-landscape-readout hidden>
+            <span class="landscape__readout-row">
+              <span class="landscape__k">basin</span>
+              <span data-r-basin>B</span>
+            </span>
+            <span class="landscape__readout-row">
+              <span class="landscape__k">E</span>
+              <span data-r-energy>0</span>
+            </span>
+            <span class="landscape__readout-row">
+              <span class="landscape__k">hills</span>
+              <span data-r-hills>0</span>
+            </span>
+          </div>
+          <button class="landscape__toggle mono" type="button" data-landscape-toggle hidden aria-pressed="false">
+            <span data-landscape-toggle-label>pause</span>
+          </button>
+        </>
+      )
+    }
+  </div>
+  {
+    caption && (
+      <figcaption class="fig__caption">
+        <span class="fig__n">Fig. 0</span>
+        <Fragment set:html={caption} />
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .landscape {
+    margin: 0;
+  }
+  .landscape__stage {
+    position: relative;
+  }
+  .landscape__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .landscape__shade {
+    image-rendering: auto;
+  }
+  .landscape__saddle {
+    font-family: var(--sans);
+    font-size: 13px;
+    fill: var(--ink-2);
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-width: 2.5px;
+  }
+  .landscape__label {
+    font-family: var(--mono);
+    font-size: 11px;
+    fill: var(--ink);
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-width: 2.5px;
+  }
+  .landscape__ticks text {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The canvas sits exactly over the plotted square and draws the live walker.
+     It stays hidden until the script decides motion is allowed. */
+  .landscape__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .landscape[data-live] .landscape__canvas {
+    opacity: 1;
+  }
+  .landscape[data-live] .landscape__traj {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .landscape__readout {
+    position: absolute;
+    right: 2%;
+    top: 2%;
+    display: grid;
+    gap: 0.1em;
+    font-size: var(--fs-tiny);
+    line-height: 1.4;
+    color: var(--ink-3);
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    padding: 0.35em 0.5em;
+    border-radius: var(--radius);
+    pointer-events: none;
+  }
+  .landscape__readout-row {
+    display: flex;
+    gap: 0.5em;
+    justify-content: space-between;
+  }
+  .landscape__k {
+    color: var(--ink-4);
+  }
+  [data-r-basin],
+  [data-r-energy],
+  [data-r-hills] {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+    min-width: 3.2em;
+    text-align: right;
+  }
+
+  .landscape__toggle {
+    position: absolute;
+    left: 2%;
+    bottom: 2%;
+    font-size: var(--fs-tiny);
+    color: var(--ink-3);
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.25em 0.6em 0.3em;
+    line-height: 1.3;
+  }
+  .landscape__toggle:hover,
+  .landscape__toggle:focus-visible {
+    color: var(--orange);
+    border-color: var(--orange);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landscape__canvas,
+    .landscape__readout,
+    .landscape__toggle {
+      display: none !important;
+    }
+    .landscape__traj {
+      opacity: 1 !important;
+    }
+  }
+</style>

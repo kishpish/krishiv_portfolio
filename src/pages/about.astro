@@ -1,0 +1,393 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CVLink from '../components/CVLink.astro';
+import { data, clean, cv } from '../lib/canonical';
+import { url, absolute } from '../lib/urls';
+
+const p = data.person;
+const ed = p.education;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    name: p.name,
+    url: absolute('/'),
+    email: `mailto:${p.email}`,
+    description: clean(data.research_statement.short),
+    knowsAbout: data.research_statement.interests,
+    sameAs: [p.profiles.github, p.profiles.linkedin, p.profiles.orcid, p.profiles.scholar].filter(Boolean),
+  },
+};
+---
+
+<Base
+  title="About"
+  description="Krishiv Potluri: research interests, positions, honors, methods, and contact."
+  og="about"
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <PageHeader eyebrow="about" title="About" />
+
+    <div class="about">
+      <div class="about__main">
+        <!-- research statement -->
+        <section class="abs" aria-labelledby="statement">
+          <h2 id="statement">What I work on</h2>
+          <div class="prose">
+            <p>
+              I work at the intersection of machine learning, computational biology, and
+              physics-based simulation, with a particular interest in the computational systems
+              that make this kind of work scalable and reproducible.
+            </p>
+            <p>
+              The thread I keep finding is a landscape. An antibody designed by optimizing a
+              transition path, a leukemic cell state with a measured basin depth, a protein
+              inhibitor whose binding is validated by the work it takes to pull it off, a
+              hydrogel chosen by searching a design space for the point that moves a damaged
+              heart toward a better one: all four are something crossing a surface and paying
+              energy to do it. I did not notice that until I wrote the four projects down next
+              to each other, and it has since changed what I pick up.
+            </p>
+            <p>
+              The fifth project is the counterweight. If the first four are models that propose
+              things, the benchmark work is about whether we would be able to tell if they were
+              wrong. I think that question is undersupplied relative to how much it decides, and
+              a good deal of what I write is some version of it.
+            </p>
+            <p>
+              I am a high school senior in Austin, Texas, and a student researcher in{' '}
+              <a href={p.affiliation.group_url}>{p.affiliation.group}</a> at the{' '}
+              <a href={p.affiliation.institute_url}>{p.affiliation.institute}</a>,
+              {' '}{p.affiliation.university}, advised by {p.affiliation.advisor}.
+            </p>
+          </div>
+        </section>
+
+        <!-- positions -->
+        <section class="abs" aria-labelledby="positions">
+          <h2 id="positions">Positions</h2>
+          <ol class="poslist">
+            {
+              data.positions.map((pos) => (
+                <li>
+                  <div class="poslist__head">
+                    <p class="poslist__org">
+                      {pos.href ? <a href={pos.href} rel="noopener">{pos.org}</a> : pos.org}
+                    </p>
+                    <p class="poslist__period mono">{pos.period}</p>
+                  </div>
+                  <p class="poslist__role">{pos.role}{pos.advisor ? `, with ${pos.advisor}` : ''}</p>
+                  <p class="poslist__sum">{clean(pos.summary)}</p>
+                </li>
+              ))
+            }
+          </ol>
+
+          <h3 class="abs__sub">Competition</h3>
+          <ol class="poslist">
+            {
+              data.hackathons.map((h) => (
+                <li>
+                  <div class="poslist__head">
+                    <p class="poslist__org">{h.name}</p>
+                    <p class="poslist__period mono">{h.date}</p>
+                  </div>
+                  <p class="poslist__role">{h.role}, {h.event}</p>
+                  <p class="poslist__sum">{clean(h.summary)}</p>
+                  <p class="links poslist__links">
+                    {h.links.map((l) => <a href={l.href} rel="noopener">{l.label}</a>)}
+                  </p>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        <!-- honors -->
+        <section class="abs" aria-labelledby="honors" id="honors">
+          <h2 id="honors-h">Honors</h2>
+          <ol class="honors">
+            {
+              data.honors.map((h) => (
+                <li>
+                  <span class="honors__y mono num">{h.year}</span>
+                  <span class="honors__b">
+                    <span class="honors__t">
+                      {h.href ? <a href={h.href} rel="noopener">{h.title}</a> : h.title}
+                    </span>
+                    <span class="honors__o">{h.org}</span>
+                    {h.detail && <span class="honors__d">{h.detail}</span>}
+                  </span>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        <!-- education -->
+        <section class="abs" aria-labelledby="education">
+          <h2 id="education">Education</h2>
+          <div class="poslist__head">
+            <p class="poslist__org">{ed.school}</p>
+            <p class="poslist__period mono">Class of {ed.class_of}</p>
+          </div>
+          <p class="poslist__role">{ed.place}</p>
+          <p class="poslist__sum">
+            Coursework beyond the school curriculum: {ed.coursework_beyond.toLowerCase()}. Full
+            transcript detail, test scores, and coursework are in the{' '}
+            <a href={url(cv.path)}>CV</a>.
+          </p>
+        </section>
+
+        <!-- beyond -->
+        <section class="abs" aria-labelledby="beyond">
+          <h2 id="beyond">Beyond the lab</h2>
+          <dl class="beyond">
+            {
+              data.beyond.map((b) => (
+                <div class="beyond__item">
+                  <dt>
+                    <span class="mono beyond__label">{b.label}</span>
+                    <span class="beyond__title">{b.title}</span>
+                  </dt>
+                  <dd>{clean(b.body)}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+      </div>
+
+      <!-- sidebar -->
+      <aside class="about__side">
+        <section class="side">
+          <p class="eyebrow">contact</p>
+          <ul class="side__links">
+            <li><a href={`mailto:${p.email}`}>{p.email}</a></li>
+            <li><a href={p.profiles.github} rel="noopener">github / {p.profiles.github_handle}</a></li>
+            <li><a href={p.profiles.linkedin} rel="noopener">linkedin</a></li>
+            <li><a href={p.profiles.orcid} rel="noopener">orcid / {p.profiles.orcid_id}</a></li>
+            {p.profiles.scholar && <li><a href={p.profiles.scholar} rel="noopener">google scholar</a></li>}
+          </ul>
+          <p class="side__cv"><CVLink variant="button" /></p>
+          <p class="side__loc mono">{p.location}</p>
+        </section>
+
+        <section class="side">
+          <p class="eyebrow">interests</p>
+          <ul class="side__plain">
+            {data.research_statement.interests.map((i) => <li>{i}</li>)}
+          </ul>
+        </section>
+
+        <section class="side">
+          <p class="eyebrow">methods and tools</p>
+          <dl class="side__methods">
+            {
+              data.methods.map((m) => (
+                <div>
+                  <dt>{m.area}</dt>
+                  <dd>{clean(m.items)}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: var(--sp-7);
+    align-items: start;
+    padding-bottom: var(--sp-6);
+  }
+  .about__main {
+    min-width: 0;
+    max-width: var(--measure);
+  }
+  .abs {
+    padding-bottom: var(--sp-7);
+  }
+  .abs h2 {
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--sp-4);
+  }
+  .abs__sub {
+    margin-top: var(--sp-5);
+    margin-bottom: var(--sp-3);
+    font-size: var(--fs-body);
+  }
+
+  .poslist {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-5);
+  }
+  .poslist__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-2);
+  }
+  .poslist__org {
+    font-weight: 700;
+  }
+  .poslist__org a {
+    color: var(--ink);
+  }
+  .poslist__org a:hover,
+  .poslist__org a:focus-visible {
+    color: var(--orange);
+  }
+  .poslist__period {
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .poslist__role {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    margin-top: 0.1em;
+  }
+  .poslist__sum {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .poslist__links {
+    margin-top: var(--sp-2);
+  }
+
+  .honors {
+    list-style: none;
+    padding: 0;
+  }
+  .honors li {
+    display: grid;
+    grid-template-columns: 4.6rem minmax(0, 1fr);
+    gap: var(--sp-3);
+    padding-block: var(--sp-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .honors__y {
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    padding-top: 0.15em;
+  }
+  .honors__b {
+    display: grid;
+    gap: 0.1em;
+  }
+  .honors__t {
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .honors__t a {
+    color: var(--ink);
+  }
+  .honors__t a:hover,
+  .honors__t a:focus-visible {
+    color: var(--orange);
+  }
+  .honors__o {
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .honors__d {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    margin-top: 0.15em;
+    text-wrap: pretty;
+  }
+
+  .beyond {
+    display: grid;
+    gap: var(--sp-4);
+  }
+  .beyond__item dt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6em;
+  }
+  .beyond__label {
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+  }
+  .beyond__title {
+    font-weight: 700;
+  }
+  .beyond__item dd {
+    margin: var(--sp-1) 0 0;
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+
+  .about__side {
+    position: sticky;
+    top: var(--sp-5);
+    display: grid;
+    gap: var(--sp-6);
+  }
+  .side__links,
+  .side__plain {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.35em;
+    font-size: var(--fs-small);
+  }
+  .side__plain li {
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .side__cv {
+    margin-top: var(--sp-4);
+  }
+  .side__loc {
+    margin-top: var(--sp-3);
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+  }
+  .side__methods {
+    display: grid;
+    gap: var(--sp-3);
+    font-size: var(--fs-small);
+  }
+  .side__methods dt {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .side__methods dd {
+    margin: 0.15em 0 0;
+    color: var(--ink-3);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 60rem) {
+    .about {
+      grid-template-columns: 1fr;
+      gap: var(--sp-6);
+    }
+    .about__side {
+      position: static;
+      max-width: var(--measure);
+    }
+  }
+</style>

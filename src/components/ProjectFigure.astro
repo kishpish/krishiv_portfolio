@@ -1,0 +1,53 @@
+---
+// Dispatches a figure id from research frontmatter to its component, and wraps
+// it as a numbered paper figure with an italic caption.
+import AmlDrugResponse from './figures/AmlDrugResponse.astro';
+import ExpressionBenchmark from './figures/ExpressionBenchmark.astro';
+import Tem171Funnel from './figures/Tem171Funnel.astro';
+import CardiacMeshes from './figures/CardiacMeshes.astro';
+
+interface Props {
+  id: string;
+  caption: string;
+  alt: string;
+  n?: string;
+  class?: string;
+}
+const { id, caption, alt, n = '1', class: cls = '' } = Astro.props;
+const map: Record<string, any> = {
+  'aml-drug-response': AmlDrugResponse,
+  'expression-benchmark': ExpressionBenchmark,
+  'tem171-funnel': Tem171Funnel,
+  'cardiac-meshes': CardiacMeshes,
+};
+const Fig = map[id];
+if (!Fig) throw new Error(`Unknown figure id "${id}". Add it to src/components/ProjectFigure.astro.`);
+---
+
+<figure class:list={['projfig', cls]}>
+  <div class="projfig__frame">
+    <Fig />
+    <span class="visually-hidden">{alt}</span>
+  </div>
+  <figcaption class="fig__caption">
+    <span class="fig__n">Fig. {n}</span>{caption}
+  </figcaption>
+</figure>
+
+<style>
+  .projfig {
+    margin: 0;
+  }
+  .projfig__frame {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper);
+    padding: var(--sp-3);
+    overflow: hidden;
+  }
+  @media (max-width: 30rem) {
+    .projfig__frame {
+      padding: var(--sp-2);
+    }
+  }
+</style>

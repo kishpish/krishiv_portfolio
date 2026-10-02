@@ -1,0 +1,123 @@
+---
+import { data, statusLabel, clean, type Publication } from '../lib/canonical';
+import { url } from '../lib/urls';
+
+interface Props {
+  items?: Publication[];
+  /** `full` shows authors and the long venue; `tight` is for the home page. */
+  variant?: 'full' | 'tight';
+}
+const { items = data.publications, variant = 'full' } = Astro.props;
+const order: Record<Publication['status'], number> = { published: 0, accepted: 1, preprint: 2, 'under-review': 3 };
+const sorted = [...items].sort((a, b) => b.year - a.year || order[a.status] - order[b.status]);
+const authorHtml = (a: string[]) =>
+  a.map((n) => (n === data.person.name ? `<strong>${n}</strong>` : n)).join(', ');
+---
+
+<ol class:list={['publist', `publist--${variant}`]}>
+  {
+    sorted.map((p, i) => (
+      <li class="publist__item" id={p.id}>
+        <span class="publist__n mono" aria-hidden="true">[{sorted.length - i}]</span>
+        <div class="publist__body">
+          <p class="publist__title">
+            {p.project ? <a href={url(`/research/${p.project}/`)}>{clean(p.title)}</a> : clean(p.title)}
+          </p>
+          {variant === 'full' && (
+            <p class="publist__authors" set:html={authorHtml(p.authors)} />
+          )}
+          <p class="publist__venue">
+            <span>{variant === 'full' ? p.venue_long : p.venue}</span>
+            <span class="publist__year num">{p.year}</span>
+            <span class:list={['badge', `badge--${p.status}`]}>{statusLabel[p.status]}</span>
+          </p>
+          {p.note && <p class="publist__note">{p.note}</p>}
+          {p.links.length > 0 && (
+            <p class="links publist__links">
+              {p.links.map((l) => (
+                <a href={l.href} rel="noopener">
+                  {l.label}
+                </a>
+              ))}
+              {p.doi && <a href={`https://doi.org/${p.doi}`} rel="noopener">doi</a>}
+            </p>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .publist {
+    list-style: none;
+    padding: 0;
+    counter-reset: pub;
+  }
+  .publist__item {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: var(--sp-3);
+    padding-block: var(--sp-5);
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: var(--sp-5);
+  }
+  .publist__item:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+  .publist--tight .publist__item {
+    padding-block: var(--sp-4);
+  }
+  .publist__n {
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    padding-top: 0.2em;
+  }
+  .publist__body {
+    max-width: var(--measure);
+  }
+  .publist__title {
+    font-weight: 700;
+    line-height: 1.35;
+    text-wrap: pretty;
+  }
+  .publist__title a {
+    color: var(--ink);
+  }
+  .publist__title a:hover,
+  .publist__title a:focus-visible {
+    color: var(--orange);
+  }
+  .publist__authors {
+    margin-top: var(--sp-1);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .publist__venue {
+    margin-top: var(--sp-2);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .publist__year {
+    color: var(--ink-3);
+  }
+  .publist__note {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-small);
+    font-style: italic;
+    color: var(--ink-3);
+  }
+  .publist__links {
+    margin-top: var(--sp-3);
+  }
+  @media (max-width: 36rem) {
+    .publist__item {
+      grid-template-columns: 1fr;
+      gap: var(--sp-1);
+    }
+  }
+</style>

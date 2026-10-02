@@ -1,0 +1,313 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import EnergyLandscape from '../components/EnergyLandscape.astro';
+import { data } from '../lib/canonical';
+import { url } from '../lib/urls';
+
+const conflicts = Object.entries(data.conflicts);
+---
+
+<Base
+  title="Colophon"
+  description="Why there is an energy landscape on the front page, how it is computed, and what this site is built with."
+  og="colophon"
+>
+  <div class="wrap col">
+    <PageHeader
+      eyebrow="colophon"
+      title="About the figure"
+      lede="Why there is a contour map on the front page, what it is computing, and what the rest of the site is made of."
+    />
+
+    <div class="col__grid">
+      <div class="prose col__body">
+        <h2 id="why">Why a landscape</h2>
+        <p>
+          I wrote my four completed projects down next to each other, intending to find a line
+          that covered all of them for an application essay, and found something I had not
+          expected: they are the same problem.
+        </p>
+        <p>
+          The antibody work generates designs by optimizing a transition path across an energy
+          surface rather than screening a library. The leukemia work models cell density as a
+          Boltzmann distribution and recovers a landscape, so that a drug becomes a force that
+          collapses a basin. The protein inhibitor work validates binding by pulling the binder
+          off its target and integrating the work, which is a landscape traversal with a price
+          tag. The hydrogel work searches a design space for the point that moves a patient's
+          heart from one state to a better one.
+        </p>
+        <p>
+          Every one of those is a thing moving across a surface, paying energy, and settling
+          somewhere. That is my research program in one sentence, and I did not write it, I
+          discovered it. So the figure is not decoration applied to the site. It is the
+          argument.
+        </p>
+
+        <h2 id="what">What the figure actually is</h2>
+        <p>
+          It is the Müller-Brown potential, a sum of four anisotropic Gaussians published in
+          1979 as a test surface for path-finding methods. It has three minima and two saddle
+          points, and it is the standard thing you draw when you want to show someone what a
+          reaction path is. Choosing it rather than inventing a shape matters: it is a real
+          function from the literature, and the picture is computed, not drawn.
+        </p>
+        <p>Everything in the figure is derived at build time from that function:</p>
+        <ul>
+          <li>
+            <strong>The contours</strong> come from marching squares over a sampled grid. Every
+            fifth line is drawn heavier, the way an index contour works on a topographic map.
+          </li>
+          <li>
+            <strong>The stationary points</strong> are found by Newton refinement on the
+            analytic gradient. The minima are labelled A, B, and C; the saddles carry the double
+            dagger that transition states are marked with.
+          </li>
+          <li>
+            <strong>The dashed line</strong> is the minimum-energy path between the two deepest
+            basins, computed with the simplified string method: evolve a chain of points down
+            the gradient, redistribute them at equal arc length, repeat until it stops moving.
+          </li>
+          <li>
+            <strong>The orange trace</strong> is a particle under Langevin dynamics, integrated
+            with a BAOAB scheme. In the static version it is dropped on the upper wall and rolls
+            into a basin.
+          </li>
+        </ul>
+
+        <h2 id="live">What moves, and why it moves that way</h2>
+        <p>
+          When your browser allows motion, the same physics runs live, with one addition:
+          well-tempered metadynamics. The walker deposits a Gaussian hill wherever it lingers,
+          and each new hill is smaller where the accumulated bias is already large. The effect
+          is visible: the basin the particle is sitting in slowly fills with orange contours
+          until it is shallow enough to escape over a saddle, and then the process starts again
+          in the next basin.
+        </p>
+        <p>
+          That is not an animation chosen to look nice. It is the standard method for sampling
+          a landscape whose barriers are too high to cross by waiting, and watching a basin fill
+          is the most honest picture of what sampling a rough surface feels like.
+        </p>
+        <p>
+          Moving the cursor over the figure adds a repulsive Gaussian at the pointer, which
+          pushes the walker out of wherever it has settled. That is the leukemia project's
+          framing made literal: a drug as a force that collapses a basin.
+        </p>
+
+        <h2 id="degradation">How it degrades</h2>
+        <p>
+          The whole figure is server-rendered SVG. With JavaScript off, with reduced motion set,
+          on a slow connection, and in the first frame before anything loads, you get the
+          complete static figure, including a trajectory. The canvas only ever overlays the
+          orange layer, and it checks{' '}
+          <code>prefers-reduced-motion</code> before it starts, stops when scrolled out of
+          view, stops when the tab is hidden, and can be paused by hand. If the script throws,
+          the SVG underneath is still the figure.
+        </p>
+
+        <h2 id="motif">The recurring mark</h2>
+        <p>
+          The small diagram at each section break on the front page is the energy along that
+          same minimum-energy path, as a reaction-coordinate profile. The marker advances one
+          stop per section, from basin B at the top, over a saddle, through C, over the second
+          saddle, and into the global minimum A at the foot of the page. Reading the home page
+          top to bottom is a traversal of the path in the hero figure, and the number next to
+          the marker is the actual energy at that point.
+        </p>
+
+        <h2 id="type">Type and colour</h2>
+        <p>
+          The typeface is Lato, which comes from the academic homepage template that a large
+          fraction of researchers I read use, by way of Jon Barron and Tairan He. The two link
+          colours are from the same stylesheet: <span class="swatch swatch--blue"></span>{' '}
+          <code>#1772d0</code> for links and <span class="swatch swatch--orange"></span>{' '}
+          <code>#f09228</code> on hover, with <span class="swatch swatch--hl"></span>{' '}
+          <code>#ffffd0</code> as a highlighter.
+        </p>
+        <p>
+          What I did not keep is the 14-pixel, table-based, single-column scale that template
+          has carried since the mid-2000s. The type here is built on a major-third scale (ratio
+          1.25) rebased so that body text is readable on a laptop, with the template's 14, 22,
+          and 32 pixel sizes sitting on steps 0, 2, and 4 of it. Numbers are set with tabular
+          figures everywhere they line up, which is most places on this site.
+        </p>
+        <p>
+          The colour assignment follows the figure rather than the other way round: blue is the
+          surface, and orange is what moves across it. The link hover is therefore the same
+          event as the walker leaving a basin.
+        </p>
+
+        <h2 id="built">Built with</h2>
+        <p>
+          Astro, building to static files, deployed to GitHub Pages by a workflow on every push.
+          Content is Markdown: adding a note means adding a <code>.md</code> file. Math is
+          rendered at build time with KaTeX, so there is no client-side typesetting and no
+          flash. Lato and IBM Plex Mono are self-hosted as subsets with size-adjusted fallbacks,
+          so no text moves when they load. There is no analytics and no tracking.
+        </p>
+        <p>
+          The figures on the project pages are plain SVG generated from data files extracted
+          from the project repositories, with no charting library. Each one names its source.
+        </p>
+        <p>
+          The source for this site is <a href={data.site.repo} rel="noopener">on GitHub</a>.
+        </p>
+
+        <h2 id="sources">Where the facts come from</h2>
+        <p>
+          Everything factual on this site reads from one data file, so a number cannot be right
+          on one page and wrong on another. My CV, resume, and activities list disagreed with
+          each other in a few places, written as they were at different times for different
+          readers. Where they did, this site takes the most conservative defensible version, and
+          records the disagreement rather than hiding it.
+        </p>
+      </div>
+
+      <aside class="col__side">
+        <EnergyLandscape mode="hero" />
+        <p class="col__figcap">
+          The same figure, here so you can push it around while reading about it.
+        </p>
+      </aside>
+    </div>
+
+    <section class="col__conflicts" aria-labelledby="conflicts">
+      <h2 id="conflicts">Source disagreements</h2>
+      <p class="col__conflicts-lede">
+        Each row is a place my own documents disagreed. The site uses the "shown" column.
+      </p>
+      <div class="table-scroll">
+        <table class="ctable">
+          <thead>
+            <tr>
+              <th scope="col">claim</th>
+              <th scope="col">shown on this site</th>
+              <th scope="col">why</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              conflicts.map(([key, c]) => (
+                <tr>
+                  <th scope="row" class="mono">{key.replace(/_/g, ' ')}</th>
+                  <td>{c.chosen}</td>
+                  <td class="ctable__why">{c.why.replace(/\s+/g, ' ').trim()}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .col {
+    padding-bottom: var(--sp-6);
+  }
+  .col__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    gap: var(--sp-7);
+    align-items: start;
+  }
+  .col__side {
+    position: sticky;
+    top: var(--sp-5);
+  }
+  .col__figcap {
+    margin-top: var(--sp-3);
+    font-size: var(--fs-small);
+    font-style: italic;
+    color: var(--ink-3);
+  }
+  .col__body :global(code) {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.08em 0.32em;
+  }
+  .swatch {
+    display: inline-block;
+    width: 0.78em;
+    height: 0.78em;
+    border-radius: 2px;
+    border: 1px solid var(--rule-2);
+    vertical-align: -0.03em;
+  }
+  .swatch--blue {
+    background: var(--blue);
+  }
+  .swatch--orange {
+    background: var(--orange);
+  }
+  .swatch--hl {
+    background: var(--highlight);
+  }
+
+  .col__conflicts {
+    margin-top: var(--sp-8);
+    padding-top: var(--sp-6);
+    border-top: 1px solid var(--rule);
+  }
+  .col__conflicts-lede {
+    margin-top: var(--sp-2);
+    margin-bottom: var(--sp-4);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .ctable {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 46rem;
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+  .ctable th[scope='col'] {
+    text-align: left;
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: var(--fs-tiny);
+    text-transform: lowercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--ink-2);
+    padding: 0 var(--sp-4) var(--sp-2) 0;
+  }
+  .ctable th[scope='row'] {
+    text-align: left;
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    white-space: nowrap;
+    vertical-align: top;
+    padding: var(--sp-3) var(--sp-4) var(--sp-3) 0;
+  }
+  .ctable td {
+    border-bottom: 1px solid var(--rule);
+    padding: var(--sp-3) var(--sp-4) var(--sp-3) 0;
+    vertical-align: top;
+  }
+  .ctable tbody tr th[scope='row'] {
+    border-bottom: 1px solid var(--rule);
+  }
+  .ctable__why {
+    color: var(--ink-3);
+    max-width: 34rem;
+  }
+
+  @media (max-width: 64rem) {
+    .col__grid {
+      grid-template-columns: 1fr;
+      gap: var(--sp-6);
+    }
+    .col__side {
+      position: static;
+      order: -1;
+      max-width: 32rem;
+    }
+  }
+</style>

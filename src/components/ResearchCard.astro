@@ -1,0 +1,138 @@
+---
+// A research card: figure first where there is one, then the venue badge, the
+// linked title, the plain-language question, and the evidence.
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/urls';
+import { publication, statusLabel, clean } from '../lib/canonical';
+import Evidence from './Evidence.astro';
+import ProjectFigure from './ProjectFigure.astro';
+
+interface Props {
+  entry: CollectionEntry<'research'>;
+  n: number;
+  compact?: boolean;
+}
+const { entry, n, compact = false } = Astro.props;
+const d = entry.data;
+const pub = d.paper ? publication(d.paper) : null;
+const href = url(`/research/${entry.id}/`);
+---
+
+<article class:list={['rcard', compact && 'rcard--compact']}>
+  <div class="rcard__index mono" aria-hidden="true">{String(n).padStart(2, '0')}</div>
+
+  <div class="rcard__body">
+    <p class="rcard__badges">
+      {pub && <span class:list={['badge', 'badge--venue']}>{pub.venue}</span>}
+      {pub && <span class:list={['badge', `badge--${pub.status}`]}>{statusLabel[pub.status]}</span>}
+      {!pub && d.status && <span class="badge badge--in-progress">{d.status}</span>}
+      {d.honor && <span class="badge badge--honor">{d.honor}</span>}
+    </p>
+
+    <h3 class="rcard__title">
+      <a href={href}>{d.title}</a>
+    </h3>
+
+    <p class="rcard__q">{clean(d.question)}</p>
+
+    {!compact && d.evidence.length > 0 && <Evidence items={d.evidence} size="sm" class="rcard__ev" />}
+
+    <p class="rcard__meta meta">
+      <span>{d.role}</span>
+      <span>{d.period}</span>
+    </p>
+  </div>
+
+  {
+    !compact && d.figure && (
+      <div class="rcard__fig">
+        <ProjectFigure id={d.figure.id} caption={clean(d.figure.caption)} alt={clean(d.figure.alt)} n={String(n)} />
+      </div>
+    )
+  }
+</article>
+
+<style>
+  .rcard {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: var(--sp-2) var(--sp-4);
+    padding-block: var(--sp-6);
+    border-top: 1px solid var(--rule);
+  }
+  /* On a wide screen the figure sits beside the text, which is how a paper
+     would set it and keeps the card from running down the page. */
+  @media (min-width: 72rem) {
+    .rcard:not(.rcard--compact):has(.rcard__fig) {
+      grid-template-columns: 2.6rem minmax(0, 1fr) minmax(0, 1.08fr);
+      column-gap: var(--sp-6);
+    }
+    .rcard:not(.rcard--compact):has(.rcard__fig) .rcard__fig {
+      grid-column: 3;
+      grid-row: 1;
+      margin-top: 0;
+      max-width: none;
+    }
+  }
+  .rcard__index {
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    padding-top: 0.35em;
+    font-variant-numeric: tabular-nums;
+  }
+  .rcard__body {
+    max-width: var(--measure);
+  }
+  .rcard__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin-bottom: var(--sp-3);
+  }
+  .rcard__title {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .rcard__title a {
+    color: var(--ink);
+  }
+  .rcard__title a:hover,
+  .rcard__title a:focus-visible {
+    color: var(--orange);
+  }
+  .rcard__q {
+    margin-top: var(--sp-3);
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .rcard__ev {
+    margin-top: var(--sp-5);
+  }
+  .rcard__meta {
+    margin-top: var(--sp-4);
+  }
+  .rcard__fig {
+    grid-column: 2;
+    margin-top: var(--sp-5);
+    max-width: 44rem;
+  }
+  .rcard--compact {
+    padding-block: var(--sp-4);
+  }
+
+  @media (max-width: 36rem) {
+    .rcard {
+      grid-template-columns: 1fr;
+      gap: var(--sp-2);
+      padding-block: var(--sp-5);
+    }
+    .rcard__index {
+      padding-top: 0;
+    }
+    .rcard__fig {
+      grid-column: 1;
+      margin-top: var(--sp-4);
+    }
+  }
+</style>

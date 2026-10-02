@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="An energy landscape with a particle in a basin">
+  <rect width="64" height="64" rx="10" fill="#fbfaf6"/>
+  <g fill="none" stroke="#1772d0" stroke-linecap="round">
+    <path d="M6 44c7 0 9-19 17-19s9 13 16 13 8-20 19-20" stroke-width="3" opacity="0.95"/>
+    <path d="M6 53c7 0 9-19 17-19s9 13 16 13 8-20 19-20" stroke-width="2" opacity="0.4"/>
+  </g>
+  <circle cx="23" cy="30.5" r="5" fill="#f09228"/>
+</svg>

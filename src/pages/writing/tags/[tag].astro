@@ -1,0 +1,112 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { url } from '../../../lib/urls';
+import { allPosts, allTags, tagSlug } from '../../../lib/posts';
+
+export async function getStaticPaths() {
+  const tags = await allTags();
+  const posts = await allPosts();
+  return tags.map((t) => ({
+    params: { tag: t.slug },
+    props: { tag: t.tag, posts: posts.filter((p) => p.data.tags.includes(t.tag)), tags },
+  }));
+}
+
+const { tag, posts, tags } = Astro.props;
+---
+
+<Base
+  title={`Notes tagged ${tag}`}
+  description={`Technical notes by Krishiv Potluri tagged ${tag}.`}
+  og="writing"
+>
+  <div class="wrap">
+    <PageHeader
+      eyebrow="writing / tag"
+      title={tag}
+      lede={`${posts.length} ${posts.length === 1 ? 'note' : 'notes'}.`}
+    />
+
+    <nav class="tagbar" aria-label="All tags">
+      <span class="tagbar__label mono">all tags</span>
+      <ul>
+        {
+          tags.map((t) => (
+            <li>
+              <a
+                class="tagpill"
+                href={url(`/writing/tags/${t.slug}/`)}
+                aria-current={t.slug === tagSlug(tag) ? 'page' : undefined}
+              >
+                {t.tag}
+                <span class="tagpill__n num">{t.count}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="taglist">
+      {posts.map((post) => <PostCard post={post} showSection level={2} />)}
+    </div>
+
+    <p class="tagfoot mono"><a href={url('/writing/')}>← All notes</a></p>
+  </div>
+</Base>
+
+<style>
+  .tagbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+    padding-bottom: var(--sp-5);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tagbar__label {
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+  }
+  .tagbar ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+  }
+  .tagpill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45em;
+    font-family: var(--mono);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    border: 1px solid var(--rule-2);
+    border-radius: 999px;
+    padding: 0.2em 0.7em 0.25em;
+  }
+  .tagpill:hover,
+  .tagpill:focus-visible {
+    color: var(--orange);
+    border-color: var(--orange);
+  }
+  .tagpill[aria-current='page'] {
+    background: var(--highlight);
+    border-color: var(--ink-3);
+    color: var(--ink);
+  }
+  .tagpill__n {
+    font-size: 0.85em;
+    color: var(--ink-4);
+  }
+  .taglist {
+    border-bottom: 1px solid var(--rule);
+  }
+  .tagfoot {
+    margin-top: var(--sp-4);
+    font-size: var(--fs-small);
+  }
+</style>

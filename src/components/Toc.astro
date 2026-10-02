@@ -1,0 +1,103 @@
+---
+// Per-post table of contents, built from the H2s the renderer collected.
+// Current-section highlighting is progressive enhancement: the list is a plain
+// set of anchors and works without it.
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+const items = Astro.props.headings.filter((h) => h.depth === 2);
+---
+
+{
+  items.length > 1 && (
+    <nav class="toc" aria-labelledby="toc-h" data-toc>
+      <p class="eyebrow" id="toc-h">contents</p>
+      <ol>
+        {items.map((h) => (
+          <li>
+            <a href={`#${h.slug}`} data-toc-link={h.slug}>
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .toc ol {
+    list-style: none;
+    padding: 0;
+    counter-reset: toc;
+    display: grid;
+    gap: 0.4em;
+  }
+  .toc li {
+    counter-increment: toc;
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: var(--fs-tiny);
+    color: var(--ink-4);
+    font-variant-numeric: tabular-nums;
+  }
+  .toc a {
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .toc a:hover,
+  .toc a:focus-visible {
+    color: var(--orange);
+  }
+  .toc a[data-current] {
+    color: var(--ink);
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  // Mark the heading currently nearest the top of the viewport.
+  const nav = document.querySelector<HTMLElement>('[data-toc]');
+  if (nav && 'IntersectionObserver' in window) {
+    const links = new Map<string, HTMLAnchorElement>();
+    for (const a of nav.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')) {
+      links.set(a.dataset.tocLink!, a);
+    }
+    const headings = [...links.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    let current = '';
+    const update = () => {
+      let found = '';
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top <= window.innerHeight * 0.3) found = h.id;
+      }
+      if (found === current) return;
+      if (current) links.get(current)?.removeAttribute('data-current');
+      current = found;
+      if (current) links.get(current)?.setAttribute('data-current', '');
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
+  }
+</script>

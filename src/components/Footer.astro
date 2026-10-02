@@ -1,0 +1,125 @@
+---
+import { data, cv } from '../lib/canonical';
+import { url } from '../lib/urls';
+
+const p = data.person;
+const links = [
+  { label: 'email', href: `mailto:${p.email}` },
+  { label: 'github', href: p.profiles.github },
+  { label: 'linkedin', href: p.profiles.linkedin },
+  { label: 'orcid', href: p.profiles.orcid },
+  ...(p.profiles.scholar ? [{ label: 'scholar', href: p.profiles.scholar }] : []),
+  { label: 'rss', href: url('/rss.xml') },
+].filter(Boolean);
+const year = 2026;
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <div class="site-footer__col">
+      <p class="site-footer__name">{p.name}</p>
+      <p class="muted site-footer__where">
+        {p.affiliation.group}, <a href={p.affiliation.institute_url}>{p.affiliation.institute_short}</a>, {p.affiliation.university_short}
+      </p>
+      <p class="site-footer__cv">
+        <a href={url(cv.path)}>CV (PDF)</a>
+        <span class="mono muted"> updated {cv.updated.short}</span>
+      </p>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Elsewhere">
+      <p class="eyebrow">elsewhere</p>
+      <ul class="site-footer__links">
+        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Site">
+      <p class="eyebrow">site</p>
+      <ul class="site-footer__links">
+        <li><a href={url('/research/')}>Research</a></li>
+        <li><a href={url('/publications/')}>Papers</a></li>
+        <li><a href={url('/writing/')}>Writing</a></li>
+        <li><a href={url('/about/')}>About</a></li>
+        <li><a href={url('/colophon/')}>Colophon</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="wrap site-footer__base">
+    <p class="mono muted">
+      <span>© {year} {p.name}</span>
+      <span class="site-footer__sep">·</span>
+      <span>{p.location}</span>
+      <span class="site-footer__sep">·</span>
+      <!-- The whole site is one long walk downhill, so the last thing on it is
+           the bottom of the well. Hover it. -->
+      <span class="site-footer__egg" title="the global minimum">
+        <span aria-hidden="true">E = &minus;146.7</span>
+        <span class="visually-hidden">The energy at the deepest basin of the landscape in Figure 0.</span>
+      </span>
+    </p>
+    <p class="mono muted site-footer__src">
+      <a href={`${data.site.repo}`}>source</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--sp-9);
+    border-top: 1px solid var(--rule);
+    background: var(--paper-2);
+    padding-block: var(--sp-6) var(--sp-5);
+  }
+  .site-footer__inner {
+    display: grid;
+    gap: var(--sp-5) var(--sp-6);
+    grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 42rem) {
+    .site-footer__inner {
+      grid-template-columns: 1fr 1fr;
+    }
+    .site-footer__col:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+  .site-footer__name {
+    font-weight: 700;
+  }
+  .site-footer__where,
+  .site-footer__cv {
+    font-size: var(--fs-small);
+    margin-top: var(--sp-1);
+  }
+  .site-footer__links {
+    list-style: none;
+    padding: 0;
+    font-size: var(--fs-small);
+    display: grid;
+    gap: 0.25em;
+  }
+  .site-footer__base {
+    margin-top: var(--sp-6);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-4);
+    justify-content: space-between;
+    font-size: var(--fs-tiny);
+  }
+  .site-footer__sep {
+    margin: 0 0.5em;
+    color: var(--ink-4);
+  }
+  .site-footer__egg {
+    cursor: help;
+    border-bottom: 1px dotted var(--rule-2);
+    transition: color 0.15s ease;
+  }
+  .site-footer__egg:hover {
+    color: var(--orange-ink);
+  }
+</style>

@@ -5,6 +5,7 @@
 import { deflateSync } from 'node:zlib';
 import { V, DOMAIN, LEVELS, MINIMA, SADDLES, isIndexLevel } from './mb';
 import { sampleGrid, isoSegments, joinSegments } from './contours';
+import { shadeAlpha } from './shade';
 import { stringMethod, type PathPoint } from './string-method';
 import { Walker, DEFAULT_PARAMS } from './sim';
 
@@ -25,13 +26,6 @@ export interface ContourPath {
   level: number;
   index: boolean;
   d: string;
-}
-
-/** Energy → shading opacity, shared with the browser renderer. */
-export const SHADE = { lo: -150, hi: 45, maxAlpha: 0.2, gamma: 1.35 };
-export function shadeAlpha(E: number): number {
-  const t = Math.min(1, Math.max(0, (E - SHADE.lo) / (SHADE.hi - SHADE.lo)));
-  return SHADE.maxAlpha * Math.pow(1 - t, SHADE.gamma);
 }
 
 /** Minimal PNG encoder (RGBA, no filtering), so the shading needs no image dependency. */

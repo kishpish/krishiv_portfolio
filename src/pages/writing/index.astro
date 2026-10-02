@@ -1,0 +1,307 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PostCard from '../../components/PostCard.astro';
+import NotionCard from '../../components/NotionCard.astro';
+import { data, clean } from '../../lib/canonical';
+import { url, absolute } from '../../lib/urls';
+import { groupedPosts, allTags, allPosts } from '../../lib/posts';
+
+const groups = await groupedPosts((p) => p.data.status !== 'in progress');
+const inProgress = (await allPosts()).filter((p) => p.data.status === 'in progress');
+const tags = await allTags();
+const notion = data.notion.posts.filter((p) => !p.hidden);
+const total = (await allPosts()).length;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: `${data.person.name}: writing`,
+  url: absolute('/writing/'),
+  author: { '@type': 'Person', name: data.person.name, url: absolute('/') },
+  description: clean(data.writing.intro),
+};
+---
+
+<Base
+  title="Writing"
+  description="Technical notes on machine learning for biology: energy-based models, score functions, benchmarks, protein language models, and the systems underneath. Organized by subject, not by date."
+  og="writing"
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <PageHeader eyebrow="writing" title="Notes" lede={clean(data.writing.intro)}>
+      <p class="whead__honest">
+        Two things worth saying up front. There are no dates on these, because they are
+        organized by subject and by depth rather than by recency. And I edit them in place
+        when I find out I was wrong, which means some of them are currently wrong in ways I
+        have not found yet.
+      </p>
+      <p class="whead__count mono">
+        {total} notes · {groups.length} sections · <a href={url('/rss.xml')}>RSS</a>
+      </p>
+    </PageHeader>
+
+    <!-- tag filter: real links to real pages, so it works without JavaScript -->
+    <nav class="tagbar" aria-label="Filter by tag">
+      <span class="tagbar__label mono">tags</span>
+      <ul>
+        {
+          tags.map((t) => (
+            <li>
+              <a class="tagpill" href={url(`/writing/tags/${t.slug}/`)}>
+                {t.tag}
+                <span class="tagpill__n num">{t.count}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="wgrid">
+    <div class="wgrid__main">
+    {
+      groups.map((g) => (
+        <section class="wsec" aria-labelledby={`sec-${g.slug}`}>
+          <div class="wsec__head">
+            <h2 id={`sec-${g.slug}`}>{g.name}</h2>
+            {g.subtitle && <p class="wsec__sub">{g.subtitle}</p>}
+            <span class="wsec__n mono">{g.posts.length}</span>
+          </div>
+          <div class="wsec__list">
+            {g.posts.map((post) => <PostCard post={post} />)}
+          </div>
+        </section>
+      ))
+    }
+
+    {
+      inProgress.length > 0 && (
+        <section class="wsec wsec--progress" aria-labelledby="sec-progress">
+          <div class="wsec__head">
+            <h2 id="sec-progress">In progress</h2>
+            <p class="wsec__sub">
+              Rough, unfinished, and published anyway. I would rather put a thought up with a
+              label on it than sit on it until it is polished.
+            </p>
+            <span class="wsec__n mono">{inProgress.length}</span>
+          </div>
+          <div class="wsec__list">
+            {inProgress.map((post) => <PostCard post={post} />)}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      notion.length > 0 && (
+        <section class="wsec" aria-labelledby="sec-elsewhere">
+          <div class="wsec__head">
+            <h2 id="sec-elsewhere">Elsewhere</h2>
+            <p class="wsec__sub">
+              Longer walkthroughs of specific tools, written while using them, and still living
+              on Notion where I drafted them.
+            </p>
+            <span class="wsec__n mono">{notion.length}</span>
+          </div>
+          <div class="wsec__list">
+            {notion.map((n) => <NotionCard title={n.title} url={n.url} tag={n.tag} summary={clean(n.summary)} minutes={n.minutes} />)}
+          </div>
+          <p class="wsec__more mono">
+            <a href={data.notion.index_url} rel="noopener">{data.notion.index_title} ↗</a>
+          </p>
+        </section>
+      )
+    }
+    </div>
+
+    <aside class="wgrid__side">
+      <nav class="wnav" aria-label="Sections">
+        <p class="eyebrow">sections</p>
+        <ol>
+          {
+            groups.map((g) => (
+              <li>
+                <a href={`#sec-${g.slug}`}>{g.name}</a>
+                <span class="wnav__n mono num">{g.posts.length}</span>
+              </li>
+            ))
+          }
+          {inProgress.length > 0 && (
+            <li>
+              <a href="#sec-progress">In progress</a>
+              <span class="wnav__n mono num">{inProgress.length}</span>
+            </li>
+          )}
+          {notion.length > 0 && (
+            <li>
+              <a href="#sec-elsewhere">Elsewhere</a>
+              <span class="wnav__n mono num">{notion.length}</span>
+            </li>
+          )}
+        </ol>
+      </nav>
+
+      <div class="wfeed">
+        <p class="eyebrow">subscribe</p>
+        <p><a href={url('/rss.xml')}>RSS feed</a></p>
+        <p class="wfeed__note">
+          New notes and edits to existing ones both show up there.
+        </p>
+      </div>
+    </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .whead__honest {
+    margin-top: var(--sp-4);
+    max-width: var(--measure);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    text-wrap: pretty;
+  }
+  .whead__count {
+    margin-top: var(--sp-4);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+
+  .tagbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-2) var(--sp-3);
+    padding-bottom: var(--sp-6);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tagbar__label {
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+  }
+  .tagbar ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+  }
+  .tagpill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45em;
+    font-family: var(--mono);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    border: 1px solid var(--rule-2);
+    border-radius: 999px;
+    padding: 0.2em 0.7em 0.25em;
+    transition:
+      border-color 0.12s ease,
+      color 0.12s ease;
+  }
+  .tagpill:hover,
+  .tagpill:focus-visible {
+    color: var(--orange);
+    border-color: var(--orange);
+  }
+  .tagpill__n {
+    font-size: 0.85em;
+    color: var(--ink-4);
+  }
+
+  .wgrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 13rem;
+    gap: var(--sp-7);
+    align-items: start;
+  }
+  .wgrid__main {
+    min-width: 0;
+  }
+  .wgrid__side {
+    position: sticky;
+    top: var(--sp-5);
+    padding-top: var(--sp-7);
+    display: grid;
+    gap: var(--sp-6);
+  }
+  .wnav ol {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.4em;
+  }
+  .wnav li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    align-items: baseline;
+    font-size: var(--fs-small);
+  }
+  .wnav__n {
+    color: var(--ink-4);
+    font-size: var(--fs-tiny);
+  }
+  .wfeed p:not(.eyebrow) {
+    font-size: var(--fs-small);
+  }
+  .wfeed__note {
+    margin-top: var(--sp-2);
+    color: var(--ink-3);
+    text-wrap: pretty;
+  }
+  @media (max-width: 60rem) {
+    .wgrid {
+      grid-template-columns: 1fr;
+      gap: var(--sp-4);
+    }
+    .wgrid__side {
+      position: static;
+      padding-top: var(--sp-5);
+      order: -1;
+      max-width: var(--measure);
+    }
+  }
+
+  .wsec {
+    padding-block: var(--sp-7) 0;
+  }
+  .wsec__head {
+    position: relative;
+    max-width: var(--measure);
+    padding-right: 2.5rem;
+    margin-bottom: var(--sp-2);
+  }
+  .wsec__head h2 {
+    font-size: var(--fs-h2);
+  }
+  .wsec__sub {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    text-wrap: pretty;
+  }
+  .wsec__n {
+    position: absolute;
+    right: 0;
+    top: 0.2em;
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    font-variant-numeric: tabular-nums;
+  }
+  .wsec__list {
+    border-bottom: 1px solid var(--rule);
+    margin-top: var(--sp-4);
+  }
+  .wsec--progress .wsec__list {
+    border-left: 2px dashed var(--orange);
+    padding-left: var(--sp-4);
+  }
+  .wsec__more {
+    margin-top: var(--sp-3);
+    font-size: var(--fs-small);
+  }
+</style>

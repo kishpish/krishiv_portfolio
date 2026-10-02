@@ -1,0 +1,99 @@
+---
+// Ten patient meshes: size, and what the tagging step labelled in each.
+// Data: src/data/figures/cardiac-meshes.json.
+import raw from '../../data/figures/cardiac-meshes.json';
+import { linear, fmt, PALETTE } from '../../lib/figures/plot';
+
+const pts = raw.patients as { id: string; el: number; nd: number; inf: number; bz: number }[];
+const W = 560;
+const H = 300;
+const gap = 34;
+const m = { t: 26, r: 10, b: 54, l: 46 };
+const panelW = (W - m.l - m.r - gap) / 2;
+const ih = H - m.t - m.b;
+
+const xBand = (i: number, x0: number) => x0 + ((i + 0.5) * panelW) / pts.length;
+const yEl = linear([0, 500_000], [m.t + ih, m.t]);
+const yPct = linear([0, 26], [m.t + ih, m.t]);
+const x1 = m.l;
+const x2 = m.l + panelW + gap;
+const short = (id: string) => id.replace(/^SCD0*/, '').replace(/01$/, '');
+---
+
+<svg class="fig-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Left panel: mesh element count per patient. Right panel: percentage of each mesh labelled infarct and border zone.">
+  <!-- panel 1: mesh size -->
+  <text class="fig-panel" x={x1} y={m.t - 10} fill={PALETTE.ink}>mesh size</text>
+  <g stroke={PALETTE.rule} stroke-width="0.6" stroke-dasharray="2 4">
+    {yEl.ticks(4).map((t) => <line x1={x1} x2={x1 + panelW} y1={yEl(t)} y2={yEl(t)} />)}
+  </g>
+  {
+    pts.map((p, i) => (
+      <g>
+        <line x1={xBand(i, x1)} x2={xBand(i, x1)} y1={yEl(0)} y2={yEl(p.el)} stroke={PALETTE.rule} stroke-width="1" />
+        <circle cx={xBand(i, x1)} cy={yEl(p.el)} r="3.6" fill={PALETTE.blue} fill-opacity="0.8" />
+      </g>
+    ))
+  }
+  <g stroke={PALETTE.ink3} stroke-width="1" fill="none">
+    <path d={`M${x1} ${m.t} L${x1} ${m.t + ih} L${x1 + panelW} ${m.t + ih}`} />
+  </g>
+  <g class="fig-tick" fill={PALETTE.ink3}>
+    {yEl.ticks(4).map((t) => <text x={x1 - 6} y={yEl(t) + 3.5} text-anchor="end">{t === 0 ? '0' : `${fmt(t / 1000, 0)}k`}</text>)}
+  </g>
+  <text class="fig-label" x={x1 + 6} y={m.t + 12} fill={PALETTE.ink2}>tetrahedra per heart</text>
+  <text class="fig-label" x={x1 + panelW} y={m.t + ih + 34} text-anchor="end" fill={PALETTE.ink2}>
+    Σ = {(raw.total_elements / 1e6).toFixed(2)}M across 10 meshes
+  </text>
+
+  <!-- panel 2: tissue composition -->
+  <text class="fig-panel" x={x2} y={m.t - 10} fill={PALETTE.ink}>tagged tissue</text>
+  <g stroke={PALETTE.rule} stroke-width="0.6" stroke-dasharray="2 4">
+    {yPct.ticks(4).map((t) => <line x1={x2} x2={x2 + panelW} y1={yPct(t)} y2={yPct(t)} />)}
+  </g>
+  {
+    pts.map((p, i) => (
+      <g>
+        <line x1={xBand(i, x2)} x2={xBand(i, x2)} y1={yPct(p.inf)} y2={yPct(p.bz)} stroke={PALETTE.rule} stroke-width="1" />
+        <circle cx={xBand(i, x2)} cy={yPct(p.bz)} r="3.6" fill={PALETTE.blue} fill-opacity="0.75" />
+        <circle cx={xBand(i, x2)} cy={yPct(p.inf)} r="3.6" fill={PALETTE.orange} fill-opacity="0.85" />
+      </g>
+    ))
+  }
+  <g stroke={PALETTE.ink3} stroke-width="1" fill="none">
+    <path d={`M${x2} ${m.t} L${x2} ${m.t + ih} L${x2 + panelW} ${m.t + ih}`} />
+  </g>
+  <g class="fig-tick" fill={PALETTE.ink3}>
+    {yPct.ticks(4).map((t) => <text x={x2 - 6} y={yPct(t) + 3.5} text-anchor="end">{fmt(t, 0)}%</text>)}
+  </g>
+  <g class="fig-legend" transform={`translate(${x2 + 6} ${m.t + 12})`}>
+    <circle cx="4" cy="-3.5" r="3.6" fill={PALETTE.blue} fill-opacity="0.75" />
+    <text x="12" y="0" fill={PALETTE.ink2}>border zone</text>
+    <circle cx="94" cy="-3.5" r="3.6" fill={PALETTE.orange} fill-opacity="0.85" />
+    <text x="102" y="0" fill={PALETTE.ink2}>infarct</text>
+  </g>
+
+  <!-- shared patient axis -->
+  {
+    pts.map((p, i) => (
+      <>
+        <text class="fig-tiny" x={xBand(i, x1)} y={m.t + ih + 14} text-anchor="middle" fill={PALETTE.ink4 ?? '#9a968b'}>
+          {short(p.id)}
+        </text>
+        <text class="fig-tiny" x={xBand(i, x2)} y={m.t + ih + 14} text-anchor="middle" fill="#9a968b">
+          {short(p.id)}
+        </text>
+      </>
+    ))
+  }
+  <text class="fig-axis" x={W / 2} y={H - 6} text-anchor="middle" fill={PALETTE.ink2}>patient</text>
+</svg>
+
+<style is:global>
+  .fig-svg .fig-panel {
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .fig-svg .fig-tiny {
+    font-size: 8.5px;
+  }
+</style>

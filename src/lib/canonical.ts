@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import yaml from 'js-yaml';
+import { load as parseYaml } from 'js-yaml';
 import { z } from 'astro/zod';
 
 const link = z.object({ label: z.string(), href: z.string().url() });
@@ -136,7 +136,7 @@ export type Canonical = z.infer<typeof schema>;
 export type Publication = Canonical['publications'][number];
 
 const file = path.join(process.cwd(), 'src/data/canonical.yaml');
-const parsed = schema.safeParse(yaml.load(fs.readFileSync(file, 'utf8')));
+const parsed = schema.safeParse(parseYaml(fs.readFileSync(file, 'utf8')));
 if (!parsed.success) {
   throw new Error(`src/data/canonical.yaml failed validation:\n${parsed.error.message}`);
 }

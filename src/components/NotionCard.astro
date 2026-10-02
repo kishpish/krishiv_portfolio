@@ -1,0 +1,76 @@
+---
+// Off-site writing. The card reads as a sibling of the native post cards, but
+// the ruled left edge, the host name, and the arrow make the destination plain
+// before the reader clicks.
+interface Props {
+  title: string;
+  url: string;
+  tag: string;
+  summary: string;
+  minutes?: number | null;
+}
+const { title, url: href, tag, summary, minutes } = Astro.props;
+const host = new URL(href).hostname.replace(/^(www|app)\./, '');
+---
+
+<article class="ncard">
+  <h3 class="ncard__title">
+    <a href={href} rel="noopener">
+      {title}<span class="ncard__arrow" aria-hidden="true">↗</span>
+      <span class="visually-hidden">(opens on {host})</span>
+    </a>
+  </h3>
+  <p class="ncard__desc">{summary}</p>
+  <p class="ncard__meta meta">
+    <span class="ncard__host">{host}</span>
+    {minutes && <span>{minutes} min</span>}
+    <span>{tag}</span>
+  </p>
+</article>
+
+<style>
+  .ncard {
+    padding: var(--sp-4) 0 var(--sp-4) var(--sp-4);
+    border-top: 1px solid var(--rule);
+    border-left: 2px solid var(--rule-2);
+    max-width: var(--measure);
+    transition: border-left-color 0.15s ease;
+  }
+  .ncard:hover,
+  .ncard:focus-within {
+    border-left-color: var(--orange);
+  }
+  .ncard__title {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .ncard__title a {
+    color: var(--ink);
+  }
+  .ncard__title a:hover,
+  .ncard__title a:focus-visible {
+    color: var(--orange);
+  }
+  .ncard__arrow {
+    font-size: 0.72em;
+    margin-left: 0.3em;
+    color: var(--ink-4);
+    vertical-align: 0.15em;
+  }
+  .ncard__title a:hover .ncard__arrow,
+  .ncard__title a:focus-visible .ncard__arrow {
+    color: var(--orange);
+  }
+  .ncard__desc {
+    margin-top: var(--sp-2);
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .ncard__meta {
+    margin-top: var(--sp-3);
+  }
+  .ncard__host {
+    font-family: var(--mono);
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import Head from '../components/Head.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  og?: string;
+  type?: 'website' | 'article' | 'profile';
+  jsonLd?: object | object[];
+  noindex?: boolean;
+  class?: string;
+}
+const { class: cls, ...head } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Head {...head} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" class={cls}>
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import { initAllLandscapes } from '../scripts/landscape';
+      initAllLandscapes();
+    </script>
+  </body>
+</html>

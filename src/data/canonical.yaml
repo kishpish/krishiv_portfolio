@@ -438,10 +438,9 @@ notion:
 # ---------------------------------------------------------------------------
 writing:
   intro: >-
-    Technical notes on machine learning for biology, organized by subject
-    rather than by date. They are notes, not papers: I edit them in place when
-    I find out I was wrong, and some of them are wrong in ways I have not found
-    yet.
+    Technical notes on machine learning for biology. Mostly arguments with
+    things I have read, or with my own projects, worked out far enough to be
+    checkable.
   sections:
     - name: Models & objectives
       slug: models-and-objectives

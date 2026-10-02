@@ -1,0 +1,81 @@
+---
+// The recurring motif. A small reaction-coordinate diagram: the energy profile
+// along the same minimum-energy path drawn in Fig. 0. Each section break
+// advances the marker one stop, so the page reads as one traversal, from basin
+// B at the top down to the global minimum A at the foot.
+import { profilePath, buildLandscape } from '../lib/landscape/figure';
+
+interface Props {
+  /** 0 to 1 along the path. 0 is basin A (deepest), 1 is basin B. */
+  at: number;
+  /** what the marker is sitting on, e.g. "B", "‡", "C" */
+  mark?: string;
+}
+const { at, mark } = Astro.props;
+const W = 196;
+const H = 46;
+const { d, points } = profilePath(W, H, 6);
+
+const idx = points.reduce((best, p, i) => (Math.abs(p.s - at) < Math.abs(points[best].s - at) ? i : best), 0);
+const here = points[idx];
+const E = Math.round(buildLandscape().mepPoints[idx].E);
+---
+
+<div class="pathdiv" role="presentation">
+  <svg class="pathdiv__svg" viewBox={`0 0 ${W} ${H}`} width={W} height={H} aria-hidden="true" focusable="false">
+    <path d={d} fill="none" stroke="var(--rule-2)" stroke-width="1.2" stroke-linecap="round" />
+    <line x1={here.px} x2={here.px} y1={here.py} y2={H} stroke="var(--rule)" stroke-width="1" />
+    <circle cx={here.px} cy={here.py} r="3.4" fill="var(--orange)" />
+  </svg>
+  <span class="pathdiv__tag mono" aria-hidden="true">
+    {mark && <span class="pathdiv__mark">{mark}</span>}
+    <span>E = {E}</span>
+  </span>
+  <span class="pathdiv__rule"></span>
+</div>
+
+<style>
+  .pathdiv {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-8);
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--rule);
+  }
+  .pathdiv__svg {
+    flex: none;
+    display: block;
+    overflow: visible;
+  }
+  .pathdiv__tag {
+    flex: none;
+    display: flex;
+    gap: 0.6em;
+    align-items: baseline;
+    font-size: var(--fs-tiny);
+    color: var(--ink-4);
+    font-variant-numeric: tabular-nums;
+  }
+  .pathdiv__mark {
+    color: var(--orange-ink);
+    min-width: 0.9em;
+  }
+  .pathdiv__rule {
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--rule);
+    min-width: var(--sp-4);
+  }
+  @media (max-width: 36rem) {
+    .pathdiv {
+      margin-top: var(--sp-7);
+      padding-top: var(--sp-4);
+      gap: var(--sp-2);
+    }
+    .pathdiv__svg {
+      width: 140px;
+      height: 34px;
+    }
+  }
+</style>
