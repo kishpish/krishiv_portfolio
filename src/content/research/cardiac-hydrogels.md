@@ -12,11 +12,11 @@ summary: >-
   injectable hydrogel's stiffness, degradation rate, conductivity, thickness,
   and placement all interact with the geometry of one patient's damage, so the
   test you want, trying the gel on that patient, is the one you cannot run.
-  This work pairs a pretrained polymer chemical language model, fine-tuned
-  with low-rank adapters under a fusion transformer over material and patient
-  descriptors with multi-task outcome and safety heads, against a geometry
-  pipeline that turns patient surface meshes into ten solver-ready tetrahedral
-  hearts totalling 3.66 million elements, each carrying a transmural
+  This work pairs two halves. A pretrained polymer chemical language model,
+  fine-tuned with low-rank adapters under a fusion transformer over material
+  and patient descriptors, with multi-task outcome and safety heads. And a
+  geometry pipeline that turns patient surface meshes into ten solver-ready
+  tetrahedral hearts totalling 3.66 million elements, each carrying a transmural
   coordinate from Laplace's equation, rule-based helical fibre architecture,
   scar and border zone inferred from wall thinning rather than contrast
   imaging, and geodesically selected injection sites. Candidates are scored

@@ -8,8 +8,8 @@ kind: lab
 status: "in progress"
 summary: >-
   Antibody discovery is almost entirely search: build or borrow a large
-  library, screen it, keep what binds, and leave the regions of design space
-  the library never sampled unsampled no matter how much compute is spent.
+  library, screen it, keep what binds, and never reach the regions of design
+  space the library did not contain, however much compute is spent on it.
   This project reformulates de novo antibody design as control rather than
   classification, using a port-Hamiltonian model that carries an explicit
   energy and an explicit dissipation term, so a reinforcement learning policy
