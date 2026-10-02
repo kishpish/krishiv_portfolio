@@ -36,7 +36,7 @@ const jsonLd = data.publications.map((pub) => ({
       <p class="phead__cv"><CVLink variant="button" /></p>
     </PageHeader>
 
-    <section aria-labelledby="papers-h">
+    <section class="pubsec pubsec--first" aria-labelledby="papers-h">
       <h2 id="papers-h" class="visually-hidden">Papers</h2>
       <PubList />
     </section>
@@ -101,6 +101,9 @@ const jsonLd = data.publications.map((pub) => ({
   }
   .pubsec {
     padding-top: var(--sp-7);
+  }
+  .pubsec--first {
+    padding-top: 0;
   }
   .pubsec h2 {
     margin-bottom: var(--sp-4);
