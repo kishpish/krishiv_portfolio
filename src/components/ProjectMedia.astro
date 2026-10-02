@@ -29,6 +29,7 @@ const { src, poster, caption, alt, n = '1', class: cls = '' } = Astro.props;
       loop
       playsinline
       preload="none"
+      controls
       aria-label={alt}
       width="440"
       height="440"
@@ -71,8 +72,9 @@ const { src, poster, caption, alt, n = '1', class: cls = '' } = Astro.props;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   for (const el of document.querySelectorAll<HTMLVideoElement>('[data-project-media]')) {
+    // The markup ships with controls so the clip is playable without this
+    // script. Once we know we can autoplay it, they are redundant chrome.
     if (reduce.matches) {
-      el.controls = true;
       el.preload = 'metadata';
       continue;
     }
@@ -81,10 +83,15 @@ const { src, poster, caption, alt, n = '1', class: cls = '' } = Astro.props;
         for (const e of entries) {
           if (e.isIntersecting) {
             el.preload = 'auto';
-            el.play().catch(() => {
-              // autoplay refused: give the reader a control instead
-              el.controls = true;
-            });
+            el.play().then(
+              () => {
+                el.controls = false;
+              },
+              () => {
+                // autoplay refused: leave the controls the markup shipped with
+                el.controls = true;
+              },
+            );
           } else {
             el.pause();
           }

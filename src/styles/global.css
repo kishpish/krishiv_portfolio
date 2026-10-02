@@ -175,6 +175,12 @@ canvas {
   display: block;
   max-width: 100%;
 }
+/* A component setting `display` would otherwise override the hidden attribute,
+   which is how a progressive-enhancement placeholder leaks to readers who
+   never run the script that fills it. */
+[hidden] {
+  display: none !important;
+}
 img,
 video {
   height: auto;

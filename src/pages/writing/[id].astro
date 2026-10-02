@@ -54,6 +54,12 @@ import 'katex/dist/katex.min.css';
   jsonLd={jsonLd}
 >
   <div class="wrap post">
+    <aside class="post__side">
+      <div class="post__sticky">
+        <Toc headings={headings} />
+      </div>
+    </aside>
+
     <article class="post__main">
       <header class="post__head">
         <p class="eyebrow">
@@ -139,11 +145,6 @@ import 'katex/dist/katex.min.css';
       </footer>
     </article>
 
-    <aside class="post__side">
-      <div class="post__sticky">
-        <Toc headings={headings} />
-      </div>
-    </aside>
   </div>
 </Base>
 
@@ -155,8 +156,16 @@ import 'katex/dist/katex.min.css';
     align-items: start;
     padding-block: var(--sp-7) var(--sp-6);
   }
+  /* The contents come first in the DOM so keyboard focus meets them where they
+     appear. On a wide screen they are placed into the right-hand column. */
   .post__main {
     min-width: 0;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .post__side {
+    grid-column: 2;
+    grid-row: 1;
   }
   .post__head {
     max-width: var(--measure);
@@ -268,11 +277,15 @@ import 'katex/dist/katex.min.css';
     }
     .post__side {
       position: static;
+      grid-column: 1;
+      grid-row: auto;
       padding-top: 0;
-      order: -1;
       max-width: var(--measure);
       border-bottom: 1px solid var(--rule);
       padding-bottom: var(--sp-4);
+    }
+    .post__main {
+      grid-row: auto;
     }
   }
 </style>

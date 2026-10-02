@@ -3,9 +3,12 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import { renderOg, type OgInput } from '../../lib/og';
 import { data, publication, statusLabel, clean } from '../../lib/canonical';
+import { absolute } from '../../lib/urls';
 
 const name = data.person.name;
-const site = new URL(import.meta.env.SITE).hostname;
+// Host plus base path, so the address printed on the card is one that actually
+// serves the site. The bare hostname does not, on a project page.
+const site = absolute('/').replace(/^https?:\/\//, '').replace(/\/$/, '');
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const cards: { slug: string; og: Omit<OgInput, 'name' | 'site'> }[] = [

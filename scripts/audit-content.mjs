@@ -61,7 +61,11 @@ for (const file of files) {
   // 3. head essentials
   if (!/<title>[^<]{3,}<\/title>/.test(html)) problems.push(`${page}: missing or empty <title>`);
   if (!/<meta name="description" content="[^"]{20,}"/.test(html)) problems.push(`${page}: missing meta description`);
-  if (!/<link rel="canonical"/.test(html)) problems.push(`${page}: missing canonical link`);
+  // A noindex page deliberately has no canonical: it would point at an address
+  // that does not serve it.
+  const noindex = /<meta name="robots" content="noindex/.test(html);
+  if (!noindex && !/<link rel="canonical"/.test(html)) problems.push(`${page}: missing canonical link`);
+  if (noindex && /<link rel="canonical"/.test(html)) problems.push(`${page}: noindex page should not declare a canonical`);
   if (!/<meta property="og:image"/.test(html)) problems.push(`${page}: missing og:image`);
 
   // 4. headings

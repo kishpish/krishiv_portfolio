@@ -28,8 +28,10 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex" />}
+{/* A noindex page (the 404) declares no canonical and no og:url: both would
+    point at an address that does not serve it. */}
+{!noindex && <link rel="canonical" href={canonical} />}
+{noindex && <meta name="robots" content="noindex, follow" />}
 <meta name="author" content={data.person.name} />
 <meta name="theme-color" content="#fbfaf6" />
 <meta name="color-scheme" content="light" />
@@ -48,7 +50,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 <meta property="og:site_name" content={data.person.name} />
 <meta property="og:title" content={title ?? data.person.name} />
 <meta property="og:description" content={description} />
-<meta property="og:url" content={canonical} />
+{!noindex && <meta property="og:url" content={canonical} />}
 <meta property="og:image" content={ogImage} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />

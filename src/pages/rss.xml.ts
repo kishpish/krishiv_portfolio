@@ -1,32 +1,29 @@
-// Feed for the writing section. Posts have no dates by design, so the feed
-// orders them the way the index does (by section, then within section) and
-// gives every item the same build timestamp rather than inventing per-post
-// dates. Readers that sort by date keep the order the site intends.
+// Feed for the writing section.
+//
+// Posts have no dates by design, so items carry no pubDate at all: RSS 2.0
+// makes it optional, and stamping every item with the build time would both
+// invent a date and change all ten of them on every deploy. The feed is
+// ordered the way the index is, by section and then within section.
 import rss from '@astrojs/rss';
-import type { APIContext } from 'astro';
 import { data, clean } from '../lib/canonical';
 import { allPosts, readingMinutes } from '../lib/posts';
 import { absolute } from '../lib/urls';
 
-export async function GET(context: APIContext) {
+export async function GET() {
   const posts = await allPosts();
-  const stamp = new Date();
 
   return rss({
     title: `${data.person.name}: writing`,
     description: clean(data.writing.intro),
-    site: context.site ?? absolute('/'),
+    // The site's own home, base path included. Astro's `context.site` is the
+    // origin only, which on a project page points at a different site.
+    site: absolute('/'),
     trailingSlash: true,
     items: posts.map((post) => ({
       title: post.data.title,
-      description: post.data.description,
+      description: `${post.data.description} (${readingMinutes(post.body)} min, ${post.data.status})`,
       link: absolute(`/writing/${post.id}/`),
-      pubDate: stamp,
       categories: [post.data.section, ...post.data.tags],
-      customData: [
-        `<status>${post.data.status}</status>`,
-        `<readingTime>${readingMinutes(post.body)} min</readingTime>`,
-      ].join(''),
     })),
     customData: [
       `<language>en-us</language>`,

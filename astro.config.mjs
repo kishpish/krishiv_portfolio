@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
+import { remarkDisplayMath } from './src/lib/remark-display-math.mjs';
 import rehypeKatex from 'rehype-katex';
 import { rehypeBaseLinks } from './src/lib/rehype-base-links.mjs';
 import { rehypeTables } from './src/lib/rehype-tables.mjs';
@@ -39,7 +40,7 @@ export default defineConfig({
     syntaxHighlight: 'shiki',
     shikiConfig: { theme: paperTheme, wrap: false },
     processor: unified({
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [remarkMath, remarkDisplayMath],
       rehypePlugins: [
         [rehypeKatex, { strict: 'ignore', output: 'htmlAndMathml' }],
         [rehypeBaseLinks, { base }],

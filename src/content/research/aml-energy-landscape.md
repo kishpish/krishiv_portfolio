@@ -151,7 +151,7 @@ The association result stands and the mechanism story around it does not, yet.
 I would rather say that here than let the figure carry an implication the
 analysis does not support.
 
-## Validation, and its limit
+## Validation, and its two limits
 
 The 40 evaluable state signatures were tested against a 748,679-cell AML atlas.
 All 40 reach significant enrichment there, but that is the weakest version of
@@ -159,3 +159,12 @@ the test: with three quarters of a million cells, a one-sided comparison of the
 best-matching cell type against everything else is close to automatic. Exact
 cell-type reproduction is 20 of 40, and broad lineage is 34 of 40. Those are the
 numbers I would quote in a talk.
+
+The second limit is the one that matters more, and I would rather state it than
+let a reader assume otherwise. That atlas is an integration of twenty published
+studies, and one of them is the study these cells were trained on. So the
+training data sits inside the set the signatures were checked against. That
+makes this a reproduction check, which is still worth running, and not an
+independent replication, which is what the word validation usually implies.
+Doing it properly means rebuilding the comparison with the source study held
+out, and that is work I have not done yet.

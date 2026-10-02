@@ -303,7 +303,7 @@ export function initLandscape(root: HTMLElement): void {
 
   toggle?.addEventListener('click', () => {
     c.wanted = !c.wanted;
-    toggle.setAttribute('aria-pressed', String(!c.wanted));
+    // The visible word is the accessible name, so it alone carries the state.
     if (toggleLabel) toggleLabel.textContent = c.wanted ? 'pause' : 'resume';
     if (c.wanted) start(c);
     else stop(c);
