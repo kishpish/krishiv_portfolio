@@ -6,7 +6,21 @@ period: "2026"
 role: "First author, with M. Yurukcu"
 kind: independent
 paper: expression-iccbb-2026
-question: "DNA models can predict which genes are switched on. Can they predict which people have them on more? And how would you know if a benchmark were letting them cheat?"
+summary: >-
+  Sequence models rank expression across genes well and across individuals
+  badly, and the cross-individual axis is the one that connects a genome to a
+  person's disease risk. The benchmark joins lymphoblastoid expression to
+  high-coverage genotypes for 449 individuals under whole-chromosome gene
+  splits, family-aware individual splits, a 251,275-pair paralog audit showing
+  that chromosome splitting still leaves 300 of 456 held-out genes with a
+  paralog in training, an ancestry-only negative control residualized on
+  sub-population labels from training data, and per-gene cis-heritability
+  ceilings. Per-gene linear models reach a median correlation of 0.23 on
+  held-out European individuals across the 78 learnable genes while a
+  pretrained sequence model run zero-shot sits at 0.05 with a bootstrap
+  interval spanning zero, those same per-gene models fall to about 0.05 on the
+  Yoruba individuals held out for that test, and three attempts to transfer a
+  gene-agnostic variant-effect map all returned negative.
 problem: >-
   Sequence models predict expression across genes very well and across
   individuals very badly. The second axis is the one that connects a genome to
@@ -61,8 +75,7 @@ figure:
     marking the heritability ceiling. Blue dots run from about zero to 0.84, most
     of them between 0.24 and 0.64. Orange dots scatter from about minus 0.4 to
     0.56, with a median near zero.
-links:
-  - { label: code, href: "https://github.com/kishpish/held-out-gene-benchmark" }
+links: []
 related:
   - benchmarks-decide-what-a-field-discovers
   - generalization-gaps-are-distribution-problems

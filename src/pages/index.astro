@@ -1,18 +1,23 @@
 ---
+// The home page is previews only. Every section shows its top few items and
+// then links to the page that holds the rest, so nothing here is the last word
+// on anything. The one exception is the section about me, which is the only
+// place the interests and the current work are stated in full.
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import EnergyLandscape from '../components/EnergyLandscape.astro';
 import PathDivider from '../components/PathDivider.astro';
 import ResearchCard from '../components/ResearchCard.astro';
 import PostCard from '../components/PostCard.astro';
-import PubList from '../components/PubList.astro';
 import CVLink from '../components/CVLink.astro';
-import { data, clean, publication } from '../lib/canonical';
+import Arguments from '../components/Arguments.astro';
+import { data, clean } from '../lib/canonical';
 import { url, absolute } from '../lib/urls';
 import { allPosts } from '../lib/posts';
 
 const p = data.person;
 const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
+const topProjects = projects.slice(0, 3);
 const posts = await allPosts();
 const featuredPosts = [
   'energy-is-a-modeling-choice',
@@ -22,7 +27,8 @@ const featuredPosts = [
   .map((id) => posts.find((x) => x.id === id))
   .filter(Boolean) as typeof posts;
 
-const featuredHonors = data.honors.filter((h) => h.featured).slice(0, 4);
+// Three, inline, with the full list on About.
+const featuredHonors = data.honors.filter((h) => h.featured).slice(0, 3);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -35,10 +41,13 @@ const jsonLd = {
   description: clean(data.research_statement.short),
   knowsAbout: data.research_statement.interests,
   address: { '@type': 'PostalAddress', addressLocality: 'Austin', addressRegion: 'TX', addressCountry: 'US' },
+  // The hero prints the affiliation as plain text now, but the structured data
+  // still carries both institutional URLs.
   affiliation: {
     '@type': 'ResearchOrganization',
     name: `${p.affiliation.group}, ${p.affiliation.institute}`,
     url: p.affiliation.institute_url,
+    sameAs: p.affiliation.group_url,
     parentOrganization: { '@type': 'CollegeOrUniversity', name: p.affiliation.university },
   },
   alumniOf: { '@type': 'EducationalOrganization', name: p.education.school },
@@ -52,54 +61,27 @@ const jsonLd = {
   <section class="wrap hero" aria-labelledby="hero-name">
     <div class="hero__text">
       <h1 id="hero-name" class="hero__name">{p.name}</h1>
-      <p class="hero__role">
-        <span>{p.affiliation.role}, </span>
-        <a href={p.affiliation.group_url}>{p.affiliation.group}</a>
-        <span>, </span>
-        <a href={p.affiliation.institute_url}>{p.affiliation.institute_short}</a>
-        <span>, {p.affiliation.university_short}. Advised by {p.affiliation.advisor}.</span>
-      </p>
+      <p class="hero__role">Student Researcher, Current @ Computational Visualization Center, UT Austin Oden Institute</p>
 
       <p class="hero__statement">
         I work at the intersection of machine learning, computational biology, and
-        physics-based simulation. Four of my five projects turn out to be the same
-        problem wearing different clothes: something moves across a surface, pays
-        energy, and settles somewhere. <a href={url('/colophon/')}>Figure 0 is that idea</a>,
-        and the fifth project is the benchmark work that keeps the other four honest.
+        physics-based simulation.
+      </p>
+      <p class="hero__personal">
+        I would rather be worse off for a while than stay where I happened to land.
       </p>
 
       <div class="hero__actions">
         <CVLink variant="button" />
         <a class="hero__action" href={`mailto:${p.email}`}>{p.email}</a>
       </div>
-
-      <!-- The ten-second scan: every project, its venue, and the one number. -->
-      <nav class="hero__index" aria-label="Research projects">
-        <p class="eyebrow">research, in one screen</p>
-        <ol>
-          {
-            projects.map((entry, i) => {
-              const pub = entry.data.paper ? publication(entry.data.paper) : null;
-              const headline = entry.data.headline;
-              return (
-                <li>
-                  <span class="hero__index-n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                  <a href={url(`/research/${entry.id}/`)}>{entry.data.short}</a>
-                  <span class="hero__index-venue mono">{pub ? pub.venue : entry.data.status}</span>
-                  {headline && <span class="hero__index-ev mono">{headline}</span>}
-                </li>
-              );
-            })
-          }
-        </ol>
-      </nav>
     </div>
 
     <div class="hero__fig">
       <EnergyLandscape
         mode="hero"
-        caption={'The Müller-Brown potential: three basins, two saddles, and a dashed minimum-energy path between the two deepest wells, computed by the string method. The orange trace is a particle under Langevin dynamics, dropped on the right-hand wall (open circle) and coming to rest in the global minimum (filled circle).'}
-        captionMotion={'It keeps running here, with well-tempered metadynamics filling whichever basin it sits in until it can escape over a saddle. Move the cursor across the surface to push on it.'}
+        caption={'The Müller-Brown potential: three basins, two saddles, and a dashed minimum-energy path between the two deepest wells. The orange trace is a particle finding the deepest one.'}
+        captionMotion={'Here it keeps running, filling whichever basin it sits in until it can escape. Move the cursor across the surface to push on it.'}
       />
     </div>
   </section>
@@ -109,83 +91,85 @@ const jsonLd = {
   <!-- ============================================ currently -->
   <section class="wrap section" aria-labelledby="currently">
     <div class="section__head">
-      <p class="eyebrow">currently</p>
-      <h2 id="currently">What I am working on</h2>
+      <p class="eyebrow">Currently</p>
+      <h2 id="currently">Research interests and current work</h2>
     </div>
-    <div class="currently">
-      <ul class="currently__list">
-        <li>
-          <strong>Antibody design as control.</strong> A port-Hamiltonian reinforcement
-          learning model that generates antibodies by optimizing a path across an energy
-          landscape rather than screening a library, at the
-          <a href={p.affiliation.group_url}>{p.affiliation.group}</a>.
-        </li>
-        <li>
-          <strong>Circular RNA that translates reliably</strong>, as a durable therapy for
-          the lab's Parkinson's disease work. Presented at the 2026 Summer Research Demo Day.
-        </li>
-        <li>
-          <strong>Writing up the leukemia landscape</strong> and the expression benchmark,
-          and arguing with both of them in <a href={url('/writing/')}>notes</a>.
-        </li>
-      </ul>
-      <aside class="currently__honors">
-        <p class="eyebrow">selected recognition</p>
-        <ul>
-          {
-            featuredHonors.map((h) => (
-              <li>
-                <span class="mono currently__year">{h.year}</span>
-                {h.href ? <a href={h.href} rel="noopener">{h.title}</a> : h.title}
-              </li>
-            ))
-          }
+
+    <div class="now">
+      <div class="now__main">
+        <ul class="now__list">
+          <li>
+            <strong>Antibody design as control.</strong> A port-Hamiltonian reinforcement
+            learning model that generates antibodies by optimizing a path across an energy
+            landscape rather than screening a library, at the
+            <a href={p.affiliation.group_url} rel="noopener">{p.affiliation.group}</a>, advised by
+            {' '}{p.affiliation.advisor}.
+            <a href={url('/research/antibody-transition-paths/')}>The project page.</a>
+          </li>
+          <li>
+            <strong>Circular RNA that translates reliably</strong>, as a durable therapy for the
+            lab's Parkinson's disease work. Presented at the 2026 Summer Research Demo Day in the
+            <a href="https://tacc.utexas.edu/" rel="noopener">TACC Visualization Lab</a>.
+          </li>
+          <li>
+            <strong>Writing up</strong> the
+            <a href={url('/research/aml-energy-landscape/')}>leukemia landscape</a> and the
+            <a href={url('/research/expression-benchmark/')}>expression benchmark</a>, and arguing
+            with both of them in <a href={url('/writing/')}>notes</a>.
+          </li>
         </ul>
-        <p class="currently__more"><a href={url('/about/#honors')}>All honors</a></p>
+
+        <p class="now__honors">
+          Recently:{' '}
+          {
+            featuredHonors.map((h, i) => (
+              <>
+                {i > 0 && ', '}
+                {h.href ? <a href={h.href} rel="noopener">{h.title}</a> : h.title}
+                {' '}<span class="tnum muted">{h.year}</span>
+              </>
+            ))
+          }. <a href={url('/about/#honors')}>All honors, positions, and education are on About.</a>
+        </p>
+      </div>
+
+      <aside class="now__side">
+        <p class="eyebrow">Directions</p>
+        <ul class="now__interests">
+          {data.research_statement.interests.map((i) => <li>{i}</li>)}
+        </ul>
       </aside>
     </div>
   </section>
 
   <div class="wrap"><PathDivider at={0.81} mark="‡" /></div>
 
-  <!-- ============================================ research -->
+  <!-- ============================================ research (preview) -->
   <section class="wrap section" aria-labelledby="research">
     <div class="section__head">
-      <p class="eyebrow">selected research</p>
-      <h2 id="research">Five projects, one shape</h2>
-      <p>{clean(data.research_statement.program)}</p>
+      <p class="eyebrow">Selected</p>
+      <h2 id="research">Research</h2>
+      <p>
+        Three of five. Each one states the problem, the method, the result, and what did not
+        work, with the paper and the code on the same page.
+      </p>
     </div>
     <div class="rlist">
-      {projects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} />)}
+      {topProjects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} compact />)}
     </div>
     <p class="section__more">
-      <a href={url('/research/')}>All research, in detail</a>
+      <a href={url('/research/')}>All five projects, with the publication list</a>
     </p>
   </section>
 
   <div class="wrap"><PathDivider at={0.683} mark="C" /></div>
 
-  <!-- ============================================ papers -->
-  <section class="wrap section" aria-labelledby="papers">
-    <div class="section__head">
-      <p class="eyebrow">papers</p>
-      <h2 id="papers">Publications</h2>
-      <p>All first author. Preprints, code, and project pages are linked from each.</p>
-    </div>
-    <PubList variant="tight" />
-    <p class="section__more">
-      <a href={url('/publications/')}>Full list, with talks and media</a>
-    </p>
-  </section>
-
-  <div class="wrap"><PathDivider at={0.381} mark="‡" /></div>
-
-  <!-- ============================================ writing -->
+  <!-- ============================================ writing (preview) -->
   <section class="wrap section" aria-labelledby="writing">
     <div class="section__head">
-      <p class="eyebrow">writing</p>
-      <h2 id="writing">Notes</h2>
-      <p>{clean(data.writing.intro)}</p>
+      <p class="eyebrow">Notes</p>
+      <h2 id="writing">Writing</h2>
+      <p>Three of {posts.length}. No dates on any of them, and I edit them in place.</p>
     </div>
     <div class="plist">
       {featuredPosts.map((post) => <PostCard post={post} showSection />)}
@@ -195,28 +179,9 @@ const jsonLd = {
     </p>
   </section>
 
-  <div class="wrap"><PathDivider at={0} mark="A" /></div>
+  <div class="wrap"><PathDivider at={0.381} mark="‡" /></div>
 
-  <!-- ============================================ beyond -->
-  <section class="wrap section section--last" aria-labelledby="beyond">
-    <div class="section__head">
-      <p class="eyebrow">beyond the lab</p>
-      <h2 id="beyond">The rest of it</h2>
-    </div>
-    <dl class="beyond">
-      {
-        data.beyond.map((b) => (
-          <div class="beyond__item">
-            <dt>
-              <span class="mono beyond__label">{b.label}</span>
-              <span class="beyond__title">{b.title}</span>
-            </dt>
-            <dd>{clean(b.body)}</dd>
-          </div>
-        ))
-      }
-    </dl>
-  </section>
+  <Arguments />
 </Base>
 
 <style>
@@ -238,12 +203,22 @@ const jsonLd = {
     margin-top: var(--sp-3);
     font-size: calc(var(--fs-body) * 1.02);
     color: var(--ink-2);
-    max-width: 34ch;
+    max-width: 38ch;
     text-wrap: pretty;
   }
   .hero__statement {
     margin-top: var(--sp-5);
     max-width: 44ch;
+    text-wrap: pretty;
+  }
+  /* The personal line sits apart from the factual one above it, and next to the
+     figure. Nothing explains the pairing. */
+  .hero__personal {
+    margin-top: var(--sp-4);
+    max-width: 42ch;
+    font-size: calc(var(--fs-body) * 1.08);
+    line-height: 1.45;
+    color: var(--ink);
     text-wrap: pretty;
   }
   .hero__actions {
@@ -261,65 +236,6 @@ const jsonLd = {
     top: var(--sp-4);
   }
 
-  /* the one-screen project index under the hero actions */
-  .hero__index {
-    margin-top: var(--sp-6);
-    padding-top: var(--sp-4);
-    border-top: 1px solid var(--rule);
-    max-width: 34rem;
-  }
-  .hero__index ol {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .hero__index li {
-    display: grid;
-    grid-template-columns: 1.9rem minmax(0, 1fr) auto auto;
-    align-items: baseline;
-    gap: 0 var(--sp-3);
-    padding-block: 0.42em;
-    border-bottom: 1px solid var(--rule);
-  }
-  .hero__index li:last-child {
-    border-bottom: 0;
-  }
-  .hero__index a {
-    font-size: var(--fs-small);
-    color: var(--ink);
-  }
-  .hero__index a:hover,
-  .hero__index a:focus-visible {
-    color: var(--orange);
-  }
-  .hero__index-n {
-    font-size: var(--fs-tiny);
-    color: var(--ink-4);
-    font-variant-numeric: tabular-nums;
-  }
-  .hero__index-venue {
-    font-size: var(--fs-tiny);
-    color: var(--ink-3);
-    text-align: right;
-    white-space: nowrap;
-  }
-  .hero__index-ev {
-    font-size: var(--fs-tiny);
-    color: var(--ink-2);
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-    min-width: 6.4rem;
-    white-space: nowrap;
-  }
-  @media (max-width: 30rem) {
-    .hero__index li {
-      grid-template-columns: 1.6rem minmax(0, 1fr) auto;
-    }
-    .hero__index-ev {
-      display: none;
-    }
-  }
-
   @media (max-width: 54rem) {
     .hero {
       grid-template-columns: 1fr;
@@ -331,48 +247,62 @@ const jsonLd = {
       max-width: 34rem;
     }
     .hero__role,
-    .hero__statement {
+    .hero__statement,
+    .hero__personal {
       max-width: var(--measure);
     }
   }
 
   /* ---------- currently */
-  .currently {
+  .now {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     gap: var(--sp-6);
     align-items: start;
   }
-  .currently__list {
+  .now__list {
     list-style: none;
     padding: 0;
     display: grid;
     gap: var(--sp-4);
     max-width: var(--measure);
   }
-  .currently__list li {
+  .now__list li {
     padding-left: var(--sp-4);
     border-left: 2px solid var(--blue-16);
     text-wrap: pretty;
   }
-  .currently__honors ul {
+  .now__honors {
+    margin-top: var(--sp-5);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+  .now__interests {
+    margin-top: var(--sp-3);
     list-style: none;
     padding: 0;
     display: grid;
     gap: var(--sp-2);
     font-size: var(--fs-small);
   }
-  .currently__year {
-    color: var(--ink-4);
-    margin-right: 0.6em;
-    font-variant-numeric: tabular-nums;
+  .now__interests li {
+    color: var(--ink-2);
+    padding-left: 1.1em;
+    position: relative;
+    text-wrap: pretty;
   }
-  .currently__more {
-    margin-top: var(--sp-3);
-    font-size: var(--fs-small);
+  .now__interests li::before {
+    content: '·';
+    position: absolute;
+    left: 0.1em;
+    color: var(--orange);
   }
   @media (max-width: 48rem) {
-    .currently {
+    .now {
       grid-template-columns: 1fr;
       gap: var(--sp-5);
     }
@@ -386,37 +316,6 @@ const jsonLd = {
   .section__more {
     margin-top: var(--sp-4);
     font-size: var(--fs-small);
-    font-family: var(--mono);
-  }
-  .section--last {
-    padding-bottom: var(--sp-6);
   }
 
-  /* ---------- beyond */
-  .beyond {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
-    gap: var(--sp-5) var(--sp-6);
-  }
-  .beyond__item dt {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15em;
-    padding-bottom: var(--sp-2);
-    border-bottom: 1px solid var(--rule);
-  }
-  .beyond__label {
-    font-size: var(--fs-small);
-    color: var(--ink-4);
-  }
-  .beyond__title {
-    font-weight: 700;
-  }
-  .beyond__item dd {
-    margin: var(--sp-3) 0 0;
-    font-size: var(--fs-small);
-    line-height: 1.55;
-    color: var(--ink-2);
-    text-wrap: pretty;
-  }
 </style>

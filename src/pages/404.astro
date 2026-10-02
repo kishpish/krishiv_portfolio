@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { url } from '../lib/urls';
 import { data } from '../lib/canonical';
+import PageLandscape from '../components/PageLandscape.astro';
 ---
 
 <Base title="Not found" description="That page does not exist." noindex>
@@ -14,17 +15,23 @@ import { data } from '../lib/canonical';
     </p>
     <nav class="nf__nav" aria-label="Where to go instead">
       <ul>
-        <li><a href={url('/')}>Back to the global minimum</a> <span class="mono muted">home</span></li>
-        <li><a href={url('/research/')}>Research</a> <span class="mono muted">five projects</span></li>
-        <li><a href={url('/writing/')}>Writing</a> <span class="mono muted">notes</span></li>
-        <li><a href={url('/publications/')}>Publications</a></li>
-        <li><a href={`mailto:${data.person.email}`}>Email me</a> <span class="mono muted">if a link here is broken</span></li>
+        <li><a href={url('/')}>Back to the global minimum</a> <span class="muted">home</span></li>
+        <li><a href={url('/research/')}>Research</a> <span class="muted">five projects</span></li>
+        <li><a href={url('/writing/')}>Writing</a> <span class="muted">notes</span></li>
+        <li><a href={url('/about/')}>About</a> <span class="muted">who is doing this</span></li>
+        <li><a href={`mailto:${data.person.email}`}>Email me</a> <span class="muted">if a link here is broken</span></li>
       </ul>
     </nav>
+
+    <PageLandscape view="unsettled" n="0.4" class="nf__fig" />
   </div>
 </Base>
 
 <style>
+  .nf__fig {
+    margin-block: var(--sp-7) var(--sp-6);
+    max-width: 42rem;
+  }
   .nf {
     padding-block: var(--sp-9) var(--sp-9);
     max-width: var(--measure);

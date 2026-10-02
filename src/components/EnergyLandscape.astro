@@ -128,7 +128,7 @@ const canvasBox = {
             aria-hidden="true"
             style={`left:${canvasBox.left};top:${canvasBox.top};width:${canvasBox.width};height:${canvasBox.height}`}
           />
-          <div class="landscape__readout mono" data-landscape-readout hidden>
+          <div class="landscape__readout" data-landscape-readout hidden>
             <span class="landscape__readout-row">
               <span class="landscape__k">basin</span>
               <span data-r-basin>B</span>
@@ -142,7 +142,7 @@ const canvasBox = {
               <span data-r-hills>0</span>
             </span>
           </div>
-          <button class="landscape__toggle mono" type="button" data-landscape-toggle hidden>
+          <button class="landscape__toggle" type="button" data-landscape-toggle hidden>
             <span data-landscape-toggle-label>pause</span>
             <span class="visually-hidden"> the simulation in figure 0</span>
           </button>
@@ -216,6 +216,7 @@ const canvasBox = {
   }
 
   .landscape__readout {
+    font-family: var(--mono);
     position: absolute;
     right: 2%;
     top: 2%;

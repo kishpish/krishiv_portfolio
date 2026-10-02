@@ -33,7 +33,9 @@ const research = defineCollection({
     status: z.string().optional(), // free text when there is no paper yet, e.g. "in progress"
     paper: z.string().optional(), // publication id in canonical.yaml
     honor: z.string().optional(), // one-line badge, e.g. "Regeneron ISEF 2025 Finalist"
-    question: z.string(), // the plain-language question a non-specialist can follow
+    /** Two or three sentences of technical description: the system, the method,
+     *  the result. Stated declaratively, not as a question. */
+    summary: z.string(),
     problem: z.string(),
     approach: z.string(),
     result: z.string(),

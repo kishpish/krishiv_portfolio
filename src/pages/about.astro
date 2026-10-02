@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CVLink from '../components/CVLink.astro';
+import PageLandscape from '../components/PageLandscape.astro';
 import { data, clean, cv } from '../lib/canonical';
 import { url, absolute } from '../lib/urls';
 
@@ -29,7 +30,9 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <div class="wrap">
-    <PageHeader eyebrow="about" title="About" />
+    <PageHeader eyebrow="About" title="About" />
+
+    <PageLandscape view="crop" n="0.3" class="ahead__fig" />
 
     <div class="about">
       <div class="about__main">
@@ -38,30 +41,21 @@ const jsonLd = {
           <h2 id="statement">What I work on</h2>
           <div class="prose">
             <p>
-              I work at the intersection of machine learning, computational biology, and
-              physics-based simulation, with a particular interest in the computational systems
-              that make this kind of work scalable and reproducible.
+              I build models of systems that move, and the infrastructure that makes those
+              models checkable. Three things I keep returning to: generative and
+              physics-informed models for molecular and material design, energy-based models
+              of cell state, and benchmarks that cannot leak.
             </p>
             <p>
-              The thread I keep finding is a landscape. An antibody designed by optimizing a
-              transition path, a leukemic cell state with a measured basin depth, a protein
-              inhibitor whose binding is validated by the work it takes to pull it off, a
-              hydrogel chosen by searching a design space for the point that moves a damaged
-              heart toward a better one: all four are something crossing a surface and paying
-              energy to do it. I did not notice that until I wrote the four projects down next
-              to each other, and it has since changed what I pick up.
+              The last of those is the one I would defend hardest. A model that proposes
+              something is only worth as much as our ability to tell when it is wrong, and I
+              think that second half is undersupplied relative to how much it decides. A good
+              deal of what I write is some version of that argument.
             </p>
             <p>
-              The fifth project is the counterweight. If the first four are models that propose
-              things, the benchmark work is about whether we would be able to tell if they were
-              wrong. I think that question is undersupplied relative to how much it decides, and
-              a good deal of what I write is some version of it.
-            </p>
-            <p>
-              I am a high school senior in Austin, Texas, and a student researcher in{' '}
-              <a href={p.affiliation.group_url}>{p.affiliation.group}</a> at the{' '}
-              <a href={p.affiliation.institute_url}>{p.affiliation.institute}</a>,
-              {' '}{p.affiliation.university}, advised by {p.affiliation.advisor}.
+              The projects themselves, with their methods, their numbers, and the parts that
+              did not work, are on <a href={url('/research/')}>the research page</a>. The
+              positions below are where the work happened.
             </p>
           </div>
         </section>
@@ -77,7 +71,7 @@ const jsonLd = {
                     <p class="poslist__org">
                       {pos.href ? <a href={pos.href} rel="noopener">{pos.org}</a> : pos.org}
                     </p>
-                    <p class="poslist__period mono">{pos.period}</p>
+                    <p class="poslist__period tnum">{pos.period}</p>
                   </div>
                   <p class="poslist__role">{pos.role}{pos.advisor ? `, with ${pos.advisor}` : ''}</p>
                   <p class="poslist__sum">{clean(pos.summary)}</p>
@@ -93,7 +87,7 @@ const jsonLd = {
                 <li>
                   <div class="poslist__head">
                     <p class="poslist__org">{h.name}</p>
-                    <p class="poslist__period mono">{h.date}</p>
+                    <p class="poslist__period tnum">{h.date}</p>
                   </div>
                   <p class="poslist__role">{h.role}, {h.event}</p>
                   <p class="poslist__sum">{clean(h.summary)}</p>
@@ -113,7 +107,7 @@ const jsonLd = {
             {
               data.honors.map((h) => (
                 <li>
-                  <span class="honors__y mono num">{h.year}</span>
+                  <span class="honors__y num">{h.year}</span>
                   <span class="honors__b">
                     <span class="honors__t">
                       {h.href ? <a href={h.href} rel="noopener">{h.title}</a> : h.title}
@@ -132,11 +126,11 @@ const jsonLd = {
           <h2 id="education">Education</h2>
           <div class="poslist__head">
             <p class="poslist__org">{ed.school}</p>
-            <p class="poslist__period mono">Class of {ed.class_of}</p>
+            <p class="poslist__period tnum">Class of {ed.class_of}</p>
           </div>
           <p class="poslist__role">{ed.place}</p>
           <p class="poslist__sum">
-            Coursework beyond the school curriculum: {ed.coursework_beyond.toLowerCase()}. Full
+            Coursework beyond what the school offers: {ed.coursework_beyond}. Full
             transcript detail, test scores, and coursework are in the{' '}
             <a href={url(cv.path)}>CV</a>.
           </p>
@@ -150,7 +144,7 @@ const jsonLd = {
               data.beyond.map((b) => (
                 <div class="beyond__item">
                   <dt>
-                    <span class="mono beyond__label">{b.label}</span>
+                    <span class="beyond__label">{b.label}</span>
                     <span class="beyond__title">{b.title}</span>
                   </dt>
                   <dd>{clean(b.body)}</dd>
@@ -164,7 +158,7 @@ const jsonLd = {
       <!-- sidebar -->
       <aside class="about__side">
         <section class="side">
-          <p class="eyebrow">contact</p>
+          <p class="eyebrow">Contact</p>
           <ul class="side__links">
             <li><a href={`mailto:${p.email}`}>{p.email}</a></li>
             <li><a href={p.profiles.github} rel="noopener">github / {p.profiles.github_handle}</a></li>
@@ -173,18 +167,11 @@ const jsonLd = {
             {p.profiles.scholar && <li><a href={p.profiles.scholar} rel="noopener">google scholar</a></li>}
           </ul>
           <p class="side__cv"><CVLink variant="button" /></p>
-          <p class="side__loc mono">{p.location}</p>
+          <p class="side__loc">{p.location}</p>
         </section>
 
         <section class="side">
-          <p class="eyebrow">interests</p>
-          <ul class="side__plain">
-            {data.research_statement.interests.map((i) => <li>{i}</li>)}
-          </ul>
-        </section>
-
-        <section class="side">
-          <p class="eyebrow">methods and tools</p>
+          <p class="eyebrow">Methods and tools</p>
           <dl class="side__methods">
             {
               data.methods.map((m) => (
@@ -202,6 +189,9 @@ const jsonLd = {
 </Base>
 
 <style>
+  .ahead__fig {
+    margin-block: var(--sp-5) var(--sp-7);
+  }
   .about {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 17rem;
@@ -345,17 +335,6 @@ const jsonLd = {
     gap: var(--sp-6);
   }
   .side__links,
-  .side__plain {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0.35em;
-    font-size: var(--fs-small);
-  }
-  .side__plain li {
-    color: var(--ink-2);
-    text-wrap: pretty;
-  }
   .side__cv {
     margin-top: var(--sp-4);
   }

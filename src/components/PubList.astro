@@ -18,7 +18,7 @@ const authorHtml = (a: string[]) =>
   {
     sorted.map((p, i) => (
       <li class="publist__item" id={p.id}>
-        <span class="publist__n mono" aria-hidden="true">[{sorted.length - i}]</span>
+        <span class="publist__n tnum" aria-hidden="true">[{sorted.length - i}]</span>
         <div class="publist__body">
           <p class="publist__title">
             {p.project ? <a href={url(`/research/${p.project}/`)}>{clean(p.title)}</a> : clean(p.title)}

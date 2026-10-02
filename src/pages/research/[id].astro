@@ -5,7 +5,7 @@ import Evidence from '../../components/Evidence.astro';
 import ProjectFigure from '../../components/ProjectFigure.astro';
 import ProjectMedia from '../../components/ProjectMedia.astro';
 import CVLink from '../../components/CVLink.astro';
-import { publication, statusLabel, clean } from '../../lib/canonical';
+import { publication, statusLabel, clean, sentence, firstSentence } from '../../lib/canonical';
 import { url, absolute } from '../../lib/urls';
 import { allPosts, readingMinutes } from '../../lib/posts';
 
@@ -21,6 +21,9 @@ const { entry, n, prev, next } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
 const pub = d.paper ? publication(d.paper) : null;
+// The paper's own title heads the page. A project without a paper yet heads it
+// with its working title.
+const heading = pub ? clean(pub.title) : d.title;
 const posts = await allPosts();
 const related = d.related.map((id) => posts.find((p) => p.id === id)).filter(Boolean) as typeof posts;
 
@@ -54,34 +57,41 @@ if (pub) {
 import 'katex/dist/katex.min.css';
 ---
 
-<Base title={d.short} description={clean(d.question)} og={`research-${entry.id}`} type="article" jsonLd={jsonLd}>
+<Base title={d.short} description={firstSentence(d.summary)} og={`research-${entry.id}`} type="article" jsonLd={jsonLd}>
   <article class="wrap proj">
     <header class="proj__head">
       <p class="eyebrow">
-        <a href={url('/research/')}>research</a> / {String(n).padStart(2, '0')}
+        <a href={url('/research/')}>Research</a> / {String(n).padStart(2, '0')}
       </p>
-      <h1>{d.title}</h1>
+      <h1>{heading}</h1>
 
       <p class="proj__badges">
         {pub && <span class="badge badge--venue">{pub.venue}</span>}
         {pub && <span class:list={['badge', `badge--${pub.status}`]}>{statusLabel[pub.status]}</span>}
-        {!pub && d.status && <span class="badge badge--in-progress">{d.status}</span>}
+        {!pub && d.status && <span class="badge badge--in-progress">{sentence(d.status)}</span>}
         {d.honor && <span class="badge badge--honor">{d.honor}</span>}
       </p>
-
-      <p class="proj__q">{clean(d.question)}</p>
 
       <dl class="proj__facts">
         <div><dt>role</dt><dd>{d.role}</dd></div>
         <div><dt>period</dt><dd>{d.period}</dd></div>
         {pub && <div><dt>venue</dt><dd>{pub.venue_long}</dd></div>}
+        {pub && <div><dt>authors</dt><dd>{pub.authors.join(', ')}</dd></div>}
       </dl>
 
-      {d.links.length > 0 && (
-        <p class="links proj__links">
-          {d.links.map((l) => <a href={l.href} rel="noopener">{l.label}</a>)}
-        </p>
-      )}
+      {
+        (() => {
+          const links = pub?.links.length ? pub.links : d.links;
+          return (
+            (links.length > 0 || pub?.doi) && (
+              <p class="links proj__links">
+                {links.map((l) => <a href={l.href} rel="noopener">{l.label}</a>)}
+                {pub?.doi && <a href={`https://doi.org/${pub.doi}`} rel="noopener">doi</a>}
+              </p>
+            )
+          );
+        })()
+      }
     </header>
 
     <!-- problem, approach, result: the ten-second version -->
@@ -102,7 +112,7 @@ import 'katex/dist/katex.min.css';
 
     {d.evidence.length > 0 && (
       <section class="proj__ev" aria-label="Evidence">
-        <p class="eyebrow">the numbers</p>
+        <p class="eyebrow">The numbers</p>
         <Evidence items={d.evidence} />
       </section>
     )}
@@ -131,7 +141,7 @@ import 'katex/dist/katex.min.css';
 
     {d.landscape && (
       <aside class="proj__landscape">
-        <p class="eyebrow">where the landscape is</p>
+        <p class="eyebrow">Where the landscape is</p>
         <p>{clean(d.landscape)}</p>
       </aside>
     )}
@@ -142,12 +152,12 @@ import 'katex/dist/katex.min.css';
 
     {related.length > 0 && (
       <section class="proj__related" aria-labelledby="related">
-        <p class="eyebrow" id="related">notes on this</p>
+        <p class="eyebrow" id="related">Notes on this</p>
         <ul>
           {related.map((p) => (
             <li>
               <a href={url(`/writing/${p.id}/`)}>{p.data.title}</a>
-              <span class="mono muted"> {readingMinutes(p.body)} min</span>
+              <span class="tnum muted"> {readingMinutes(p.body)} min</span>
             </li>
           ))}
         </ul>
@@ -158,13 +168,13 @@ import 'katex/dist/katex.min.css';
       <nav class="projnav" aria-label="Other projects">
         {prev ? (
           <a class="projnav__link" href={url(`/research/${prev.id}/`)}>
-            <span class="mono projnav__dir">← previous</span>
+            <span class="projnav__dir">← previous</span>
             <span class="projnav__t">{prev.data.short}</span>
           </a>
         ) : <span />}
         {next ? (
           <a class="projnav__link projnav__link--next" href={url(`/research/${next.id}/`)}>
-            <span class="mono projnav__dir">next →</span>
+            <span class="projnav__dir">next →</span>
             <span class="projnav__t">{next.data.short}</span>
           </a>
         ) : <span />}
@@ -192,12 +202,6 @@ import 'katex/dist/katex.min.css';
     flex-wrap: wrap;
     gap: 0.4em;
   }
-  .proj__q {
-    margin-top: var(--sp-4);
-    font-size: calc(var(--fs-body) * 1.08);
-    color: var(--ink-2);
-    text-wrap: pretty;
-  }
   .proj__facts {
     margin-top: var(--sp-5);
     display: grid;
@@ -206,10 +210,10 @@ import 'katex/dist/katex.min.css';
     font-size: var(--fs-small);
   }
   .proj__facts dt {
-    font-family: var(--mono);
     font-size: var(--fs-tiny);
+    font-weight: 700;
+    letter-spacing: 0.01em;
     color: var(--ink-4);
-    text-transform: lowercase;
   }
   .proj__facts dd {
     margin: 0.1em 0 0;
@@ -227,10 +231,8 @@ import 'katex/dist/katex.min.css';
     border-bottom: 1px solid var(--rule);
   }
   .par__h {
-    font-family: var(--mono);
     font-size: var(--fs-small);
-    font-weight: 400;
-    text-transform: lowercase;
+    font-weight: 700;
     color: var(--ink-3);
     letter-spacing: 0.01em;
     padding-bottom: var(--sp-2);

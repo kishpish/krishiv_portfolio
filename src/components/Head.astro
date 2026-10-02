@@ -5,7 +5,7 @@ import { data, clean } from '../lib/canonical';
 import { url, absolute } from '../lib/urls';
 import lato400 from '../assets/fonts/lato-400.woff2?url';
 import lato700 from '../assets/fonts/lato-700.woff2?url';
-import plex400 from '../assets/fonts/plex-mono-400.woff2?url';
+import mono400 from '../assets/fonts/commit-mono-400.woff2?url';
 
 interface Props {
   title?: string;
@@ -38,7 +38,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
 <link rel="preload" href={lato400} as="font" type="font/woff2" crossorigin />
 <link rel="preload" href={lato700} as="font" type="font/woff2" crossorigin />
-<link rel="preload" href={plex400} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={mono400} as="font" type="font/woff2" crossorigin />
 
 <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
 <link rel="icon" href={url('/favicon.png')} type="image/png" sizes="64x64" />

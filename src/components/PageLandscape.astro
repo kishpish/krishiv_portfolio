@@ -1,0 +1,274 @@
+---
+// One still per page, each a different view of the surface the hero draws:
+//
+//   surface    the whole potential with the minimum-energy path marked, and no
+//              walker, so it is not the front page reprinted
+//   profile    the energy along that path at reading scale
+//   crop       a fine-contoured inset on the global minimum and its saddle
+//   unsettled  five hot walkers, none of which commit to a basin
+//
+// All four are computed at build time and ship as inline SVG. Nothing here
+// runs in the browser, so these add no script cost to any page, and there is
+// nothing to stop under reduced motion because nothing moves.
+import { buildLandscape } from '../lib/landscape/figure';
+import { profileView, cropView, wanderView } from '../lib/landscape/views';
+
+interface Props {
+  view: 'surface' | 'profile' | 'crop' | 'unsettled';
+  /** figure number shown in the caption */
+  n: string;
+  /** overrides the default caption for this view */
+  caption?: string;
+  class?: string;
+}
+const { view, n, caption, class: cls = '' } = Astro.props;
+
+const pad = { l: 26, r: 8, t: 8, b: 24 };
+const f = view === 'surface' || view === 'unsettled' ? buildLandscape() : null;
+const prof = view === 'profile' ? profileView() : null;
+const crop = view === 'crop' ? cropView() : null;
+const wander = view === 'unsettled' ? wanderView() : null;
+
+const full = f ? { w: f.view.w, h: f.view.h } : null;
+const vb = full
+  ? `${-pad.l} ${-pad.t} ${full.w + pad.l + pad.r} ${full.h + pad.t + pad.b}`
+  : prof
+    ? `0 0 ${prof.w} ${prof.h}`
+    : `0 0 ${crop!.w} ${crop!.h}`;
+
+const DEFAULTS: Record<Props['view'], { caption: string; title: string; desc: string }> = {
+  surface: {
+    caption:
+      'The same potential as on the front page, without the walker. The dashed line is the minimum-energy path between the two deepest basins, which is the route anything crossing this surface has to pay for.',
+    title: 'The energy surface with its minimum-energy path',
+    desc: 'A contour map of the Müller-Brown potential. Three basins are labelled A, B, and C, two saddle points are marked with a double dagger, and a dashed line traces the lowest-energy route from basin A through C and down into basin B.',
+  },
+  profile: {
+    caption:
+      'Energy along that path, flattened to one dimension and read left to right from basin B down to the global minimum A. The two peaks are the saddles. This is the same curve as the small mark at each section break, drawn large enough to read the numbers off.',
+    title: 'Energy along the minimum-energy path',
+    desc: 'A line chart of potential energy against position along the minimum-energy path. It starts in basin B on the left, climbs over a saddle, dips through basin C, climbs over a second and higher saddle, and falls into the deepest basin A on the right.',
+  },
+  crop: {
+    caption:
+      'A close crop on the global minimum and the saddle above it, contoured every 5 units instead of every 10. Same function as the front page, narrower window, finer lines.',
+    title: 'A fine-contoured crop on the global minimum',
+    desc: 'A line-only contour map of a small region of the Müller-Brown potential, showing the deepest basin A, the shallower basin C, and the saddle point between them, with contours spaced more finely than on the full surface.',
+  },
+  unsettled: {
+    caption:
+      'Five particles on the same surface, run at a temperature high enough that none of them settle. Each open circle is where one still was when the clock ran out.',
+    title: 'Five particles that have not settled',
+    desc: 'A contour map of the Müller-Brown potential crossed by five wandering orange traces. None of them comes to rest in a basin, and each one ends in an open circle part way across the surface.',
+  },
+};
+const meta = DEFAULTS[view];
+const id = `pl-${view}`;
+---
+
+<figure class:list={['plfig', `plfig--${view}`, cls]}>
+  <svg
+    class="plfig__svg"
+    viewBox={vb}
+    role="img"
+    aria-labelledby={`${id}-t ${id}-d`}
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <title id={`${id}-t`}>{meta.title}</title>
+    <desc id={`${id}-d`}>{meta.desc}</desc>
+
+    {/* ---------------------------------------------------- surface */}
+    {
+      f && full && (
+        <>
+          <image href={f.shading} x="0" y="0" width={full.w} height={full.h} preserveAspectRatio="none" />
+          <g fill="none" stroke-linejoin="round">
+            {f.contours.map((c) => (
+              <path
+                d={c.d}
+                stroke="var(--blue)"
+                stroke-opacity={c.index ? 0.72 : 0.34}
+                stroke-width={c.index ? 1.1 : 0.65}
+              />
+            ))}
+          </g>
+        </>
+      )
+    }
+
+    {
+      view === 'surface' && f && (
+        <path
+          d={f.mep}
+          fill="none"
+          stroke="var(--ink-2)"
+          stroke-width="1.35"
+          stroke-dasharray="1 4.5"
+          stroke-linecap="round"
+          opacity="0.85"
+        />
+      )
+    }
+
+    {/* ------------------------------------------------- unsettled */}
+    {
+      wander && (
+        <g class="plfig__wander">
+          {wander.paths.map((p) => (
+            <path
+              d={p.d}
+              fill="none"
+              stroke="var(--orange)"
+              stroke-width="1.35"
+              stroke-opacity={p.opacity}
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+          ))}
+          {wander.ends.map(([x, y]) => (
+            <circle cx={x} cy={y} r="3.4" fill="var(--paper)" stroke="var(--orange)" stroke-width="1.5" />
+          ))}
+        </g>
+      )
+    }
+
+    {/* stationary points, for both full-surface views */}
+    {
+      f && (
+        <g class="plfig__points">
+          {f.saddles.map((p) => (
+            <text x={p.x} y={p.y + 4.5} class="plfig__saddle" text-anchor="middle">‡</text>
+          ))}
+          {f.minima.map((p) => (
+            <>
+              <circle cx={p.x} cy={p.y} r="2" fill="var(--ink)" />
+              <text x={p.x + 6.5} y={p.y + 4} class="plfig__label">{p.label}</text>
+            </>
+          ))}
+        </g>
+      )
+    }
+
+    {/* axes, for both full-surface views */}
+    {
+      f && full && (
+        <>
+          <g stroke="var(--rule-2)" fill="none">
+            <path d={`M0 0 L0 ${full.h} L${full.w} ${full.h}`} />
+            {f.ticks.x.map((t) => <path d={`M${t.px} ${full.h} l0 4`} />)}
+            {f.ticks.y.map((t) => <path d={`M0 ${t.px} l-4 0`} />)}
+          </g>
+          <g class="plfig__ticks" fill="var(--ink-3)">
+            {f.ticks.x.map((t) => <text x={t.px} y={full.h + 15} text-anchor="middle">{t.v}</text>)}
+            {f.ticks.y.map((t) => <text x={-7} y={t.px + 3} text-anchor="end">{t.v}</text>)}
+          </g>
+        </>
+      )
+    }
+
+    {/* ---------------------------------------------------- profile */}
+    {
+      prof && (
+        <>
+          <g stroke="var(--rule)" fill="none">
+            {prof.ticks.map((t) => <path d={`M30 ${t.py} L${prof.w - 16} ${t.py}`} />)}
+          </g>
+          <g class="plfig__ticks" fill="var(--ink-4)">
+            {prof.ticks.map((t) => <text x="26" y={t.py + 3} text-anchor="end">{t.v}</text>)}
+          </g>
+          <path d={prof.fill} fill="var(--blue)" fill-opacity="0.07" stroke="none" />
+          <path d={prof.d} fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
+          <g class="plfig__pmarks">
+            {prof.marks.map((m) => (
+              <>
+                <circle cx={m.px} cy={m.py} r="3.4" fill="var(--orange)" />
+                <text x={m.px} y={m.py - 9} class="plfig__saddle" text-anchor="middle">{m.label}</text>
+                <text x={m.px} y={m.py + 17} class="plfig__label" text-anchor="middle">{m.E}</text>
+              </>
+            ))}
+          </g>
+        </>
+      )
+    }
+
+    {/* ------------------------------------------------------- crop */}
+    {
+      crop && (
+        <>
+          <g fill="none" stroke-linejoin="round">
+            {crop.contours.map((c) => (
+              <path
+                d={c.d}
+                stroke="var(--blue)"
+                stroke-opacity={c.index ? 0.8 : 0.3}
+                stroke-width={c.index ? 1.2 : 0.6}
+              />
+            ))}
+          </g>
+          <g class="plfig__points">
+            {crop.points.map((p) => (
+              <>
+                <circle cx={p.x} cy={p.y} r="2.4" fill={p.label === '‡' ? 'none' : 'var(--ink)'} />
+                {p.label === '‡' ? (
+                  <text x={p.x} y={p.y + 4.5} class="plfig__saddle" text-anchor="middle">‡</text>
+                ) : (
+                  <text x={p.x + 7} y={p.y + 4} class="plfig__label">{p.label}</text>
+                )}
+              </>
+            ))}
+          </g>
+        </>
+      )
+    }
+  </svg>
+
+  <figcaption class="fig__caption">
+    <span class="fig__n">Fig. {n}</span>
+    {caption ?? meta.caption}
+  </figcaption>
+</figure>
+
+<style>
+  .plfig {
+    margin: 0;
+  }
+  .plfig__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  /* These are furniture, not features: none of them is allowed to push the
+     page's own content off the first screen. */
+  .plfig--surface .plfig__svg,
+  .plfig--unsettled .plfig__svg {
+    max-height: 19rem;
+  }
+  .plfig--profile .plfig__svg {
+    max-height: 14rem;
+  }
+  .plfig--crop .plfig__svg {
+    max-height: 17rem;
+  }
+  .plfig__saddle {
+    font-family: var(--sans);
+    font-size: 13px;
+    fill: var(--ink-2);
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-width: 2.5px;
+  }
+  .plfig__label {
+    font-family: var(--mono);
+    font-size: 11px;
+    fill: var(--ink);
+    font-variant-numeric: tabular-nums;
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-width: 2.5px;
+  }
+  .plfig__ticks text {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

@@ -18,7 +18,7 @@ const fonts = [
   { name: 'Lato', data: font('lato-400.woff'), weight: 400 as const, style: 'normal' as const },
   { name: 'Lato', data: font('lato-700.woff'), weight: 700 as const, style: 'normal' as const },
   { name: 'Lato', data: font('lato-400-italic.woff'), weight: 400 as const, style: 'italic' as const },
-  { name: 'Plex', data: font('plex-mono-400.woff'), weight: 400 as const, style: 'normal' as const },
+  { name: 'Mono', data: font('commit-mono-400.woff'), weight: 400 as const, style: 'normal' as const },
 ];
 
 const PAPER = '#fbfaf6';
@@ -112,7 +112,7 @@ export async function renderOg(input: OgInput): Promise<Buffer> {
               input.eyebrow && {
                 type: 'div',
                 props: {
-                  style: { fontFamily: 'Plex', fontSize: 23, color: INK3, marginBottom: 20, letterSpacing: '0.01em' },
+                  style: { fontFamily: 'Mono', fontSize: 23, color: INK3, marginBottom: 20, letterSpacing: '0.01em' },
                   children: input.eyebrow,
                 },
               },
@@ -159,14 +159,14 @@ export async function renderOg(input: OgInput): Promise<Buffer> {
                     },
                     {
                       type: 'div',
-                      props: { style: { fontFamily: 'Plex', fontSize: 22, color: INK3 }, children: input.site },
+                      props: { style: { fontFamily: 'Mono', fontSize: 22, color: INK3 }, children: input.site },
                     },
                     { type: 'div', props: { style: { flexGrow: 1 } } },
                     ...(input.chips ?? []).map((c) => ({
                       type: 'div',
                       props: {
                         style: {
-                          fontFamily: 'Plex',
+                          fontFamily: 'Mono',
                           fontSize: 20,
                           color: INK3,
                           border: `1px solid #cdc8b9`,

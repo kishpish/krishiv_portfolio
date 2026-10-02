@@ -18,7 +18,7 @@ const minutes = readingMinutes(post.body);
 <article class="pcard">
   <H class="pcard__title">
     <a href={url(`/writing/${post.id}/`)}>{d.title}</a>
-    {d.status === 'in progress' && <span class="badge badge--in-progress pcard__status">in progress</span>}
+    {d.status === 'in progress' && <span class="badge badge--in-progress pcard__status">In progress</span>}
   </H>
   <p class="pcard__desc">{d.description}</p>
   <p class="pcard__meta meta">

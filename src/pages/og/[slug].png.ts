@@ -2,7 +2,7 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import { renderOg, type OgInput } from '../../lib/og';
-import { data, publication, statusLabel, clean } from '../../lib/canonical';
+import { data, publication, statusLabel, clean, firstSentence } from '../../lib/canonical';
 import { absolute } from '../../lib/urls';
 
 const name = data.person.name;
@@ -76,8 +76,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
       slug: `research-${entry.id}`,
       og: {
         eyebrow: 'research',
-        title: entry.data.title,
-        subtitle: clean(entry.data.question),
+        title: entry.data.short,
+        subtitle: firstSentence(entry.data.summary, 180),
         chips: [pub ? pub.venue : (entry.data.status ?? ''), pub ? statusLabel[pub.status] : ''].filter(Boolean),
       },
     });
@@ -87,7 +87,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     cards.push({
       slug: `writing-${post.id}`,
       og: {
-        eyebrow: post.data.section.toLowerCase(),
+        eyebrow: post.data.section,
         title: post.data.title,
         subtitle: post.data.description,
         chips: [post.data.status, ...post.data.tags.slice(0, 1)],

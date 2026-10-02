@@ -30,7 +30,7 @@ const { tag, posts, tags } = Astro.props;
     />
 
     <nav class="tagbar" aria-label="All tags">
-      <span class="tagbar__label mono">all tags</span>
+      <span class="tagbar__label">All tags</span>
       <ul>
         {
           tags.map((t) => (
@@ -53,7 +53,7 @@ const { tag, posts, tags } = Astro.props;
       {posts.map((post) => <PostCard post={post} showSection level={2} />)}
     </div>
 
-    <p class="tagfoot mono"><a href={url('/writing/')}>← All notes</a></p>
+    <p class="tagfoot"><a href={url('/writing/')}>← All notes</a></p>
   </div>
 </Base>
 
@@ -81,7 +81,6 @@ const { tag, posts, tags } = Astro.props;
     display: inline-flex;
     align-items: baseline;
     gap: 0.45em;
-    font-family: var(--mono);
     font-size: var(--fs-small);
     color: var(--ink-2);
     border: 1px solid var(--rule-2);

@@ -27,7 +27,7 @@ const E = Math.round(buildLandscape().mepPoints[idx].E);
     <line x1={here.px} x2={here.px} y1={here.py} y2={H} stroke="var(--rule)" stroke-width="1" />
     <circle cx={here.px} cy={here.py} r="3.4" fill="var(--orange)" />
   </svg>
-  <span class="pathdiv__tag mono" aria-hidden="true">
+  <span class="pathdiv__tag" aria-hidden="true">
     {mark && <span class="pathdiv__mark">{mark}</span>}
     <span>E = {E}</span>
   </span>
@@ -49,6 +49,7 @@ const E = Math.round(buildLandscape().mepPoints[idx].E);
     overflow: visible;
   }
   .pathdiv__tag {
+    font-family: var(--mono);
     flex: none;
     display: flex;
     gap: 0.6em;

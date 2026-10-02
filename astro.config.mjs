@@ -9,12 +9,15 @@ import { rehypeBaseLinks } from './src/lib/rehype-base-links.mjs';
 import { rehypeTables } from './src/lib/rehype-tables.mjs';
 import { paperTheme } from './src/lib/shiki-theme.mjs';
 
-// SITE_URL and BASE_PATH are set by the deploy workflow from actions/configure-pages.
-// The site is a user page served from the root of https://kishpish.github.io, so
-// the default base is empty, and a project page or a custom domain still needs no
-// code change: every internal link goes through url() in src/lib/urls.ts.
+// SITE_URL and BASE_PATH are set by the deploy workflow from actions/configure-pages,
+// so the deployed base always matches whatever GitHub Pages is actually serving.
+// The defaults below match the live project page at
+// https://kishpish.github.io/krishiv_portfolio/, which is what `npm run dev` and
+// `npm run preview` should look like. A user page or a custom domain, both served
+// from "/", needs no code change: every internal link goes through url() in
+// src/lib/urls.ts.
 const site = process.env.SITE_URL || 'https://kishpish.github.io';
-const rawBase = process.env.BASE_PATH ?? '';
+const rawBase = process.env.BASE_PATH ?? '/krishiv_portfolio';
 const base = rawBase === '' ? '/' : rawBase;
 
 export default defineConfig({

@@ -45,7 +45,7 @@ const schema = z.object({
   }),
   cv: z.object({ path: z.string(), updated_fallback: z.string(), label: z.string() }),
   site: z.object({ title: z.string(), description: z.string(), repo: z.url(), repo_branch: z.string() }),
-  research_statement: z.object({ short: z.string(), program: z.string(), interests: z.array(z.string()) }),
+  research_statement: z.object({ short: z.string(), interests: z.array(z.string()) }),
   publications: z.array(
     z.object({
       id: z.string(),
@@ -105,7 +105,19 @@ const schema = z.object({
   media: z.array(
     z.object({ id: z.string(), title: z.string(), outlet: z.string(), year: z.number(), href: z.url() }),
   ),
-  beyond: z.array(z.object({ label: z.string(), title: z.string(), body: z.string() })),
+  beyond: z.array(
+    z.object({
+      label: z.string(),
+      title: z.string(),
+      body: z.string(),
+      exit_velocity: z.string().optional(),
+      sixty: z.string().optional(),
+    }),
+  ),
+  arguments: z.object({
+    intro: z.string(),
+    items: z.array(z.object({ claim: z.string(), defense: z.string() })),
+  }),
   methods: z.array(z.object({ area: z.string(), items: z.string() })),
   notion: z.object({
     index_url: z.url(),
@@ -153,11 +165,27 @@ export function publication(id: string): Publication {
 }
 
 export const statusLabel: Record<Publication['status'], string> = {
-  preprint: 'preprint',
-  accepted: 'accepted',
-  'under-review': 'under review',
-  published: 'published',
+  preprint: 'Preprint',
+  accepted: 'Accepted',
+  'under-review': 'Under review',
+  published: 'Published',
 };
+
+/** First letter up, rest untouched. For free-text status values such as "in progress". */
+export const sentence = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+
+/**
+ * The first sentence of a block of prose, for the places with a character
+ * budget: meta descriptions and Open Graph cards. The project summaries open
+ * with a concrete problem statement, which is what belongs there; the
+ * technical detail that follows does not fit and would be truncated anyway.
+ */
+export function firstSentence(s: string, max = 240): string {
+  const t = clean(s);
+  const m = /[.!?](?=\s+[A-Z(\u00C0-\u024F]|$)/.exec(t);
+  const out = m ? t.slice(0, m.index + 1) : t;
+  return out.length <= max ? out : `${out.slice(0, max - 1).replace(/[\s,;:]+\S*$/, '')}\u2026`;
+}
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTHS_LONG = [

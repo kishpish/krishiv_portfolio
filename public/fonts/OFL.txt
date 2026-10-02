@@ -1,6 +1,6 @@
-Fonts in this directory are subsets of:
+The fonts this site serves are subsets of:
   Lato 2.015 (c) 2010-2015 Lukasz Dziedzic, http://www.latofonts.com/
-  IBM Plex Mono (c) 2017 IBM Corp.
+  Commit Mono v1.143 (c) Eigil Nikolajsen, https://commitmono.com/
 Both are licensed under the SIL Open Font License, Version 1.1, reproduced below.
 
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007

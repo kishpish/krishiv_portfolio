@@ -18,7 +18,7 @@ const href = url(cv.path);
   type="application/pdf"
   data-cv-link
 >
-  <span class="cv-link__label">{variant === 'button' ? 'Curriculum vitae' : 'CV'}</span>
+  <span class="cv-link__label">{cv.label}</span>
   {variant !== 'compact' && (
     <span class="cv-link__meta">
       PDF · <time datetime={cv.updated.iso}>updated {cv.updated.short}</time>
@@ -34,7 +34,6 @@ const href = url(cv.path);
     gap: 0.6em;
   }
   .cv-link__meta {
-    font-family: var(--mono);
     font-size: var(--fs-small);
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
@@ -66,9 +65,8 @@ const href = url(cv.path);
     background: var(--orange-12);
   }
   .cv-link--compact {
-    font-family: var(--mono);
     font-size: var(--fs-small);
-    font-weight: 500;
+    font-weight: 700;
     border: 1px solid currentColor;
     border-radius: var(--radius);
     padding: 0.22em 0.55em 0.25em;

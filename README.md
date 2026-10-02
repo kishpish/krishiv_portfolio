@@ -1,4 +1,4 @@
-# kishpish.github.io
+# krishiv_portfolio
 
 The source for my research site.
 
@@ -7,7 +7,7 @@ on every push to `main`.
 
 ```
 npm install
-npm run dev        # http://localhost:4321/
+npm run dev        # http://localhost:4321/krishiv_portfolio/
 npm run build      # writes dist/
 npm run preview    # serves dist/ exactly as it will deploy
 ```
@@ -218,7 +218,7 @@ scripts/
 ### The figure on the front page
 
 It is the Müller-Brown potential, computed rather than drawn. The
-[colophon](https://kishpish.github.io/colophon/) explains why
+[colophon](https://kishpish.github.io/krishiv_portfolio/colophon/) explains why
 it is there and what every mark in it means.
 
 Everything is server-rendered SVG. The canvas animation is an enhancement that

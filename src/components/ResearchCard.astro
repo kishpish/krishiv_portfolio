@@ -1,9 +1,11 @@
 ---
 // A research card: figure first where there is one, then the venue badge, the
-// linked title, the plain-language question, and the evidence.
+// paper's own title, the authors, a technical description, the evidence, and
+// every link the paper has. The publication metadata is read from
+// canonical.yaml, so a project and its paper are never out of step.
 import type { CollectionEntry } from 'astro:content';
 import { url } from '../lib/urls';
-import { publication, statusLabel, clean } from '../lib/canonical';
+import { data, publication, statusLabel, clean, sentence } from '../lib/canonical';
 import Evidence from './Evidence.astro';
 import ProjectFigure from './ProjectFigure.astro';
 import ProjectMedia from './ProjectMedia.astro';
@@ -12,36 +14,60 @@ interface Props {
   entry: CollectionEntry<'research'>;
   n: number;
   compact?: boolean;
+  /** heading level for the card title, so each page keeps a correct outline */
+  level?: 2 | 3;
 }
-const { entry, n, compact = false } = Astro.props;
+const { entry, n, compact = false, level = 3 } = Astro.props;
+const H = `h${level}` as 'h2' | 'h3';
 const d = entry.data;
 const pub = d.paper ? publication(d.paper) : null;
 const href = url(`/research/${entry.id}/`);
+// The paper's own title, not the project file's short label. Projects without a
+// paper yet fall back to their working title.
+const heading = pub ? clean(pub.title) : d.title;
+const authorHtml = (a: string[]) =>
+  a.map((n) => (n === data.person.name ? `<strong>${n}</strong>` : n)).join(', ');
 ---
 
 <article class:list={['rcard', compact && 'rcard--compact']}>
-  <div class="rcard__index mono" aria-hidden="true">{String(n).padStart(2, '0')}</div>
+  <div class="rcard__index tnum" aria-hidden="true">{String(n).padStart(2, '0')}</div>
 
   <div class="rcard__body">
     <p class="rcard__badges">
       {pub && <span class:list={['badge', 'badge--venue']}>{pub.venue}</span>}
       {pub && <span class:list={['badge', `badge--${pub.status}`]}>{statusLabel[pub.status]}</span>}
-      {!pub && d.status && <span class="badge badge--in-progress">{d.status}</span>}
+      {!pub && d.status && <span class="badge badge--in-progress">{sentence(d.status)}</span>}
       {d.honor && <span class="badge badge--honor">{d.honor}</span>}
     </p>
 
-    <h3 class="rcard__title">
-      <a href={href}>{d.title}</a>
-    </h3>
+    <H class="rcard__title">
+      <a href={href}>{heading}</a>
+    </H>
 
-    <p class="rcard__q">{clean(d.question)}</p>
+    {pub && <p class="rcard__authors" set:html={authorHtml(pub.authors)} />}
+
+    <p class="rcard__q">{clean(d.summary)}</p>
 
     {!compact && d.evidence.length > 0 && <Evidence items={d.evidence} size="sm" class="rcard__ev" />}
 
     <p class="rcard__meta meta">
       <span>{d.role}</span>
       <span>{d.period}</span>
+      {pub && <span>{pub.venue_long}</span>}
+      {pub && <span class="tnum">{pub.year}</span>}
     </p>
+
+    {
+      (pub?.links.length || d.links.length || pub?.doi) && (
+        <p class="links rcard__links">
+          {(pub ? pub.links : d.links).map((l) => (
+            <a href={l.href} rel="noopener">{l.label}</a>
+          ))}
+          {pub?.doi && <a href={`https://doi.org/${pub.doi}`} rel="noopener">doi</a>}
+          <a href={href}>project page</a>
+        </p>
+      )
+    }
   </div>
 
   {
@@ -111,6 +137,14 @@ const href = url(`/research/${entry.id}/`);
   .rcard__title a:hover,
   .rcard__title a:focus-visible {
     color: var(--orange);
+  }
+  .rcard__authors {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .rcard__links {
+    margin-top: var(--sp-3);
   }
   .rcard__q {
     margin-top: var(--sp-3);

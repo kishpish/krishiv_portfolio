@@ -7,7 +7,20 @@ role: "First author"
 kind: independent
 paper: tem171-biorxiv-2025
 honor: "Regeneron ISEF 2025 Finalist"
-question: "Can a protein be designed to jam a bacterial enzyme, and can you tell whether it will hold on before anyone makes it?"
+summary: >-
+  TEM-171 is a β-lactamase that lets bacteria destroy an extended range of
+  β-lactam antibiotics, and resistance evolves around small-molecule
+  inhibitors of it quickly. This pipeline directs a diffusion model and an
+  inverse-folding model at nine active-site residues, four catalytic and five
+  shape-determining, treats structure-prediction interface confidence as a
+  filter rather than as evidence, and spends its compute on steered molecular
+  dynamics that pulls each binder off the target while recording force,
+  recovering the free energy from that non-equilibrium work under the
+  Jarzynski equality. The selected design gives a potential of mean force with
+  a single minimum at −12.3 kcal/mol and peak unbinding forces of 1,500 to
+  1,700 kN/mol against the 800 to 1,200 kN/mol the paper cites as typical for
+  protein-protein complexes, and the work is computational end to end, with no
+  binder expressed, purified, or assayed.
 problem: >-
   TEM-171 is a β-lactamase: an enzyme that lets bacteria destroy an extended
   range of β-lactam antibiotics. Resistance evolves around small-molecule
@@ -73,10 +86,7 @@ figure:
     predicted interface confidence from zero to one. A dashed horizontal line
     marks the 0.8 confidence threshold. Points are spread widely, with a cluster
     of high-confidence designs in the upper portion.
-links:
-  - { label: preprint, href: "https://www.biorxiv.org/content/10.1101/2025.06.23.661177v1" }
-  - { label: code, href: "https://github.com/kishpish/tem171-inhibitor-pipeline" }
-  - { label: ISEF project, href: "https://isef.net/project/cbio021-tem171-inhibitor-design-via-deep-learning-pipeline" }
+links: []
 related:
   - confidence-is-not-correctness
   - protein-language-models-have-a-units-problem

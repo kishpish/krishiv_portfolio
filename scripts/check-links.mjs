@@ -20,7 +20,7 @@ const htmlFiles = [];
 })(DIST);
 
 // dist/ is the site root, but links carry the deployed base path, so strip it.
-const BASE = (process.env.BASE_PATH ?? '').replace(/\/$/, '');
+const BASE = (process.env.BASE_PATH ?? '/krishiv_portfolio').replace(/\/$/, '');
 
 const exists = (rel) => {
   let clean = decodeURIComponent(rel.split('?')[0].split('#')[0]);

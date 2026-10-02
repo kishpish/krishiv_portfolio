@@ -1,157 +1,43 @@
 ---
+// Publications merged into /research/, so a project and the paper it produced
+// sit together. This page stays behind because the old address has been shared,
+// and a shared link should not 404. It is noindex, so search engines follow the
+// move rather than keeping both.
 import Base from '../layouts/Base.astro';
-import PageHeader from '../components/PageHeader.astro';
-import PubList from '../components/PubList.astro';
-import CVLink from '../components/CVLink.astro';
-import { data, clean, statusLabel } from '../lib/canonical';
-import { absolute } from '../lib/urls';
+import { url } from '../lib/urls';
 
-const p = data.person;
-const jsonLd = data.publications.map((pub) => ({
-  '@context': 'https://schema.org',
-  '@type': 'ScholarlyArticle',
-  headline: clean(pub.title),
-  name: clean(pub.title),
-  author: pub.authors.map((name) => ({ '@type': 'Person', name })),
-  datePublished: String(pub.year),
-  publication: pub.venue_long,
-  creativeWorkStatus: statusLabel[pub.status],
-  ...(pub.doi ? { identifier: `https://doi.org/${pub.doi}`, sameAs: `https://doi.org/${pub.doi}` } : {}),
-  url: absolute('/publications/') + `#${pub.id}`,
-}));
+const to = url('/research/#papers-h');
 ---
 
 <Base
-  title="Publications"
-  description="First-author publications, preprints, conference talks, and media coverage for Krishiv Potluri."
+  title="Publications have moved"
+  description="The publication list now sits on the research page, with each paper next to the project it came from."
   og="publications"
-  jsonLd={jsonLd}
+  noindex
 >
-  <div class="wrap">
-    <PageHeader
-      eyebrow="papers"
-      title="Publications"
-      lede="All first author. Venue and status are stated exactly as they stand, and preprints, code, and project pages are linked from each entry."
-    >
-      <p class="phead__cv"><CVLink variant="button" /></p>
-    </PageHeader>
-
-    <section class="pubsec pubsec--first" aria-labelledby="papers-h">
-      <h2 id="papers-h" class="visually-hidden">Papers</h2>
-      <PubList />
-    </section>
-
-    <section class="pubsec" aria-labelledby="talks-h">
-      <p class="eyebrow">presented</p>
-      <h2 id="talks-h">Talks and posters</h2>
-      <ol class="simple">
-        {
-          data.talks.map((t) => (
-            <li>
-              <p class="simple__t">
-                {t.href ? <a href={t.href} rel="noopener">{t.title}</a> : t.title}
-              </p>
-              <p class="simple__m meta">
-                <span>{t.venue}</span>
-                <span class="num">{t.year}</span>
-                <span>{t.kind}</span>
-              </p>
-              {t.note && <p class="simple__n">{t.note}</p>}
-            </li>
-          ))
-        }
-      </ol>
-    </section>
-
-    <section class="pubsec" aria-labelledby="media-h">
-      <p class="eyebrow">written about</p>
-      <h2 id="media-h">Media</h2>
-      <ol class="simple">
-        {
-          data.media.map((m) => (
-            <li>
-              <p class="simple__t">
-                <a href={m.href} rel="noopener">{m.title}</a>
-              </p>
-              <p class="simple__m meta">
-                <span>{m.outlet}</span>
-                <span class="num">{m.year}</span>
-              </p>
-            </li>
-          ))
-        }
-      </ol>
-    </section>
-
-    <section class="pubsec" aria-labelledby="id-h">
-      <p class="eyebrow">identifiers</p>
-      <h2 id="id-h">Elsewhere</h2>
-      <dl class="ids mono">
-        <div><dt>ORCID</dt><dd><a href={p.profiles.orcid} rel="noopener">{p.profiles.orcid_id}</a></dd></div>
-        <div><dt>GitHub</dt><dd><a href={p.profiles.github} rel="noopener">{p.profiles.github_handle}</a></dd></div>
-        <div><dt>Email</dt><dd><a href={`mailto:${p.email}`}>{p.email}</a></dd></div>
-      </dl>
-    </section>
+  <meta http-equiv="refresh" content={`0; url=${to}`} slot="head" />
+  <div class="wrap moved">
+    <p class="eyebrow">Moved</p>
+    <h1>Publications are on the research page</h1>
+    <p class="moved__lede">
+      Splitting a project from the paper it produced meant a reader who wanted the preprint
+      landed somewhere other than the description. They are together now, with the formal
+      citation list below the projects.
+    </p>
+    <p class="moved__go"><a href={to}>Go to the publication list</a></p>
   </div>
 </Base>
 
 <style>
-  .phead__cv {
-    margin-top: var(--sp-5);
-  }
-  .pubsec {
-    padding-top: var(--sp-7);
-  }
-  .pubsec--first {
-    padding-top: 0;
-  }
-  .pubsec h2 {
-    margin-bottom: var(--sp-4);
-  }
-  .simple {
-    list-style: none;
-    padding: 0;
+  .moved {
+    padding-block: var(--sp-8) var(--sp-8);
     max-width: var(--measure);
   }
-  .simple li {
-    padding-block: var(--sp-4);
-    border-top: 1px solid var(--rule);
+  .moved__lede {
+    margin-top: var(--sp-4);
+    color: var(--ink-2);
   }
-  .simple li:last-child {
-    border-bottom: 1px solid var(--rule);
-  }
-  .simple__t {
-    font-weight: 700;
-    line-height: 1.35;
-    text-wrap: pretty;
-  }
-  .simple__t a {
-    color: var(--ink);
-  }
-  .simple__t a:hover,
-  .simple__t a:focus-visible {
-    color: var(--orange);
-  }
-  .simple__m {
-    margin-top: var(--sp-2);
-  }
-  .simple__n {
-    margin-top: var(--sp-1);
-    font-size: var(--fs-small);
-    font-style: italic;
-    color: var(--ink-3);
-  }
-  .ids {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: var(--sp-3) var(--sp-5);
-    font-size: var(--fs-small);
-    max-width: 52rem;
-  }
-  .ids dt {
-    color: var(--ink-4);
-  }
-  .ids dd {
-    margin: 0.1em 0 0;
+  .moved__go {
+    margin-top: var(--sp-5);
   }
 </style>

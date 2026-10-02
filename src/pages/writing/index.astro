@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import PostCard from '../../components/PostCard.astro';
+import PageLandscape from '../../components/PageLandscape.astro';
 import NotionCard from '../../components/NotionCard.astro';
 import { data, clean } from '../../lib/canonical';
 import { url, absolute } from '../../lib/urls';
@@ -37,14 +38,16 @@ const jsonLd = {
         when I find out I was wrong, which means some of them are currently wrong in ways I
         have not found yet.
       </p>
-      <p class="whead__count mono">
+      <p class="whead__count tnum">
         {total} notes · {groups.length} sections · <a href={url('/rss.xml')}>RSS</a>
       </p>
     </PageHeader>
 
+    <PageLandscape view="profile" n="0.2" class="whead__fig" />
+
     <!-- tag filter: real links to real pages, so it works without JavaScript -->
     <nav class="tagbar" aria-label="Filter by tag">
-      <span class="tagbar__label mono">tags</span>
+      <span class="tagbar__label">Tags</span>
       <ul>
         {
           tags.map((t) => (
@@ -67,7 +70,7 @@ const jsonLd = {
           <div class="wsec__head">
             <h2 id={`sec-${g.slug}`}>{g.name}</h2>
             {g.subtitle && <p class="wsec__sub">{g.subtitle}</p>}
-            <span class="wsec__n mono">{g.posts.length}</span>
+            <span class="wsec__n tnum">{g.posts.length}</span>
           </div>
           <div class="wsec__list">
             {g.posts.map((post) => <PostCard post={post} />)}
@@ -85,7 +88,7 @@ const jsonLd = {
               Rough, unfinished, and published anyway. I would rather put a thought up with a
               label on it than sit on it until it is polished.
             </p>
-            <span class="wsec__n mono">{inProgress.length}</span>
+            <span class="wsec__n tnum">{inProgress.length}</span>
           </div>
           <div class="wsec__list">
             {inProgress.map((post) => <PostCard post={post} />)}
@@ -103,12 +106,12 @@ const jsonLd = {
               Longer walkthroughs of specific tools, written while using them, and still living
               on Notion where I drafted them.
             </p>
-            <span class="wsec__n mono">{notion.length}</span>
+            <span class="wsec__n tnum">{notion.length}</span>
           </div>
           <div class="wsec__list">
             {notion.map((n) => <NotionCard title={n.title} url={n.url} tag={n.tag} summary={clean(n.summary)} minutes={n.minutes} />)}
           </div>
-          <p class="wsec__more mono">
+          <p class="wsec__more">
             <a href={data.notion.index_url} rel="noopener">{data.notion.index_title} ↗</a>
           </p>
         </section>
@@ -118,33 +121,33 @@ const jsonLd = {
 
     <aside class="wgrid__side">
       <nav class="wnav" aria-label="Sections">
-        <p class="eyebrow">sections</p>
+        <p class="eyebrow">Sections</p>
         <ol>
           {
             groups.map((g) => (
               <li>
                 <a href={`#sec-${g.slug}`}>{g.name}</a>
-                <span class="wnav__n mono num">{g.posts.length}</span>
+                <span class="wnav__n num">{g.posts.length}</span>
               </li>
             ))
           }
           {inProgress.length > 0 && (
             <li>
               <a href="#sec-progress">In progress</a>
-              <span class="wnav__n mono num">{inProgress.length}</span>
+              <span class="wnav__n num">{inProgress.length}</span>
             </li>
           )}
           {notion.length > 0 && (
             <li>
               <a href="#sec-elsewhere">Elsewhere</a>
-              <span class="wnav__n mono num">{notion.length}</span>
+              <span class="wnav__n num">{notion.length}</span>
             </li>
           )}
         </ol>
       </nav>
 
       <div class="wfeed">
-        <p class="eyebrow">subscribe</p>
+        <p class="eyebrow">Subscribe</p>
         <p><a href={url('/rss.xml')}>RSS feed</a></p>
         <p class="wfeed__note">
           New notes and edits to existing ones both show up there.
@@ -156,6 +159,9 @@ const jsonLd = {
 </Base>
 
 <style>
+  .whead__fig {
+    margin-block: var(--sp-6);
+  }
   .whead__honest {
     margin-top: var(--sp-4);
     max-width: var(--measure);
@@ -192,7 +198,6 @@ const jsonLd = {
     display: inline-flex;
     align-items: baseline;
     gap: 0.45em;
-    font-family: var(--mono);
     font-size: var(--fs-small);
     color: var(--ink-2);
     border: 1px solid var(--rule-2);

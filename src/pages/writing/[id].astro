@@ -2,7 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Toc from '../../components/Toc.astro';
-import { data } from '../../lib/canonical';
+import { data, sentence } from '../../lib/canonical';
 import { url, absolute } from '../../lib/urls';
 import { allPosts, neighbours, readingMinutes, tagSlug, sectionSlug } from '../../lib/posts';
 
@@ -63,14 +63,14 @@ import 'katex/dist/katex.min.css';
     <article class="post__main">
       <header class="post__head">
         <p class="eyebrow">
-          <a href={url('/writing/')}>writing</a> /{' '}
+          <a href={url('/writing/')}>Writing</a> /{' '}
           <a href={url(`/writing/#sec-${sectionMeta?.slug ?? sectionSlug(d.section)}`)}>{d.section}</a>
         </p>
         <h1>{d.title}</h1>
         <p class="post__desc">{d.description}</p>
         <p class="post__meta meta">
           <span class:list={['badge', d.status === 'in progress' ? 'badge--in-progress' : 'badge--note']}>
-            {d.status}
+            {sentence(d.status)}
           </span>
           <span>{minutes} min</span>
           <span class="post__tags">
@@ -99,7 +99,7 @@ import 'katex/dist/katex.min.css';
       </div>
 
       <footer class="post__foot">
-        <p class="post__edited mono">
+        <p class="post__edited">
           Notes get edited in place. If something here is wrong, I would like to know:{' '}
           <a href={`mailto:${data.person.email}?subject=${encodeURIComponent(d.title)}`}>{data.person.email}</a>
         </p>
@@ -124,7 +124,7 @@ import 'katex/dist/katex.min.css';
           {
             prev ? (
               <a class="postnav__link" href={url(`/writing/${prev.id}/`)}>
-                <span class="mono postnav__dir">← previous</span>
+                <span class="postnav__dir">← previous</span>
                 <span class="postnav__t">{prev.data.title}</span>
               </a>
             ) : (
@@ -134,7 +134,7 @@ import 'katex/dist/katex.min.css';
           {
             next ? (
               <a class="postnav__link postnav__link--next" href={url(`/writing/${next.id}/`)}>
-                <span class="mono postnav__dir">next →</span>
+                <span class="postnav__dir">next →</span>
                 <span class="postnav__t">{next.data.title}</span>
               </a>
             ) : (

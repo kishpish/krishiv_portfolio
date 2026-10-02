@@ -7,7 +7,23 @@ role: "First author"
 kind: independent
 paper: hydrogel-urtc-2026
 honor: "1st Place, Texas Science and Engineering Fair 2026"
-question: "After a heart attack, can you pick the gel to inject by testing it on a copy of that patient's heart first?"
+summary: >-
+  Scar replaces muscle permanently after a myocardial infarction, and an
+  injectable hydrogel's stiffness, degradation rate, conductivity, thickness,
+  and placement all interact with the geometry of one patient's damage, so the
+  test you want, trying the gel on that patient, is the one you cannot run.
+  This work pairs a pretrained polymer chemical language model, fine-tuned
+  with low-rank adapters under a fusion transformer over material and patient
+  descriptors with multi-task outcome and safety heads, against a geometry
+  pipeline that turns patient surface meshes into ten solver-ready tetrahedral
+  hearts totalling 3.66 million elements, each carrying a transmural
+  coordinate from Laplace's equation, rule-based helical fibre architecture,
+  scar and border zone inferred from wall thinning rather than contrast
+  imaging, and geodesically selected injection sites. Candidates are scored
+  against thresholds fixed in code, and because the search runs on surrogate
+  predictions rather than a full mechanical simulation per design, a
+  shortlisted formulation is a hypothesis for the solver rather than a result
+  from it.
 problem: >-
   Scar replaces muscle permanently after a myocardial infarction. An injectable
   hydrogel could support the wall while the tissue remodels, but a gel is not
@@ -58,10 +74,7 @@ figure:
     for each of ten patient meshes, ranging from about 263,000 to 468,000. The
     right panel plots the percentage of each mesh labelled infarct, around 7 to
     9 percent, and border zone, around 15 to 24 percent.
-links:
-  - { label: model code, href: "https://github.com/kishpish/HYDRA-BERT" }
-  - { label: simulation code, href: "https://github.com/kishpish/MESH_FIBER_INJECTION" }
-  - { label: TXSEF award, href: "https://txsef.tamu.edu/awards/2026-category-awards/" }
+links: []
 related:
   - reward-is-a-bad-interface-for-design
   - inductive-bias-is-a-budget

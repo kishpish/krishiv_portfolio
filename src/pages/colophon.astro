@@ -23,24 +23,17 @@ const conflicts = Object.entries(data.conflicts);
       <div class="prose col__body">
         <h2 id="why">Why a landscape</h2>
         <p>
-          I wrote my four landscape projects down next to each other, intending to find a line
-          that covered all of them for an application essay, and found something I had not
-          expected: they are the same problem.
+          An energy landscape is the picture I reach for most often, so it is the picture the
+          site is built from. Several of the projects here do involve a barrier, a path, or a
+          basin, and a few of them say so on their own pages. I am not going to claim more than
+          that. A single frame covering all of the work would be tidier than the work actually
+          is.
         </p>
         <p>
-          The antibody work generates designs by optimizing a transition path across an energy
-          surface rather than screening a library. The leukemia work models cell density as a
-          Boltzmann distribution and recovers a landscape, so that a drug becomes a force that
-          collapses a basin. The protein inhibitor work validates binding by pulling the binder
-          off its target and integrating the work, which is a landscape traversal with a price
-          tag. The hydrogel work searches a design space for the point that moves a patient's
-          heart from one state to a better one.
-        </p>
-        <p>
-          Every one of those is a thing moving across a surface, paying energy, and settling
-          somewhere. That is my research program in one sentence, and I did not write it, I
-          discovered it. So the figure is not decoration applied to the site. It is the
-          argument.
+          What the figure earns its place with is narrower and checkable: it is a real function
+          from the literature, every mark in it is computed rather than drawn, and the same
+          numbers drive the small diagram at each section break. The rest of this page is what
+          it is computing.
         </p>
 
         <h2 id="what">What the figure actually is</h2>
@@ -69,8 +62,9 @@ const conflicts = Object.entries(data.conflicts);
           </li>
           <li>
             <strong>The orange trace</strong> is a particle under Langevin dynamics, integrated
-            with a BAOAB scheme. In the static version it is dropped on the upper wall and rolls
-            into a basin.
+            with a BAOAB scheme. In the static version it is dropped on the right-hand wall, at
+            the open circle, and comes to rest in the global minimum, at the filled one. It
+            darkens along its direction of travel, so the direction reads without arrows.
           </li>
         </ul>
 
@@ -109,10 +103,12 @@ const conflicts = Object.entries(data.conflicts);
         <p>
           The small diagram at each section break on the front page is the energy along that
           same minimum-energy path, as a reaction-coordinate profile. The marker advances one
-          stop per section, from basin B at the top, over a saddle, through C, over the second
-          saddle, and into the global minimum A at the foot of the page. Reading the home page
-          top to bottom is a traversal of the path in the hero figure, and the number next to
-          the marker is the actual energy at that point.
+          stop per section, from basin B at the top, over the first saddle, through C, and up
+          to the second saddle at the last break. The global minimum A is the footer, which is
+          why the last thing on every page is its energy. Reading the home page top to bottom
+          is a traversal of the path in the hero figure, and the number next to the marker is
+          the actual energy at that point. The other pages each get one still view of the same
+          surface, numbered 0.1 to 0.4.
         </p>
 
         <h2 id="type">Type and colour</h2>
@@ -142,7 +138,7 @@ const conflicts = Object.entries(data.conflicts);
           Astro, building to static files, deployed to GitHub Pages by a workflow on every push.
           Content is Markdown: adding a note means adding a <code>.md</code> file. Math is
           rendered at build time with KaTeX, so there is no client-side typesetting and no
-          flash. Lato and IBM Plex Mono are self-hosted as subsets with size-adjusted fallbacks,
+          flash. Lato and Commit Mono are self-hosted as subsets with size-adjusted fallbacks,
           so no text moves when they load. There is no analytics and no tracking.
         </p>
         <p>
@@ -168,7 +164,9 @@ const conflicts = Object.entries(data.conflicts);
       <aside class="col__side">
         <EnergyLandscape mode="hero" />
         <p class="col__figcap">
-          The same figure.<span class="col__figcap-motion"> Push it around while you read about it.</span>
+          <span class="fig__n">Fig. 0</span>The same figure as the front page.<span
+            class="col__figcap-motion"
+          > Push it around while you read about it.</span>
         </p>
       </aside>
     </div>
@@ -191,7 +189,7 @@ const conflicts = Object.entries(data.conflicts);
             {
               conflicts.map(([key, c]) => (
                 <tr>
-                  <th scope="row" class="mono">{key.replace(/_/g, ' ')}</th>
+                  <th scope="row">{key.replace(/_/g, ' ')}</th>
                   <td>{c.chosen}</td>
                   <td class="ctable__why">{c.why.replace(/\s+/g, ' ').trim()}</td>
                 </tr>
@@ -275,10 +273,9 @@ const conflicts = Object.entries(data.conflicts);
   }
   .ctable th[scope='col'] {
     text-align: left;
-    font-family: var(--mono);
-    font-weight: 400;
+    font-weight: 700;
     font-size: var(--fs-tiny);
-    text-transform: lowercase;
+    letter-spacing: 0.01em;
     color: var(--ink-3);
     border-bottom: 1px solid var(--ink-2);
     padding: 0 var(--sp-4) var(--sp-2) 0;

@@ -4,9 +4,10 @@ import { url, stripBase } from '../lib/urls';
 import CVLink from './CVLink.astro';
 
 const path = stripBase(Astro.url.pathname);
+// Four items. Research carries the papers, so a separate Papers entry would
+// only split a project from the publication it produced.
 const nav = [
   { href: '/research/', label: 'Research' },
-  { href: '/publications/', label: 'Papers' },
   { href: '/writing/', label: 'Writing' },
   { href: '/about/', label: 'About' },
 ];

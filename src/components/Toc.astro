@@ -13,7 +13,7 @@ const items = Astro.props.headings.filter((h) => h.depth === 2);
 {
   items.length > 1 && (
     <nav class="toc" aria-labelledby="toc-h" data-toc>
-      <p class="eyebrow" id="toc-h">contents</p>
+      <p class="eyebrow" id="toc-h">Contents</p>
       <ol>
         {items.map((h) => (
           <li>
@@ -43,7 +43,6 @@ const items = Astro.props.headings.filter((h) => h.depth === 2);
   }
   .toc li::before {
     content: counter(toc, decimal-leading-zero);
-    font-family: var(--mono);
     font-size: var(--fs-tiny);
     color: var(--ink-4);
     font-variant-numeric: tabular-nums;

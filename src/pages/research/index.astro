@@ -1,48 +1,114 @@
 ---
+// Research and publications, one page. Splitting a project from the paper it
+// produced sent a reader looking for the TEM-171 preprint to a different
+// address from the TEM-171 description, so the projects lead and each carries
+// its own publication metadata. The formal citation list sits below them,
+// because that is what an academic reader scrolls to and it should be
+// copyable. Talks and media are at the foot.
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import ResearchCard from '../../components/ResearchCard.astro';
+import PubList from '../../components/PubList.astro';
 import CVLink from '../../components/CVLink.astro';
-import { data, clean } from '../../lib/canonical';
-import { url } from '../../lib/urls';
+import PageLandscape from '../../components/PageLandscape.astro';
+import { data, clean, statusLabel } from '../../lib/canonical';
+import { url, absolute } from '../../lib/urls';
 
 const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
 const description =
-  'Five research projects in machine learning for biology and physics-based simulation: antibody design as transition-path control, an energy landscape of leukemic cell states, de novo protein inhibitors, patient-specific cardiac biomaterials, and a leakage-audited expression benchmark.';
+  'Five research projects in machine learning for biology and physics-based simulation, each with its paper, preprint, and code: antibody design as transition-path control, an energy landscape of leukemic cell states, de novo protein inhibitors, patient-specific cardiac biomaterials, and a leakage-audited expression benchmark.';
+
+// The publication records now live at /research/#<id>, so the structured data
+// points there rather than at the retired /publications/ address.
+const jsonLd = data.publications.map((pub) => ({
+  '@context': 'https://schema.org',
+  '@type': 'ScholarlyArticle',
+  headline: clean(pub.title),
+  name: clean(pub.title),
+  author: pub.authors.map((name) => ({ '@type': 'Person', name })),
+  datePublished: String(pub.year),
+  publication: pub.venue_long,
+  creativeWorkStatus: statusLabel[pub.status],
+  ...(pub.doi ? { identifier: `https://doi.org/${pub.doi}`, sameAs: `https://doi.org/${pub.doi}` } : {}),
+  url: absolute('/research/') + `#${pub.id}`,
+}));
 ---
 
-<Base title="Research" description={description} og="research">
+<Base title="Research" description={description} og="research" jsonLd={jsonLd}>
   <div class="wrap">
     <PageHeader
-      eyebrow="research"
+      eyebrow="Research"
       title="Research"
-      lede={clean(data.research_statement.program)}
+      lede="Five projects. Each page states the problem, the method, the result, and what did not work. Papers, preprints, and code are linked from the project they came from, and the formal list is at the foot of this page."
     >
       <div class="rhead__aside">
         <CVLink variant="button" />
         <p class="rhead__note">
-          Every project page states the problem, the approach, the result, and what I would
-          push back on. Code and papers are linked from each.
+          Everything here is first author. Venue and status are stated exactly as they stand.
         </p>
       </div>
     </PageHeader>
 
-    <!-- interests, as a researcher's homepage states them -->
-    <section class="rint" aria-labelledby="interests">
-      <h2 id="interests" class="eyebrow">current directions</h2>
-      <ul>
-        {data.research_statement.interests.map((i) => <li>{i}</li>)}
-      </ul>
-    </section>
+    <PageLandscape view="surface" n="0.1" class="rhead__fig" />
 
     <section class="rlist" aria-label="Projects">
-      {projects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} />)}
+      {projects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} level={2} />)}
     </section>
 
-    <p class="rfoot mono">
-      <a href={url('/publications/')}>Publications, talks, and media →</a>
-    </p>
+    <section class="pubsec" aria-labelledby="papers-h">
+      <p class="eyebrow">Formal list</p>
+      <h2 id="papers-h">Publications</h2>
+      <p class="pubsec__note">
+        The same papers as above, in citation form, so a line can be copied straight out.
+      </p>
+      <PubList />
+    </section>
+
+    <section class="pubsec" aria-labelledby="talks-h">
+      <p class="eyebrow">Presented</p>
+      <h2 id="talks-h">Talks and posters</h2>
+      <ol class="simple">
+        {
+          data.talks.map((t) => (
+            <li>
+              <p class="simple__t">
+                {t.href ? <a href={t.href} rel="noopener">{t.title}</a> : t.title}
+              </p>
+              <p class="simple__m meta">
+                <span>{t.venue}</span>
+                <span class="num">{t.year}</span>
+                <span>{t.kind}</span>
+              </p>
+              {t.note && <p class="simple__n">{t.note}</p>}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="pubsec pubsec--last" aria-labelledby="media-h">
+      <p class="eyebrow">Written about</p>
+      <h2 id="media-h">Media</h2>
+      <ol class="simple">
+        {
+          data.media.map((m) => (
+            <li>
+              <p class="simple__t">
+                <a href={m.href} rel="noopener">{m.title}</a>
+              </p>
+              <p class="simple__m meta">
+                <span>{m.outlet}</span>
+                <span class="num">{m.year}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="rfoot">
+        <a href={url('/about/')}>Honors, positions, and identifiers are on About</a>
+      </p>
+    </section>
   </div>
 </Base>
 
@@ -60,33 +126,59 @@ const description =
     max-width: 48ch;
     flex: 1 1 22rem;
   }
-  .rint {
-    margin-bottom: var(--sp-7);
-  }
-  .rint ul {
-    margin-top: var(--sp-3);
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: var(--sp-2) var(--sp-5);
-    max-width: 62rem;
-  }
-  .rint li {
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-    padding-left: 1.1em;
-    position: relative;
-    text-wrap: pretty;
-  }
-  .rint li::before {
-    content: '·';
-    position: absolute;
-    left: 0.1em;
-    color: var(--orange);
+  .rhead__fig {
+    margin-block: var(--sp-7) var(--sp-6);
   }
   .rlist {
     border-bottom: 1px solid var(--rule);
+  }
+  .pubsec {
+    padding-top: var(--sp-8);
+  }
+  .pubsec h2 {
+    margin-bottom: var(--sp-3);
+  }
+  .pubsec__note {
+    margin-bottom: var(--sp-5);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    max-width: var(--measure);
+  }
+  .pubsec--last {
+    padding-bottom: var(--sp-6);
+  }
+  .simple {
+    list-style: none;
+    padding: 0;
+    max-width: var(--measure);
+  }
+  .simple li {
+    padding-block: var(--sp-4);
+    border-top: 1px solid var(--rule);
+  }
+  .simple li:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+  .simple__t {
+    font-weight: 700;
+    line-height: 1.35;
+    text-wrap: pretty;
+  }
+  .simple__t a {
+    color: var(--ink);
+  }
+  .simple__t a:hover,
+  .simple__t a:focus-visible {
+    color: var(--orange);
+  }
+  .simple__m {
+    margin-top: var(--sp-2);
+  }
+  .simple__n {
+    margin-top: var(--sp-1);
+    font-size: var(--fs-small);
+    font-style: italic;
+    color: var(--ink-3);
   }
   .rfoot {
     margin-top: var(--sp-5);

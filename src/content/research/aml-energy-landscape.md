@@ -6,7 +6,22 @@ period: "2026"
 role: "First author, with M. Yurukcu"
 kind: independent
 paper: aml-icbbs-2026
-question: "If a cell type were a valley on a landscape, could you measure how deep it is, and would that depth tell you anything a cluster label does not?"
+summary: >-
+  Single-cell atlases label leukemic cell states but say nothing about how
+  stable a state is, what it takes to leave it, or where it goes, which is
+  exactly what matters for the rare populations that drive relapse. Across
+  38,193 cells from 16 AML patients and 5 healthy donors, denoising score
+  matching under the constraint that the score field be the gradient of a
+  single scalar potential gives a conservative landscape with four attractors
+  and two saddles, on which basin depth, mean first-passage time, and a
+  committor were computed from Langevin trajectories for 46 of 79 catalogued
+  states. NNLS deconvolution of those state signatures into Beat AML bulk
+  expression recovers associations with ex vivo drug response under no drug
+  supervision, trametinib at ρ = −0.42 over 484 samples and venetoclax running
+  the other way in the same basin at +0.56, while the landscape's own
+  mechanistic predictions did not: perturbation-signature basin escape failed
+  to beat background, and basin depth does not predict post-treatment
+  persistence at r = 0.05 and p = 0.74.
 problem: >-
   Single-cell atlases name cell states. They do not say how stable a state is,
   what it would take to leave it, or where it would go. The rare leukemic stem
@@ -61,8 +76,7 @@ figure:
     sensitivity with venetoclax resistance. Primitive and progenitor states sit
     near zero on the MEK axis and below zero on the venetoclax axis, meaning
     venetoclax-sensitive.
-links:
-  - { label: code, href: "https://github.com/kishpish/aml-energy-landscape" }
+links: []
 related:
   - energy-is-a-modeling-choice
   - what-the-score-function-actually-buys-you
