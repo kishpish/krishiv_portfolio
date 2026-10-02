@@ -6,6 +6,7 @@ import { url } from '../lib/urls';
 import { publication, statusLabel, clean } from '../lib/canonical';
 import Evidence from './Evidence.astro';
 import ProjectFigure from './ProjectFigure.astro';
+import ProjectMedia from './ProjectMedia.astro';
 
 interface Props {
   entry: CollectionEntry<'research'>;
@@ -44,9 +45,19 @@ const href = url(`/research/${entry.id}/`);
   </div>
 
   {
-    !compact && d.figure && (
+    !compact && (d.media || d.figure) && (
       <div class="rcard__fig">
-        <ProjectFigure id={d.figure.id} caption={clean(d.figure.caption)} alt={clean(d.figure.alt)} n={String(n)} />
+        {d.media ? (
+          <ProjectMedia
+            src={d.media.src}
+            poster={d.media.poster}
+            caption={clean(d.media.caption)}
+            alt={clean(d.media.alt)}
+            n={String(n)}
+          />
+        ) : (
+          <ProjectFigure id={d.figure!.id} caption={clean(d.figure!.caption)} alt={clean(d.figure!.alt)} n={String(n)} />
+        )}
       </div>
     )
   }

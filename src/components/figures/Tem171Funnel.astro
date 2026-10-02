@@ -23,8 +23,8 @@ const best = pts.reduce((a, b) => (b.y > a.y || (b.y === a.y && b.x < a.x) ? b :
   <!-- the region that passes the filter -->
   <rect x={m.l} y={m.t} width={iw} height={y(thr) - m.t} fill={PALETTE.highlight} opacity="0.55" />
   <line x1={m.l} x2={m.l + iw} y1={y(thr)} y2={y(thr)} stroke={PALETTE.ink3} stroke-width="1" stroke-dasharray="4 3" />
-  <text class="fig-label" x={m.l + iw - 4} y={y(thr) - 6} text-anchor="end" fill={PALETTE.ink2}>
-    i_pTM &gt; {thr} · {raw.above} of {raw.n}
+  <text class="fig-label" x={m.l + 6} y={y(thr) - 6} fill={PALETTE.ink2}>
+    i_pTM &gt; {thr} · {raw.above} of {raw.n} trajectories
   </text>
 
   <!-- axes -->

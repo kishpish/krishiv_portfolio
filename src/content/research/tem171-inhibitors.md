@@ -40,6 +40,21 @@ evidence:
     label: "kcal/mol binding free energy, selected design"
   - value: "2,048"
     label: "scaffolds generated, 67 refined at the interface"
+media:
+  src: /media/binder-generation
+  poster: /media/binder-generation.png
+  caption: >-
+    One binder being generated against the target, played at roughly eight
+    times real compute time. The target is the fixed structure on the left;
+    the helical binder is the part being built. Colour is the model's
+    per-residue confidence, running from warm and uncertain at the start to
+    cool and confident once the fold has settled. This is a frame capture from
+    the generation stage of the pipeline, in the project repository.
+  alt: >-
+    An animation of protein design. A fixed target protein sits on the left as
+    a compact blue fold. A long helical binder grows out to the right, changing
+    colour from red and orange to green and blue as the model becomes more
+    confident in the structure it is building.
 figure:
   id: tem171-funnel
   caption: >-
@@ -47,9 +62,9 @@ figure:
     is one interface-design trajectory, placed by the confidence of the
     predicted complex and by its computed interface energy. Trajectories above
     the dashed line clear the interface-confidence bar the pipeline filters on.
-    This is the funnel, not the output: it shows what the search had to chew
-    through, and the selected design came from the top-left corner where high
-    confidence meets favourable interface energy.
+    This is the funnel rather than the output: it shows what the search had to
+    chew through to find candidates worth simulating, and the corner you want is
+    the top left, where high confidence meets favourable interface energy.
   alt: >-
     Scatter plot of 60 interface-design trajectories. The horizontal axis is
     interface energy, more negative to the left, and the vertical axis is

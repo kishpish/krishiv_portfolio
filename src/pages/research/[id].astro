@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Evidence from '../../components/Evidence.astro';
 import ProjectFigure from '../../components/ProjectFigure.astro';
+import ProjectMedia from '../../components/ProjectMedia.astro';
 import CVLink from '../../components/CVLink.astro';
 import { publication, statusLabel, clean } from '../../lib/canonical';
 import { url, absolute } from '../../lib/urls';
@@ -106,9 +107,25 @@ import 'katex/dist/katex.min.css';
       </section>
     )}
 
-    {d.figure && (
-      <section class="proj__fig">
-        <ProjectFigure id={d.figure.id} caption={clean(d.figure.caption)} alt={clean(d.figure.alt)} n={String(n)} />
+    {(d.media || d.figure) && (
+      <section class="proj__figs">
+        {d.media && (
+          <ProjectMedia
+            src={d.media.src}
+            poster={d.media.poster}
+            caption={clean(d.media.caption)}
+            alt={clean(d.media.alt)}
+            n={`${n}a`}
+          />
+        )}
+        {d.figure && (
+          <ProjectFigure
+            id={d.figure.id}
+            caption={clean(d.figure.caption)}
+            alt={clean(d.figure.alt)}
+            n={d.media ? `${n}b` : String(n)}
+          />
+        )}
       </section>
     )}
 
@@ -233,9 +250,19 @@ import 'katex/dist/katex.min.css';
   .proj__ev .eyebrow {
     margin-bottom: var(--sp-4);
   }
-  .proj__fig {
+  .proj__figs {
     padding-block: var(--sp-6);
+    display: grid;
+    gap: var(--sp-6);
     max-width: 46rem;
+  }
+  /* With both a clip and a plot, set them side by side where there is room. */
+  @media (min-width: 62rem) {
+    .proj__figs:has(> * + *) {
+      grid-template-columns: minmax(0, 0.78fr) minmax(0, 1fr);
+      max-width: none;
+      align-items: start;
+    }
   }
   .proj__landscape {
     max-width: var(--measure);

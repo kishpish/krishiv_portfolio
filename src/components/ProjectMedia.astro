@@ -1,0 +1,104 @@
+---
+// A short simulation clip, shown as a paper figure.
+//
+// It is muted, inline, loops, and carries no audio track, so it is decorative
+// motion rather than media playback. Under prefers-reduced-motion it does not
+// autoplay: the poster frame shows instead, with controls so a reader can
+// start it deliberately. The poster is a real frame, so the figure is complete
+// before the video loads and complete if it never does.
+import { url } from '../lib/urls';
+
+interface Props {
+  src: string; // path under public/, without extension, e.g. /media/binder-generation
+  poster: string;
+  caption: string;
+  alt: string;
+  n?: string;
+  class?: string;
+}
+const { src, poster, caption, alt, n = '1', class: cls = '' } = Astro.props;
+---
+
+<figure class:list={['pmedia', cls]}>
+  <div class="pmedia__frame">
+    <video
+      class="pmedia__video"
+      data-project-media
+      poster={url(poster)}
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-label={alt}
+      width="440"
+      height="440"
+    >
+      <source src={url(`${src}.webm`)} type="video/webm" />
+      <source src={url(`${src}.mp4`)} type="video/mp4" />
+      <img src={url(poster)} alt={alt} width="440" height="440" />
+    </video>
+  </div>
+  <figcaption class="fig__caption">
+    <span class="fig__n">Fig. {n}</span>{caption}
+  </figcaption>
+</figure>
+
+<style>
+  .pmedia {
+    margin: 0;
+  }
+  .pmedia__frame {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+  }
+  .pmedia__video {
+    width: 100%;
+    max-width: 440px;
+    height: auto;
+    display: block;
+    /* The clip was rendered on white; multiply blends it onto the paper. */
+    mix-blend-mode: multiply;
+  }
+</style>
+
+<script>
+  // Autoplay only when motion is allowed and the figure is on screen, so the
+  // clip never plays in the background or against the reader's preference.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  for (const el of document.querySelectorAll<HTMLVideoElement>('[data-project-media]')) {
+    if (reduce.matches) {
+      el.controls = true;
+      el.preload = 'metadata';
+      continue;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            el.preload = 'auto';
+            el.play().catch(() => {
+              // autoplay refused: give the reader a control instead
+              el.controls = true;
+            });
+          } else {
+            el.pause();
+          }
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+
+    reduce.addEventListener('change', (ev) => {
+      if (ev.matches) {
+        el.pause();
+        el.controls = true;
+      }
+    });
+  }
+</script>
