@@ -1,0 +1,44 @@
+// @ts-check
+import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+import { unified } from '@astrojs/markdown-remark';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import { rehypeBaseLinks } from './src/lib/rehype-base-links.mjs';
+import { rehypeTables } from './src/lib/rehype-tables.mjs';
+import { paperTheme } from './src/lib/shiki-theme.mjs';
+
+// SITE_URL and BASE_PATH are set by the deploy workflow from actions/configure-pages,
+// so a custom domain (which serves from "/") needs no code change. The defaults
+// below match the project page at https://kishpish.github.io/krishiv_portfolio/.
+const site = process.env.SITE_URL || 'https://kishpish.github.io';
+const rawBase = process.env.BASE_PATH ?? '/krishiv_portfolio';
+const base = rawBase === '' ? '/' : rawBase;
+
+export default defineConfig({
+  site,
+  base,
+  trailingSlash: 'always',
+  build: { format: 'directory' },
+  output: 'static',
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/og/'),
+    }),
+  ],
+  markdown: {
+    syntaxHighlight: 'shiki',
+    shikiConfig: { theme: paperTheme, wrap: false },
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [
+        [rehypeKatex, { strict: 'ignore', output: 'htmlAndMathml' }],
+        [rehypeBaseLinks, { base }],
+        rehypeTables,
+      ],
+      smartypants: true,
+    }),
+  },
+  prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
+  devToolbar: { enabled: false },
+});

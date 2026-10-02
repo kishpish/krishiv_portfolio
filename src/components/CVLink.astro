@@ -1,0 +1,77 @@
+---
+// The CV link, with its last-updated marker. Used in the hero, header, footer,
+// and on the research page so the CV is one click from anywhere.
+import { cv } from '../lib/canonical';
+import { url } from '../lib/urls';
+
+interface Props {
+  variant?: 'inline' | 'button' | 'compact';
+  class?: string;
+}
+const { variant = 'inline', class: cls = '' } = Astro.props;
+const href = url(cv.path);
+---
+
+<a
+  class:list={['cv-link', `cv-link--${variant}`, cls]}
+  href={href}
+  type="application/pdf"
+  data-cv-link
+>
+  <span class="cv-link__label">{variant === 'button' ? 'Curriculum vitae' : 'CV'}</span>
+  {variant !== 'compact' && (
+    <span class="cv-link__meta">
+      PDF · <time datetime={cv.updated.iso}>updated {cv.updated.short}</time>
+    </span>
+  )}
+  {variant === 'compact' && <span class="visually-hidden">(PDF, updated {cv.updated.long})</span>}
+</a>
+
+<style>
+  .cv-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.6em;
+  }
+  .cv-link__meta {
+    font-family: var(--mono);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .cv-link:hover .cv-link__meta,
+  .cv-link:focus-visible .cv-link__meta {
+    color: var(--ink-2);
+  }
+  .cv-link--button {
+    border: 1px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 0.5em 0.85em 0.55em;
+    background: var(--paper);
+    flex-wrap: wrap;
+    row-gap: 0.1em;
+    line-height: 1.3;
+    transition:
+      border-color 0.12s ease,
+      color 0.12s ease,
+      background-color 0.12s ease;
+  }
+  .cv-link--button .cv-link__label {
+    font-weight: 700;
+  }
+  .cv-link--button:hover,
+  .cv-link--button:focus-visible {
+    border-color: var(--orange);
+    background: var(--orange-12);
+  }
+  .cv-link--compact {
+    font-family: var(--mono);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    border: 1px solid currentColor;
+    border-radius: var(--radius);
+    padding: 0.22em 0.55em 0.25em;
+    line-height: 1.2;
+  }
+</style>

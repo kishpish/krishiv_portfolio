@@ -1,0 +1,544 @@
+# ---------------------------------------------------------------------------
+# canonical.yaml
+#
+# The single source of truth for every fact on the site. Pages read from this
+# file (through src/lib/canonical.ts); nothing factual is hardcoded in a
+# component. If a number or a status changes, change it here and rebuild.
+#
+# Writing style for anything in this file: no em dashes. Use commas, colons,
+# parentheses, and full stops.
+# ---------------------------------------------------------------------------
+
+person:
+  name: Krishiv Potluri
+  given_name: Krishiv
+  family_name: Potluri
+  # One line, used under the name in the hero and in meta descriptions.
+  tagline: Machine learning, computational biology, and physics-based simulation.
+  location: Austin, Texas
+  email: krishivrp@gmail.com
+  affiliation:
+    role: Student researcher
+    group: Computational Visualization Center
+    group_url: https://cvc-lab.github.io/
+    institute: Oden Institute for Computational Engineering and Sciences
+    institute_short: Oden Institute
+    institute_url: https://oden.utexas.edu/
+    university: The University of Texas at Austin
+    university_short: UT Austin
+    advisor: Prof. Chandrajit Bajaj
+    since: Mar 2025
+  education:
+    school: BASIS Cedar Park
+    place: Cedar Park, Texas
+    # See conflicts.graduation_month: the site shows the year only.
+    class_of: 2027
+    coursework_beyond: Linear algebra, multivariable calculus, honors physics
+  profiles:
+    github: https://github.com/kishpish
+    github_handle: kishpish
+    linkedin: https://www.linkedin.com/in/krishiv-potluri-36821a2a8/
+    orcid: https://orcid.org/0009-0004-1882-1162
+    orcid_id: 0009-0004-1882-1162
+    # No Google Scholar profile was found. Add the URL here if one is created
+    # and it will appear in the header, footer, and JSON-LD automatically.
+    scholar: null
+
+cv:
+  # Served from public/cv.pdf. Replace the file to update the CV; the link
+  # never changes. The "updated" marker is read from git history at build
+  # time; this value is only the fallback when git history is unavailable.
+  path: /cv.pdf
+  updated_fallback: 2026-09
+  label: CV
+
+site:
+  title: Krishiv Potluri
+  description: >-
+    Krishiv Potluri works at the intersection of machine learning, computational
+    biology, and physics-based simulation: antibody design along transition
+    paths, energy landscapes of leukemic cell states, de novo protein
+    inhibitors, and patient-specific cardiac biomaterials.
+  repo: https://github.com/kishpish/krishiv_portfolio
+  repo_branch: main
+
+research_statement:
+  # Short version, used on the home page and research index.
+  short: >-
+    I build models of systems that move across energy landscapes, and the
+    infrastructure that makes those models reproducible.
+  # The thread connecting the projects. Used on the research page and the
+  # colophon.
+  program: >-
+    Four of my five projects have the same shape underneath. Something moves
+    across a surface, pays energy, and settles somewhere: an antibody optimized
+    along a transition path, a leukemic cell state with a measured basin depth,
+    a protein inhibitor pulled off its target in steered molecular dynamics,
+    and a hydrogel searched for the design that moves a damaged heart toward a
+    better state. The fifth project is about the discipline that keeps the
+    other four honest: benchmarks that cannot leak.
+  interests:
+    - Physics-informed reinforcement learning for de novo antibody design
+    - Generative models for protein and biomaterial design
+    - Energy-based models of cancer cell states
+    - Leakage-audited benchmarks for genomic prediction
+    - Efficient, reproducible systems for scientific computing
+
+# ---------------------------------------------------------------------------
+# Publications. Status vocabulary: preprint | accepted | under-review | published
+# Projects in src/content/research/*.md refer to these by id.
+# ---------------------------------------------------------------------------
+publications:
+  - id: tem171-biorxiv-2025
+    title: >-
+      De Novo Structure-Based Design of TEM-171 β-Lactamase Protein Inhibitors
+      Using Integrated Deep Learning and Multi-Scale Simulations to Combat
+      Bacterial Resistance
+    authors: [Krishiv Potluri]
+    venue: bioRxiv
+    venue_long: bioRxiv preprint
+    year: 2025
+    status: preprint
+    doi: 10.1101/2025.06.23.661177
+    links:
+      - { label: preprint, href: "https://www.biorxiv.org/content/10.1101/2025.06.23.661177v1" }
+      - { label: code, href: "https://github.com/kishpish/tem171-inhibitor-pipeline" }
+      - { label: ISEF project, href: "https://isef.net/project/cbio021-tem171-inhibitor-design-via-deep-learning-pipeline" }
+    note: Regeneron ISEF 2025 Finalist
+    project: tem171-inhibitors
+
+  - id: aml-icbbs-2026
+    title: >-
+      An Empirical Energy Landscape of Acute Myeloid Leukemia: Cell-State
+      Biophysics and Drug Action as Landscape Perturbation
+    authors: [Krishiv Potluri, M. Yurukcu]
+    venue: ICBBS 2026
+    venue_long: International Conference on Biophysics and Biomedical Sciences (ICBBS)
+    year: 2026
+    # See conflicts.icbbs_status.
+    status: accepted
+    links:
+      - { label: code, href: "https://github.com/kishpish/aml-energy-landscape" }
+    project: aml-energy-landscape
+
+  - id: expression-iccbb-2026
+    title: >-
+      A Leakage-Audited Benchmark for Cross-Individual Gene Expression
+      Prediction and a Dissection of the Held-Out-Gene Transfer Gap
+    authors: [Krishiv Potluri, M. Yurukcu]
+    venue: ICCBB 2026
+    venue_long: 10th International Conference on Computational Biology and Bioinformatics (ICCBB)
+    year: 2026
+    status: under-review
+    links:
+      - { label: code, href: "https://github.com/kishpish/held-out-gene-benchmark" }
+    project: expression-benchmark
+
+  - id: hydrogel-urtc-2026
+    title: >-
+      AI-Driven Inverse Design of Bio-Instructive Hydrogels for Myocardial
+      Regeneration
+    authors: [Krishiv Potluri]
+    venue: IEEE MIT URTC 2026
+    venue_long: IEEE MIT Undergraduate Research Technology Conference (URTC)
+    year: 2026
+    status: under-review
+    links:
+      - { label: model code, href: "https://github.com/kishpish/HYDRA-BERT" }
+      - { label: simulation code, href: "https://github.com/kishpish/MESH_FIBER_INJECTION" }
+    note: 1st Place, Texas Science and Engineering Fair 2026
+    project: cardiac-hydrogels
+
+talks:
+  - id: T3
+    title: "Summer Research Demo Day: Circular RNA Design"
+    venue: Computational Visualization Center, Oden Institute, UT Austin
+    year: 2026
+    kind: Poster and demo
+    note: Shown in the TACC Visualization Lab
+    href: https://tacc.utexas.edu/
+  - id: T2
+    title: AI-Driven Inverse Design of Bio-Instructive Hydrogels for Myocardial Regeneration
+    venue: Texas Science and Engineering Fair
+    year: 2026
+    kind: Competition presentation
+    note: 1st Place, Computational Biology and Bioinformatics
+    href: https://txsef.tamu.edu/awards/2026-category-awards/
+  - id: T1
+    title: TEM-171 Inhibitor Design via Deep Learning Pipeline
+    venue: Regeneron International Science and Engineering Fair, Columbus, Ohio
+    year: 2025
+    kind: Competition presentation
+    href: https://isef.net/project/cbio021-tem171-inhibitor-design-via-deep-learning-pipeline
+
+# ---------------------------------------------------------------------------
+# Honors. `featured: true` items appear on the home page and research cards.
+# ---------------------------------------------------------------------------
+honors:
+  - year: "2026"
+    title: 1st Place, Computational Biology and Bioinformatics
+    org: Texas Science and Engineering Fair
+    detail: Scholarship and invitation to the Governor's Science and Technology Champions Academy
+    href: https://txsef.tamu.edu/awards/2026-category-awards/
+    featured: true
+  - year: "2025"
+    title: Regeneron ISEF Finalist
+    org: Regeneron International Science and Engineering Fair
+    # See conflicts.isef_scale.
+    detail: One of nearly 1,700 finalists from more than 60 countries, regions, and territories
+    href: https://isef.net/project/cbio021-tem171-inhibitor-design-via-deep-learning-pipeline
+    featured: true
+  - year: "2025"
+    # See conflicts.davidson. Verified against the Davidson Institute's 2025 page.
+    title: Davidson Fellows Scholarship Finalist
+    org: Davidson Institute
+    detail: One of 33 finalists named nationwide, and the only one from Texas
+    href: https://www.davidsongifted.org/gifted-programs/fellows-scholarship/fellows/current-and-past-fellows/2025-fellows/
+    featured: true
+  - year: "2025"
+    title: 1st Place Biochemistry and Best of Fair
+    org: Greater Austin Regional Science and Engineering Fair
+    detail: With the Texas Tech University Best Abstract Award
+    href: https://austinscience.org/
+  - year: "2026"
+    title: 2nd Place, Computational Biology
+    org: Greater Austin Regional Science and Engineering Fair
+    href: https://austinscience.org/
+  - year: "2024"
+    title: Recursion RxRx Prize
+    org: Bio x ML Hackathon (Lux Capital and EvolutionaryScale)
+    detail: Best use of Recursion's RxRx datasets
+    href: https://devpost.com/software/morphologic-ai
+    featured: true
+  - year: "2024, 2025"
+    # See conflicts.usabo: the denominator is omitted.
+    title: USA Biology Olympiad Semifinalist, twice
+    org: Center for Excellence in Education
+    detail: Top 225 nationally, Certificate of Merit
+  - year: "2025"
+    title: NSDA Degree of Special Distinction
+    org: National Speech and Debate Association
+    detail: Top 7.5% of members
+  - year: "2025"
+    title: TFA State Qualifier, Public Forum
+    org: Texas Forensic Association
+    detail: One of 98 teams statewide, with multiple top-speaker awards
+  - year: "2023, 2024, 2026"
+    title: VEX Robotics World Championship Qualifier
+    org: VEX Robotics
+    detail: As a competitor in 2023 and 2024 (peak world rank 14th), and as a coach in 2026
+
+# ---------------------------------------------------------------------------
+# Positions outside the Oden Institute. Kept short on purpose.
+# ---------------------------------------------------------------------------
+positions:
+  - org: Oden Institute, UT Austin
+    role: Student researcher, Computational Visualization Center
+    advisor: Prof. Chandrajit Bajaj
+    period: Mar 2025 to present
+    summary: >-
+      Port-Hamiltonian reinforcement learning for de novo antibody design, and
+      circular RNA recoding for the lab's Parkinson's disease research.
+    href: https://cvc-lab.github.io/
+  - org: Southern Methodist University
+    role: Research placement with Farhad Azadjoutabari
+    period: "2026"
+    summary: >-
+      Awarded for 1st place at TXSEF 2026. Worked on a team building a
+      county-wide machine learning model of crash occurrence in Dallas County,
+      moving traffic-safety planning from reactive to predictive.
+  - org: Shire Bio
+    role: ML and bioinformatics intern, production engineering
+    # See conflicts.shire_dates.
+    period: Jun 2025 to Aug 2025
+    summary: >-
+      Engineered and containerized 80+ genomics tools for the company's
+      genomic-analysis platform, the layer that lets its AI models compose and
+      run multi-step workflows. Shipped ML tools into the production platform
+      the company's scientists use.
+  - org: Austin Police Department
+    role: Intern
+    period: Aug 2025
+    summary: >-
+      Designed community-engagement and youth-recruitment models, and presented
+      recommendations on community policing to department leadership.
+  - org: Austin Energy
+    role: Data science and analytics intern, Data Office
+    # See conflicts.austin_energy.
+    period: Summer 2024
+    summary: >-
+      Analyzed consumption data across 500,000+ accounts at the nation's
+      8th-largest publicly owned electric utility, and built Python demand
+      forecasts reviewed by senior management.
+
+hackathons:
+  - name: Morphologic AI
+    event: Bio x ML Hackathon (Lux Capital and EvolutionaryScale)
+    date: Oct 2024
+    role: ML and cell segmentation lead
+    summary: >-
+      Cell segmentation and morphological readouts that make Recursion's RxRx
+      drug-perturbation images and embeddings biologically interpretable. Won
+      the Recursion RxRx Prize, with a follow-on project with Recursion.
+    links:
+      - { label: devpost, href: "https://devpost.com/software/morphologic-ai" }
+      - { label: code, href: "https://github.com/kishpish/Morphologic-AI" }
+
+media:
+  - id: M6
+    title: "2026 Category Awards: Computational Biology and Bioinformatics"
+    outlet: Texas Science and Engineering Fair, Texas A&M University
+    year: 2026
+    href: https://txsef.tamu.edu/awards/2026-category-awards/
+  - id: M5
+    title: "2025 Davidson Fellows Scholarship: Finalist"
+    outlet: Davidson Institute
+    year: 2025
+    href: https://www.davidsongifted.org/gifted-programs/fellows-scholarship/fellows/current-and-past-fellows/2025-fellows/
+  - id: M4
+    title: Central Texas students excel at world's largest science fair, earn top awards, scholarships
+    outlet: CBS Austin (Allison Miller)
+    year: 2025
+    href: https://cbsaustin.com/news/local/central-texas-students-excel-at-worlds-largest-science-fair-earn-top-awards-scholarships
+  - id: M3
+    title: Central Texas students won big at the world's top science fair
+    outlet: City of Austin Office of Sustainability
+    year: 2025
+    href: https://www.facebook.com/austinsustainability/posts/central-texas-students-won-big-at-the-worlds-top-science-fair-seven-local-studen/1023341133305775/
+  - id: M2
+    title: TEM171 Inhibitor Design via Deep Learning Pipeline
+    outlet: Regeneron ISEF 2025 Project Showcase
+    year: 2025
+    href: https://isef.net/project/cbio021-tem171-inhibitor-design-via-deep-learning-pipeline
+  - id: M1
+    title: Morphologic AI
+    outlet: Bio x ML Hackathon Project Showcase, Devpost
+    year: 2024
+    href: https://devpost.com/software/morphologic-ai
+
+# ---------------------------------------------------------------------------
+# Beyond the lab. Compact, specific, and clearly not the point.
+# ---------------------------------------------------------------------------
+beyond:
+  - label: baseball
+    title: Varsity pitcher and infielder
+    body: >-
+      Right-handed pitcher who also plays third, short, and outfield. First
+      freshman in program history to make the varsity roster, and on select
+      and travel teams since age nine. The other place I think hard about
+      trajectories.
+  - label: robotics
+    title: VEX coach, competitor, and camp director
+    # See conflicts.vex_coaching.
+    body: >-
+      Head coach of a middle-school VEX IQ team: three regional titles, a Texas
+      state championship, two state runner-up finishes, and a place at the 2026
+      World Championship. As a competitor, peaked at 14th in the world. Founded
+      an eight-week summer camp that has taught 100+ middle schoolers to build
+      and program over three summers.
+  - label: debate
+    title: Public Forum captain
+    body: >-
+      First in school history to qualify for the Texas Forensic Association
+      State Championship. Coached 20+ novices through case writing, which turns
+      out to be decent training for writing rebuttals to reviewers.
+  - label: teaching
+    title: Biotechnology Club founder
+    body: >-
+      Started the club to widen access to wet-lab work. Weekly labs in DNA
+      extraction, tissue culture, and genetic engineering, and 50+ students
+      mentored through their first research projects.
+  - label: service
+    title: Key Club vice president
+    body: >-
+      Built a student-led tutoring program serving 100+ middle schoolers, and
+      ran a 200+ book drive for a low-income Austin-area district.
+
+# ---------------------------------------------------------------------------
+# Methods and tools, grouped. Shown as a definition list, never as bars.
+# ---------------------------------------------------------------------------
+methods:
+  - area: Machine learning
+    items: >-
+      Transformer pretraining and chemical language models; reinforcement
+      learning and optimal control; score-based generative models and denoising
+      score matching; physics-informed learning; nested cross-validation,
+      leakage auditing, ablation design.
+  - area: Simulation
+    items: >-
+      Steered molecular dynamics; free energy via the Jarzynski equality and
+      PMF analysis; Langevin SDE integration; minimum-energy-path and string
+      methods; Hessian and eigenmode analysis; mean first-passage time and
+      committor calculation.
+  - area: Computational biology
+    items: >-
+      Single-cell genomics (scanpy, AnnData, scvi-tools, CellTypist, Symphony);
+      sequence models and in-silico mutagenesis (enformer-pytorch); genotype
+      handling (pysam, bcftools, tabix over VCF, GRCh38, GENCODE, JASPAR); cell
+      segmentation and morphological features from microscopy.
+  - area: Statistical genetics
+    items: >-
+      Heritability by GREML (GCTA); eQTL mapping and TWAS-style expression
+      prediction; NNLS deconvolution of bulk expression; cross-ancestry
+      portability.
+  - area: Statistics
+    items: >-
+      Cox and LASSO-Cox survival models; ssGSEA and gseapy enrichment;
+      nonparametric tests with Benjamini-Hochberg correction; bootstrap
+      intervals; permutation and negative controls.
+  - area: Systems
+    items: >-
+      Python, R, Java, Bash; PyTorch and CUDA; distributed training on 16
+      A100s; A100 and H100 cloud workflows; AWS, Docker, Git, Linux; pinned
+      environments and containerized pipelines.
+
+# ---------------------------------------------------------------------------
+# Writing on Notion. Rendered as off-site preview cards on /writing/.
+# Set `hidden: true` on an entry to remove its card without deleting it.
+# `minutes` is a reading-time estimate; set to null to hide it.
+# ---------------------------------------------------------------------------
+notion:
+  index_url: https://app.notion.com/p/Welcome-to-my-Page-on-Applications-of-AI-ML-with-Computational-Biology-501e7669ba0e4a669200651dd3a65d46
+  index_title: Applications of AI and ML in computational biology
+  # The build container could not reach app.notion.com (blocked by the build
+  # environment's network policy), so public visibility of these pages has
+  # not been verified. Check each link in a private window.
+  verified_public: false
+  posts:
+    - title: A Reflection and Guide on ESM-3, an AI Model for Protein Discovery
+      url: https://app.notion.com/p/A-Reflection-Guide-on-ESM-3-An-AI-Model-for-Protein-Discovery-105f2044fd7b80a1a244efd72c993b3b
+      tag: protein-language-models
+      summary: >-
+        A reflection on, and practical guide to, ESM-3: EvolutionaryScale's
+        generative model that reasons jointly over protein sequence,
+        structure, and function.
+      minutes: null
+      hidden: false
+    - title: Long-Range Capability of ProteinMPNN's Deep Learning Architecture
+      url: https://app.notion.com/p/Long-Range-Capability-of-ProteinMPNN-s-Deep-Learning-Architecture-f1f8d2f679244d83a4f0c0a390383548
+      tag: protein-design
+      summary: >-
+        How ProteinMPNN's message-passing architecture handles interactions
+        between residues that are far apart, and what that means for
+        sequence design.
+      minutes: null
+      hidden: false
+    - title: "BindCraft: The Essential Guide to Protein Binding Design Metrics and Optimization"
+      url: https://app.notion.com/p/BindCraft-The-Essential-Guide-to-Protein-Binding-Design-Metrics-and-Optimization-17af2044fd7b8093a29df6122ee9c8f4
+      tag: protein-design
+      summary: >-
+        A guide to the metrics BindCraft uses to score and filter binder
+        designs, and how its optimization uses them.
+      minutes: null
+      hidden: false
+
+# ---------------------------------------------------------------------------
+# Writing sections. Order here is the order on /writing/. A post whose
+# `section` is not listed still renders, at the end, without a subtitle.
+# ---------------------------------------------------------------------------
+writing:
+  intro: >-
+    Technical notes on machine learning for biology, organized by subject
+    rather than by date. They are notes, not papers: I edit them in place when
+    I find out I was wrong, and some of them are wrong in ways I have not found
+    yet.
+  sections:
+    - name: Models & objectives
+      slug: models-and-objectives
+      subtitle: What a model is actually optimizing, and what that costs.
+    - name: Methods & evaluation
+      slug: methods-and-evaluation
+      subtitle: How results get believed, and how they should be.
+    - name: State of the field
+      slug: state-of-the-field
+      subtitle: Opinions about where this is going.
+    - name: Systems
+      slug: systems
+      subtitle: The unglamorous half.
+
+# ---------------------------------------------------------------------------
+# Conflicts between the four source documents (CV, descriptive resume,
+# Common App activities list, and the brief), with what the site shows.
+# The site uses `chosen`. Edit `chosen` and the corresponding field above if
+# a pick is wrong.
+# ---------------------------------------------------------------------------
+conflicts:
+  davidson:
+    sources:
+      cv: Davidson Fellows Scholarship Finalist, one of 33 finalists nationwide and the only one from Texas
+      resume: Davidson Fellow (2025), one of 60 selected nationally and the only recipient from Texas
+      brief: Davidson Fellow, 1 of 33
+    chosen: Davidson Fellows Scholarship Finalist (2025), one of 33 finalists named nationwide, the only one from Texas
+    why: >-
+      The Davidson Institute's 2025 page lists 33 names. The 21 scholarship
+      recipients (the Fellows, sharing $825,000 per the Institute's press
+      releases) are listed first; Krishiv is in the second group of 12, which
+      another member of that group describes as Honorable Mention. "Fellow" is
+      not supported, and "one of 60" does not match any count on the page.
+
+  isef_scale:
+    sources:
+      cv: Nearly 1,700 finalists from 62 countries, regions, and territories
+      resume: Roughly 1,600 finalists from approximately 180,000 competitors worldwide
+    chosen: One of nearly 1,700 finalists from more than 60 countries, regions, and territories
+    why: >-
+      Society for Science's ISEF 2025 press release says "nearly 1,700 young
+      scientists representing 48 U.S. states and more than 60 countries,
+      regions and territories". The 180,000 figure describes affiliated-fair
+      participation in general, not a selection pool, and is dropped.
+
+  icbbs_status:
+    sources:
+      cv: Accepted, ICBBS 2026
+      activities: (not stated)
+      resume: Submitted to an international bioinformatics and computational biology conference, under review
+    chosen: Accepted, ICBBS 2026
+    why: >-
+      The CV is the newest document (it includes summer 2026 events) and the
+      served /cv.pdf says Accepted, so the site matches the PDF it links to.
+      The resume is older and reads as the pre-decision status. If acceptance
+      is not final, change publications[aml-icbbs-2026].status to under-review.
+
+  shire_dates:
+    sources:
+      cv: Jun 2025 to Aug 2025
+      resume: June 2025 to Present
+      activities: 11 weeks, grade 10 break
+    chosen: Jun 2025 to Aug 2025
+    why: Shorter and newer claim; the activities list's 11 weeks also matches a summer internship.
+
+  austin_energy:
+    sources:
+      cv: Jun 2024 to Aug 2024; 500,000+ accounts
+      resume: May 2024 to August 2024; 500,000+ customers
+      activities: serving almost 1M residents; 500,000+ accounts
+    chosen: Summer 2024; 500,000+ accounts
+    why: >-
+      Month left unstated rather than picking May or June. "Accounts" appears
+      in two of three documents and is the narrower unit; "almost 1M residents"
+      describes the utility's service population, not the data analyzed.
+
+  usabo:
+    sources:
+      cv: Top 225 of 12,000 (top 1.9%)
+      resume: Top 225 nationally out of roughly 10,000 competitors each year
+    chosen: Top 225 nationally, twice (denominator omitted)
+    why: Both documents agree on 225; the participant count differs, so it is not shown.
+
+  graduation_month:
+    sources:
+      cv: Expected May 2027
+      resume: Expected June 2027
+    chosen: Class of 2027 (month not shown)
+    why: The month does not matter on a research site, so neither is shown.
+
+  vex_coaching:
+    sources:
+      cv: Three regional titles, a Texas state championship, two state runner-up finishes, and three World Championship qualifications
+      activities: 3 regionals; 1 state title, 2 runner-ups; 3 Worlds qualifiers
+      resume: Two Texas state titles and qualified for the 2026 VEX Robotics World Championship
+    chosen: Three regional titles, a Texas state championship, two state runner-up finishes, and a place at the 2026 World Championship
+    why: >-
+      One state title (two of three documents) rather than two. The CV's own
+      honors list records coaching qualification only for 2026, so a single
+      2026 Worlds berth is stated rather than three.

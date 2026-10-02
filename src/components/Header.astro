@@ -1,0 +1,98 @@
+---
+import { data } from '../lib/canonical';
+import { url, stripBase } from '../lib/urls';
+import CVLink from './CVLink.astro';
+
+const path = stripBase(Astro.url.pathname);
+const nav = [
+  { href: '/research/', label: 'Research' },
+  { href: '/publications/', label: 'Papers' },
+  { href: '/writing/', label: 'Writing' },
+  { href: '/about/', label: 'About' },
+];
+const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
+---
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="site-header__name" href={url('/')} aria-current={path === '/' ? 'page' : undefined}>
+      {data.person.name}
+    </a>
+    <nav aria-label="Primary" class="site-header__nav">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={url(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li><CVLink variant="compact" /></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    view-transition-name: site-header;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .site-header__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-2) var(--sp-5);
+    padding-block: var(--sp-4) var(--sp-4);
+  }
+  .site-header__name {
+    font-size: calc(var(--fs-body) * 1.06);
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .site-header__name:hover,
+  .site-header__name:focus-visible {
+    color: var(--orange);
+  }
+  .site-header__nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-1) clamp(0.9rem, 2.4vw, 1.6rem);
+  }
+  .site-header__nav a:not(.cv-link) {
+    position: relative;
+    font-size: var(--fs-body);
+  }
+  .site-header__nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+  .site-header__nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.32em;
+    height: 2px;
+    background: var(--orange);
+    border-radius: 1px;
+  }
+  @media (max-width: 30rem) {
+    .site-header__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--sp-2);
+      padding-block: var(--sp-3);
+    }
+    .site-header__nav ul {
+      gap: var(--sp-1) 1.05rem;
+    }
+  }
+</style>
