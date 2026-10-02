@@ -450,6 +450,12 @@ hr {
   border-color: transparent;
   background: var(--paper-2);
   color: var(--ink-2);
+  /* Honor names are long sentences, so this one wraps rather than forcing the
+     page wider than a phone. */
+  white-space: normal;
+  text-wrap: balance;
+  line-height: 1.3;
+  padding-block: 0.3em;
 }
 .badge--external::after {
   content: '↗';
