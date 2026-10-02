@@ -82,16 +82,25 @@
 :root {
   color-scheme: light;
 
-  /* paper and ink */
+  /* paper and ink.
+     The link blue below is fixed, and it clears AA (4.5:1) on --paper but not
+     on the warmer tints. So the rule for this site is: anything containing a
+     link sits on --paper. The tints are for surfaces that hold ink only, such
+     as code blocks, asides and badges. */
   --paper: #fbfaf6;
   --paper-2: #f4f2ea;
   --paper-3: #ebe7db;
   --ink: #1b1a17;
   --ink-2: #45433d;
   --ink-3: #66635b;
-  --ink-4: #9a968b; /* decorative only: below AA for text */
+  /* Every ink level is AA on paper, so there is no shade of text on this site
+     that fails contrast. ink-4 is the quietest and is still 4.6:1. */
+  --ink-4: #767266;
   --rule: #e4e0d4;
   --rule-2: #cdc8b9;
+  /* A border that carries meaning (a focusable control, a badge outline) needs
+     3:1, which the decorative rules above do not reach. */
+  --border-ui: #8f8878;
 
   /* the three Barron colours */
   --blue: #1772d0;
@@ -263,6 +272,49 @@ a:focus-visible {
   color: var(--orange);
   text-decoration: none;
 }
+
+/* A link sitting inside a block of running text must be distinguishable from
+   that text by something other than colour (WCAG 1.4.1), so those contexts get
+   an underline. Links that are the whole of their element, such as nav items,
+   card titles and lists of links, do not need one and do not get one. */
+:where(
+    .prose,
+    .hero__statement,
+    .hero__role,
+    .pagehead__lede,
+    .section__head p,
+    .currently__list,
+    .rint li,
+    .proj__q,
+    .par p,
+    .rcard__q,
+    .pcard__desc,
+    .ncard__desc,
+    .beyond dd,
+    .poslist__sum,
+    .honors__d,
+    .simple__n,
+    .whead__honest,
+    .post__edited,
+    .post__rel-desc,
+    .wfeed__note,
+    .col__figcap,
+    .nf__lede,
+    .fig__caption,
+    .ctable td,
+    .site-footer__where,
+    .proj__landscape
+  )
+  a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+:where(.prose, .hero__statement, .hero__role, .site-footer__where) a:hover,
+:where(.prose, .hero__statement, .hero__role, .site-footer__where) a:focus-visible {
+  text-decoration-color: currentColor;
+}
 :focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
@@ -403,7 +455,7 @@ hr {
   white-space: nowrap;
   color: var(--ink-2);
   padding: 0.32em 0.55em 0.34em;
-  border: 1px solid var(--rule-2);
+  border: 1px solid var(--border-ui);
   border-radius: var(--radius);
   background: var(--paper);
   vertical-align: 0.1em;

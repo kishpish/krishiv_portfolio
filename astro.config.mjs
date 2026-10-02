@@ -19,7 +19,16 @@ export default defineConfig({
   site,
   base,
   trailingSlash: 'always',
-  build: { format: 'directory' },
+  build: {
+    format: 'directory',
+    // The page and base stylesheets are a few kilobytes each, so inlining them
+    // removes two render-blocking requests. KaTeX's stylesheet is far larger
+    // and stays external, where it can be cached across pages.
+    inlineStylesheets: 'auto',
+  },
+  vite: {
+    build: { assetsInlineLimit: (file, content) => (file.endsWith('.css') ? content.length < 24000 : false) },
+  },
   output: 'static',
   integrations: [
     sitemap({

@@ -42,7 +42,7 @@ evidence:
     label: "scaffolds generated, 67 refined at the interface"
 media:
   src: /media/binder-generation
-  poster: /media/binder-generation.png
+  poster: /media/binder-generation.webp
   caption: >-
     One binder being generated against the target, played at roughly eight
     times real compute time. The target is the fixed structure on the left;

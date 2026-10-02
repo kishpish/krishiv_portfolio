@@ -66,10 +66,14 @@ const year = 2026;
 </footer>
 
 <style>
+  /* On --paper rather than a tint, because the footer is mostly links and the
+     link blue only clears AA against the base paper. The doubled top rule does
+     the separating a fill would otherwise do. */
   .site-footer {
     margin-top: var(--sp-9);
-    border-top: 1px solid var(--rule);
-    background: var(--paper-2);
+    border-top: 1px solid var(--rule-2);
+    box-shadow: inset 0 3px 0 -2px var(--rule);
+    background: var(--paper);
     padding-block: var(--sp-6) var(--sp-5);
   }
   .site-footer__inner {
