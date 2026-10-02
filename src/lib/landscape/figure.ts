@@ -86,6 +86,7 @@ export interface LandscapeFigure {
   shading: string;
   trajectory: { d: string; opacity: number }[];
   trajectoryEnd: [number, number];
+  trajectoryStart: [number, number];
   ticks: { x: { v: number; px: number }[]; y: { v: number; px: number }[] };
 }
 
@@ -150,6 +151,7 @@ export function buildLandscape(): LandscapeFigure {
     opacity: Math.round((0.28 + (0.72 * (k + 1)) / chunks) * 100) / 100,
   }));
   const trajectoryEnd = toView(w.x, w.y);
+  const trajectoryStart = pts[0];
 
   const ticks = {
     x: [-1.0, -0.5, 0, 0.5, 1.0].map((v) => ({ v, px: toView(v, DOMAIN.y0)[0] })),
@@ -166,6 +168,7 @@ export function buildLandscape(): LandscapeFigure {
     shading,
     trajectory,
     trajectoryEnd,
+    trajectoryStart,
     ticks,
   };
   return cached;

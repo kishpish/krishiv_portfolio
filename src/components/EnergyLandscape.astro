@@ -14,10 +14,13 @@ import { buildLandscape } from '../lib/landscape/figure';
 interface Props {
   /** `hero` is interactive; `still` is the static figure only. */
   mode?: 'hero' | 'still';
+  /** Describes the static figure, which is what a reader may only ever see. */
   caption?: string;
+  /** Appended to the caption only when the browser allows motion. */
+  captionMotion?: string;
   class?: string;
 }
-const { mode = 'hero', caption, class: cls = '' } = Astro.props;
+const { mode = 'hero', caption, captionMotion, class: cls = '' } = Astro.props;
 const f = buildLandscape();
 const { w, h } = f.view;
 // room for the axis furniture around the plotted square
@@ -63,9 +66,12 @@ const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
       <!-- minimum-energy path from the string method -->
       <path class="landscape__mep" d={f.mep} fill="none" stroke="var(--ink-2)" stroke-width="1.15" stroke-dasharray="1 4.5" stroke-linecap="round" opacity="0.8" />
 
-      <!-- static trajectory: fades in along its direction of travel -->
+      <!-- static trajectory: darkens along its direction of travel, from an
+           open circle where the particle was dropped to a filled one where it
+           came to rest -->
       <g class="landscape__traj" data-static-traj>
         {f.trajectory.map((seg) => <path d={seg.d} fill="none" stroke="var(--orange)" stroke-width="1.6" stroke-opacity={seg.opacity} stroke-linejoin="round" stroke-linecap="round" />)}
+        <circle cx={f.trajectoryStart[0]} cy={f.trajectoryStart[1]} r="3.2" fill="var(--paper)" stroke="var(--orange)" stroke-width="1.4" stroke-opacity="0.75" />
         <circle cx={f.trajectoryEnd[0]} cy={f.trajectoryEnd[1]} r="4.2" fill="var(--orange)" stroke="var(--paper)" stroke-width="1.6" />
       </g>
 
@@ -132,6 +138,7 @@ const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
       <figcaption class="fig__caption">
         <span class="fig__n">Fig. 0</span>
         <Fragment set:html={caption} />
+        {captionMotion && <span class="fig__motion"> <Fragment set:html={captionMotion} /></span>}
       </figcaption>
     )
   }
@@ -240,6 +247,14 @@ const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
   .landscape__toggle:focus-visible {
     color: var(--orange);
     border-color: var(--orange);
+  }
+
+  /* The interactive half of the caption describes behaviour that does not
+     happen under reduced motion, so it is not shown then. */
+  @media (prefers-reduced-motion: reduce) {
+    .fig__motion {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

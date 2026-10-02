@@ -166,7 +166,7 @@ const conflicts = Object.entries(data.conflicts);
       <aside class="col__side">
         <EnergyLandscape mode="hero" />
         <p class="col__figcap">
-          The same figure, here so you can push it around while reading about it.
+          The same figure.<span class="col__figcap-motion"> Push it around while you read about it.</span>
         </p>
       </aside>
     </div>
@@ -221,6 +221,11 @@ const conflicts = Object.entries(data.conflicts);
     font-size: var(--fs-small);
     font-style: italic;
     color: var(--ink-3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .col__figcap-motion {
+      display: none;
+    }
   }
   .col__body :global(code) {
     font-family: var(--mono);
