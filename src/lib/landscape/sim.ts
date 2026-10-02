@@ -49,7 +49,11 @@ export interface SimParams {
   hillWidth: number;
   stride: number;
   deltaT: number;
-  /** soft wall keeping the walker inside the plotted window */
+  /**
+   * Soft wall keeping the walker inside the plotted window. It has to be stiff
+   * enough to turn back a walker carrying the accumulated metadynamics bias,
+   * which reaches a few hundred energy units, plus whatever the cursor adds.
+   */
   wall: number;
 }
 
@@ -61,7 +65,7 @@ export const DEFAULT_PARAMS: SimParams = {
   hillWidth: 0.075,
   stride: 40,
   deltaT: 90,
-  wall: 4000,
+  wall: 300000,
 };
 
 /** A bias grid covering the plotted domain. Hills are splatted into it locally. */

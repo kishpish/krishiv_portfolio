@@ -56,9 +56,11 @@ figure:
   alt: >-
     Scatter plot of 40 cell states positioned by their correlation with MEK
     inhibitor response on the horizontal axis and venetoclax response on the
-    vertical axis. Monocytic and dendritic states cluster to the lower right,
-    showing MEK sensitivity with venetoclax resistance. Primitive and progenitor
-    states cluster toward the lower left.
+    vertical axis, with both axes running from sensitive to resistant.
+    Monocytic and dendritic states sit in the upper left, pairing MEK
+    sensitivity with venetoclax resistance. Primitive and progenitor states sit
+    near zero on the MEK axis and below zero on the venetoclax axis, meaning
+    venetoclax-sensitive.
 links:
   - { label: code, href: "https://github.com/kishpish/aml-energy-landscape" }
 related:

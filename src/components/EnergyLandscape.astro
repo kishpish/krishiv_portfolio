@@ -25,7 +25,18 @@ const f = buildLandscape();
 const { w, h } = f.view;
 // room for the axis furniture around the plotted square
 const pad = { l: 26, r: 8, t: 8, b: 24 };
-const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
+const vbW = w + pad.l + pad.r;
+const vbH = h + pad.t + pad.b;
+const vb = `${-pad.l} ${-pad.t} ${vbW} ${vbH}`;
+// The canvas overlays only the plotted square, not the axis furniture around it,
+// so the browser can map potential coordinates straight onto its own box.
+const pct = (n: number) => `${((n / 1) * 100).toFixed(4)}%`;
+const canvasBox = {
+  left: pct(pad.l / vbW),
+  top: pct(pad.t / vbH),
+  width: pct(w / vbW),
+  height: pct(h / vbH),
+};
 ---
 
 <figure class:list={['landscape', `landscape--${mode}`, cls]} data-landscape={mode === 'hero' ? '' : undefined}>
@@ -111,7 +122,12 @@ const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
     {
       mode === 'hero' && (
         <>
-          <canvas class="landscape__canvas" data-landscape-canvas aria-hidden="true" />
+          <canvas
+            class="landscape__canvas"
+            data-landscape-canvas
+            aria-hidden="true"
+            style={`left:${canvasBox.left};top:${canvasBox.top};width:${canvasBox.width};height:${canvasBox.height}`}
+          />
           <div class="landscape__readout mono" data-landscape-readout hidden>
             <span class="landscape__readout-row">
               <span class="landscape__k">basin</span>
@@ -183,11 +199,9 @@ const vb = `${-pad.l} ${-pad.t} ${w + pad.l + pad.r} ${h + pad.t + pad.b}`;
 
   /* The canvas sits exactly over the plotted square and draws the live walker.
      It stays hidden until the script decides motion is allowed. */
+  /* Positioned by an inline style onto the plotted square. */
   .landscape__canvas {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;

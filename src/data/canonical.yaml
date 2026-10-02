@@ -275,11 +275,12 @@ hackathons:
   - name: Morphologic AI
     event: Bio x ML Hackathon (Lux Capital and EvolutionaryScale)
     date: Oct 2024
-    role: ML and cell segmentation lead
+    role: ML, cell segmentation, and algorithm integration
     summary: >-
-      Cell segmentation and morphological readouts that make Recursion's RxRx
-      drug-perturbation images and embeddings biologically interpretable. Won
-      the Recursion RxRx Prize, with a follow-on project with Recursion.
+      Cell segmentation and morphological readouts over Recursion's RxRx
+      drug-perturbation images, built to make the deep-learning embeddings
+      biologically interpretable. On an eight-person team, and the project won
+      the Recursion RxRx Prize.
     links:
       - { label: devpost, href: "https://devpost.com/software/morphologic-ai" }
       - { label: code, href: "https://github.com/kishpish/Morphologic-AI" }
@@ -378,7 +379,7 @@ methods:
       segmentation and morphological features from microscopy.
   - area: Statistical genetics
     items: >-
-      Heritability by GREML (GCTA); eQTL mapping and TWAS-style expression
+      cis-heritability by single-component REML; eQTL mapping and TWAS-style expression
       prediction; NNLS deconvolution of bulk expression; cross-ancestry
       portability.
   - area: Statistics

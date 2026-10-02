@@ -21,8 +21,8 @@ approach: >-
   binder off its target while measuring force, and free-energy calculation
   along that pulling coordinate.
 result: >-
-  The published pipeline reports 94% of designs forming stable interfaces at
-  38.4 seconds per design, with a binding free energy of −12.3 kcal/mol for the
+  The published pipeline reports that 94% of the designs it accepts form stable
+  interfaces, at 38.4 seconds per design, with a binding free energy of −12.3 kcal/mol for the
   selected inhibitor and peak unbinding forces above the range typical of
   protein-protein complexes. Nothing in the pipeline is specific to TEM-171, so
   it can be pointed at another target.
@@ -33,7 +33,7 @@ landscape: >-
 headline: "94% stable"
 evidence:
   - value: "94%"
-    label: "of designs form stable interfaces (i_pTM > 0.8)"
+    label: "of accepted designs form stable interfaces (i_pTM > 0.8), per the preprint"
   - value: "38.4 s"
     label: "average compute per design"
   - value: "−12.3"
@@ -62,9 +62,11 @@ figure:
     is one interface-design trajectory, placed by the confidence of the
     predicted complex and by its computed interface energy. Trajectories above
     the dashed line clear the interface-confidence bar the pipeline filters on.
-    This is the funnel rather than the output: it shows what the search had to
-    chew through to find candidates worth simulating, and the corner you want is
-    the top left, where high confidence meets favourable interface energy.
+    This is the funnel rather than the output: these 60 are the population
+    before filtering, of which 14 clear the bar, which is a different number
+    from the 94% the preprint reports for the designs the pipeline accepts. The
+    corner you want is the top left, where high confidence meets favourable
+    interface energy.
   alt: >-
     Scatter plot of 60 interface-design trajectories. The horizontal axis is
     interface energy, more negative to the left, and the vertical axis is
@@ -116,8 +118,9 @@ Steered molecular dynamics attaches a stiff spring to the binder and pulls it
 away from the target at a controlled rate, recording the force needed. The
 force-displacement trace is readable as a mechanism: elastic deformation at the
 interface, then sequential contact rupture, then separation. Peak unbinding
-forces in the published runs exceed the 800 to 1,200 kN/mol range typical of
-protein-protein complexes.
+forces across five independent pulls come out at 1,500 to 1,700 kN/mol, against
+the 800 to 1,200 kN/mol the paper cites as typical for protein-protein
+complexes.
 
 Pulling is non-equilibrium work, so it does not give a free energy directly.
 The Jarzynski equality relates the exponential average of that work to the

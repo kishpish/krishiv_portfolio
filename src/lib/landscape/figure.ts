@@ -177,6 +177,11 @@ export function buildLandscape(): LandscapeFigure {
 /**
  * Energy along the minimum-energy path, as an SVG path in a w × h box. Used by
  * the section-break motif: the page is a reaction coordinate.
+ *
+ * Drawn from B on the left to A on the right, the reverse of the stored arc
+ * length, so that scrolling down the page moves the marker left to right. The
+ * `s` on each returned point stays the original arc length from A, which is
+ * what callers pass in.
  */
 export function profilePath(w: number, h: number, pad = 4): { d: string; points: { s: number; E: number; px: number; py: number }[] } {
   const pts = buildLandscape().mepPoints;
@@ -186,7 +191,7 @@ export function profilePath(w: number, h: number, pad = 4): { d: string; points:
   const map = (p: PathPoint) => ({
     s: p.s,
     E: p.E,
-    px: pad + p.s * (w - 2 * pad),
+    px: pad + (1 - p.s) * (w - 2 * pad),
     py: pad + (1 - (p.E - lo) / (hi - lo)) * (h - 2 * pad),
   });
   const mapped = pts.map(map);

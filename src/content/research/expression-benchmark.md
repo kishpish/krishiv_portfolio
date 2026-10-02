@@ -40,7 +40,7 @@ evidence:
   - value: "251,275"
     label: "paralog pairs audited for leakage"
   - value: "0.23"
-    label: "median ρ on held-out individuals, 78 learnable genes"
+    label: "median ρ on held-out individuals, 78 learnable genes, European subset"
   - value: "0.05"
     label: "pretrained sequence model, zero-shot, 15 genes"
 figure:
@@ -50,15 +50,17 @@ figure:
     per-gene model fitted on that gene's own labels reaches the blue mark; a
     pretrained sequence model run zero-shot reaches the orange one. The grey tick
     is the square root of that gene's estimated heritability, which is roughly
-    the best any method could do from local sequence. The pretrained model is not
-    merely behind, it is near zero on a task where a linear model with access to
-    the labels gets a long way up toward the ceiling.
+    the best any method could do from local sequence. The pretrained model
+    scatters either side of zero, with a median of 0.05 and a bootstrap interval
+    that spans it, while the per-gene models get a long way toward the ceiling
+    on most of these genes.
   alt: >-
     A dumbbell chart with one row per gene for fifteen genes. Each row has a blue
     dot for the per-gene linear model's correlation and an orange dot for the
     pretrained sequence model's correlation, joined by a line, with a grey tick
-    marking the heritability ceiling. Blue dots sit between about 0.2 and 0.8,
-    orange dots cluster near zero.
+    marking the heritability ceiling. Blue dots run from about zero to 0.84, most
+    of them between 0.24 and 0.64. Orange dots scatter from about minus 0.4 to
+    0.56, with a median near zero.
 links:
   - { label: code, href: "https://github.com/kishpish/held-out-gene-benchmark" }
 related:
@@ -102,6 +104,12 @@ predictive. After residualizing on sub-population labels using training data
 only, the ancestry-only control drops to zero and the real models hold around
 0.23. Without that control the benchmark would have reported a result that was
 mostly geography.
+
+**And the honest limit on all of it.** Those numbers are within Europeans.
+Tested on the Yoruba individuals held out for exactly this purpose, the same
+models fall from about 0.23 to about 0.05. That is how far any of this
+transfers today, and it is the reason the cohort is 449 people rather than the
+360 the main comparison uses.
 
 **A ceiling per gene.** Most genes carry very little local heritable signal:
 the median estimate on the evaluated chromosome is about 0.015, and only 78 of
