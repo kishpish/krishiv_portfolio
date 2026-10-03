@@ -51,13 +51,23 @@ const photos = [
       <p class="me-photos__cap">{clean(me.photo_caption)}</p>
     </div>
 
-    <section class="me-sec" aria-labelledby="pitch">
-      <h2 id="pitch">What the ball actually does</h2>
-      <p class="measure">{clean(me.trajectories)}</p>
-      <p class="measure">{clean(me.pitch_intro)}</p>
-      <div class="me-lab" data-reveal>
-        <PitchLab />
-      </div>
+    {/* The declaration gets its own line at its own size, because it is a thing
+        somebody says out loud rather than a topic sentence, and setting it in
+        with the rest of the paragraph would bury it. No heading above it: a
+        heading would announce the subject, and announcing it is the opposite
+        of saying it. */}
+    <div class="me-team" data-reveal>
+      <p class="me-team__line">{clean(me.team_line)}</p>
+      <p class="me-team__p">{clean(me.baseball_life)}</p>
+    </div>
+
+    {/* A toy, not a section of a paper. It is set in its own narrower block with
+        a smaller heading and one line of setup, so the weight on the page
+        matches what it is. The physics inside is untouched. */}
+    <section class="me-demo" aria-labelledby="pitch" data-reveal>
+      <h2 id="pitch" class="me-demo__h">{me.demo_heading}</h2>
+      <p class="me-demo__p">{clean(me.pitch_intro)}</p>
+      <PitchLab />
     </section>
 
     <p class="me-closing measure">
@@ -66,6 +76,11 @@ const photos = [
            of the sentence is carried for anyone who is listening to it. -->
       <a href={url('/about/')}>More<span class="visually-hidden">, the page with the rest of this</span></a>.
     </p>
+
+    {/* A note about the page, not content on it. Quiet, small, mono, and set
+        well apart from the copy above so it never reads as a heading or as
+        something broken. */}
+    <p class="me-wip" role="note">{me.wip}</p>
   </div>
 </Base>
 
@@ -102,23 +117,58 @@ const photos = [
     color: var(--ink-4);
   }
 
-  .me-sec {
-    margin-top: var(--sp-8);
+  /* Set off from the photographs above by space rather than by a rule, so it
+     reads as the same person still talking rather than as a new section. */
+  .me-team {
+    margin-top: var(--sp-7);
+    max-width: var(--measure);
   }
-  .me-sec h2 {
-    font-size: var(--fs-h2);
+  .me-team__line {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ink);
+    text-wrap: balance;
   }
-  .me-sec p {
-    margin-top: var(--sp-4);
+  .me-team__p {
+    margin-top: var(--sp-3);
     color: var(--ink-2);
     text-wrap: pretty;
   }
-  .me-lab {
-    margin-top: var(--sp-6);
+
+  /* The demo sits in from the measure on both sides and carries its own quiet
+     rule, so it reads as a self-contained thing dropped on the page rather than
+     as the next section of an argument. */
+  .me-demo {
+    margin-top: var(--sp-8);
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--rule);
+    max-width: 56rem;
+  }
+  /* A step down from a section heading, because this is a caption for a toy. */
+  .me-demo__h {
+    font-size: calc(var(--fs-body) * 1.12);
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .me-demo__p {
+    margin-top: var(--sp-2);
+    margin-bottom: var(--sp-5);
+    max-width: var(--measure);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+    color: var(--ink-3);
+    text-wrap: pretty;
   }
   .me-closing {
     margin-top: var(--sp-8);
     color: var(--ink-2);
+  }
+  .me-wip {
+    margin-top: var(--sp-7);
+    font-family: var(--mono);
+    font-size: var(--fs-small);
+    color: var(--ink-4);
   }
 
   @media (max-width: 34rem) {

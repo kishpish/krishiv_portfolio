@@ -15,9 +15,11 @@ summary: >-
   saddles, with basin depth, mean first-passage time, and a committor computed
   for 46 of 79 catalogued states. Deconvolving those state signatures into Beat
   AML bulk expression recovers drug associations under no drug supervision,
-  trametinib at ρ = −0.42 over 484 samples. The landscape's own mechanistic
-  predictions did not work: basin escape failed to beat background, and basin
-  depth does not predict which states persist after treatment.
+  trametinib at ρ = −0.42 over 484 samples. A named state is then queryable
+  for quantities a cluster label cannot give: each cell assigned to a basin by
+  its own deterministic flow, a numeric barrier for all six ordered attractor
+  pairs, and 38,224 scored state-drug pairs narrowed to 221 over 86 compounds,
+  small enough for one validation screen.
 problem: >-
   Single-cell atlases name cell states. They do not say how stable a state is,
   what it would take to leave it, or where it would go. The rare leukemic stem
@@ -95,7 +97,11 @@ thumb:
   fallback: png
   alt: >-
     UMAP of 38,193 single cells coloured by which of the four learned basins each one falls into, with the mature myeloid basin in red and the primitive and stem-like basin in blue.
-  fit: cover
+  # The UMAP ships on a white canvas, two thirds of the image, so it belongs in
+  # the contain treatment where that canvas multiplies into the window. Cover
+  # cropped it and left the white standing, which put the one white rectangle
+  # left on the site back on the home page.
+  fit: contain
 links: []
 related:
   - energy-is-a-modeling-choice

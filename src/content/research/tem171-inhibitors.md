@@ -8,16 +8,18 @@ kind: independent
 paper: tem171-biorxiv-2025
 honor: "Regeneron ISEF 2025 Finalist"
 summary: >-
-  TEM-171 is a β-lactamase that lets bacteria destroy an extended range of
-  antibiotics, and resistance evolves around small-molecule inhibitors of it
-  quickly. This pipeline designs protein binders against nine active-site
-  residues with a diffusion and an inverse-folding model, then spends its
-  compute on steered molecular dynamics that pulls each candidate off the
-  target and recovers the free energy from that work under the Jarzynski
-  equality. The selected design holds a single-minimum potential of mean force
-  at −12.3 kcal/mol, with unbinding forces above the range the paper cites as
-  typical for protein-protein complexes. It is computational end to end: no
-  binder has been expressed, purified, or assayed.
+  TEM-171 is a β-lactamase that lets bacteria destroy an extended range of antibiotics, and
+  resistance evolves around small-molecule inhibitors of it quickly. A designed protein is a
+  much harder thing for the enzyme to evolve away from, and this pipeline builds one against
+  nine active-site residues: backbones from a diffusion model, sequences from inverse
+  folding, interface refinement, and then a free-energy calculation that pulls each
+  surviving candidate off the target and prices the separation. The preprint reports 2,048
+  scaffolds generated and 67 refined at the interface, 94% of accepted designs forming
+  stable interfaces at 38.4 seconds apiece, and a −12.3 kcal/mol binding free energy for the
+  selected inhibitor, which holds its contact with the catalytic serine from pH 6.5 to 8.0
+  and from 298 to 310 K. Nothing in the pipeline is specific to TEM-171, so a group facing a
+  different resistance enzyme inherits a search that is already standing rather than
+  starting one.
 problem: >-
   TEM-171 is a β-lactamase: an enzyme that lets bacteria destroy an extended
   range of β-lactam antibiotics. Resistance evolves around small-molecule
@@ -65,27 +67,35 @@ media:
     a compact blue fold. A long helical binder grows out to the right, changing
     colour from red and orange to green and blue as the model becomes more
     confident in the structure it is building.
+abstract_note: >-
+  The abstract above is the preprint's own. What it does not say is that the project is
+  computational end to end: no binder has been expressed, purified, or assayed, and the free
+  energies are simulation estimates carrying whatever the force field assumes. The committed
+  interface-design log is also narrower than the headline figure, with 14 of its 60
+  trajectories clearing the confidence bar rather than 94%, which is the funnel plotted in
+  the figure above.
 abstract_kind: paper
 abstract: >-
-    The emergence of TEM-171 beta-lactamase represents a significant threat to modern
-    antimicrobial therapy, because it hydrolyses an extended spectrum of beta-lactam
-    antibiotics. Traditional beta-lactamase inhibitors such as tazobactam show diminishing
-    efficacy against this enzyme, and no true systematic approach exists for developing targeted
-    protein-based inhibitors. Here I present an integrated computational pipeline for de novo
-    protein design targeting TEM-171, combining quantum-inspired diffusion models with
-    evolutionary optimization. The dual-platform approach uses RFDiffusion for scaffold
-    generation (n = 2048) and BindCraft for interface refinement (n = 67), guided by AlphaFold2
-    structural prediction (mean pLDDT 93.2) and ProteinMPNN sequence optimization. The designed
-    inhibitor shows exceptional structural stability (RMSD 1.2 to 1.5 A) and binding affinity
-    (dG -12.3 kcal/mol) in microsecond-scale molecular dynamics, with force-displacement
-    profiles revealing peak unbinding forces of 1500 to 1700 kN/mol. It maintains stable
-    contacts with critical catalytic residues including Ser70, and holds its conformation across
-    varied physiological conditions (pH 6.5 to 8.0, 298 to 310 K). Beyond the immediate
-    therapeutic application, the framework shows 38.4 s average computation time per design and
-    a 94 percent success rate in generating stable protein-protein interfaces (i_pTM above 0.8),
-    establishing a pipeline for accelerated therapeutic protein development. These findings
-    present a promising candidate for combating TEM-171-mediated resistance and a wider
-    methodology for addressing emerging therapeutic challenges through rational protein design.
+    The emergence of TEM-171 β-lactamase represents a significant threat to modern antimicrobial
+    therapy due to its ability to hydrolyze an extended spectrum of β-lactam antibiotics. While
+    traditional β-lactamase inhibitors like tazobactam show diminishing efficacy against this
+    enzyme, no true systematic approach exists for developing targeted protein-based inhibitors.
+    Here, I present an integrated computational pipeline for de novo protein design targeting
+    TEM-171, combining quantum-inspired diffusion models with evolutionary optimization. This
+    dual-platform approach employs RFDiffusion for scaffold generation (n=2048) and Bind-Craft for
+    interface refinement (n=67), guided by AlphaFold2 structural predictions (mean pLDDT score:
+    93.2) and Protein-MPNN sequence optimization. The designed inhibitor demonstrates exceptional
+    structural stability (RMSD: 1.2Å-1.5Å)) and binding affinity (ΔG:-12.3 kcal/mol) in
+    microsecond-scale molecular dynamics simulations, with force-displacement profiles revealing
+    peak unbinding forces of 1500-1700 kN/mol. The designed inhibitor maintains stable contacts
+    with critical catalytic residues including Ser70 and maintains conformational integrity across
+    varied physiological conditions (pH 6.5-8.0, 298-310 K). Beyond the immediate therapeutic
+    application, the generalizable framework demonstrates 38.4 s average computation time per
+    design and 94% success rate in generating stable protein-protein interfaces (i_ptm > 0.8),
+    establishing an efficacious pipeline for accelerated therapeutic protein development. These
+    findings not only present a promising candidate for combating TEM-171-mediated resistance, but
+    also provide a wider-scale methodology for addressing emerging therapeutic challenges through
+    rational protein design.
 figure:
   id: tem171-funnel
   caption: >-

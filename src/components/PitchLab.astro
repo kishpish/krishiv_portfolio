@@ -301,11 +301,12 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
       Drag the dial or move a slider. Nothing here is drawn by hand, so the paths are recomputed
       from scratch every time you move something.
     </span>
+    <!-- The setup above the figure now says what the model is, so this says only
+         what it does not: how it is integrated, what the dashed line means, and
+         where the aerodynamics is optimistic. -->
     <span class="plab__cap-desc">
-      A baseball under gravity, quadratic drag, and the Magnus force from its own spin,
-      integrated with RK4 from release to the front of the plate. Every pitch is thrown on the
-      same two release angles, the ones that put a spinless ball through the middle of the zone,
-      so the dashed line is where it was aimed and the gap is what the spin did. The lift
+      Integrated with RK4, in the browser, in real time. The dashed line is where a ball with no
+      spin would finish on those same release angles, so the gap is what the spin did. The lift
       coefficient is the piecewise fit from the baseball aerodynamics literature, and it runs a
       little generous at high spin, so read these breaks as the top of the range rather than the
       middle of it.

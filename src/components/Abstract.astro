@@ -6,24 +6,29 @@
 // is doing a different job: the summary says what the work is, the abstract
 // says what the paper claims.
 //
-// It is a <details> that starts open, so the text is simply there for the
-// reader who wants it and one click away from gone for the reader who does not.
-// It starts open rather than closed because an abstract behind a shut drawer is
-// an abstract nobody reads, and nothing about the open state depends on script,
-// so the first paint is already correct.
+// It is a <details>, which is a disclosure a keyboard can reach and a screen
+// reader announces the state of without a line of script, so the first paint is
+// already correct and nothing has to run for it to work.
+//
+// It starts closed. The summary above it is what a reader is deciding on, and
+// four full abstracts between four projects is a wall of technical prose in the
+// middle of that decision. The control says what opening it gives you, so
+// nobody opens it to find out.
 import { clean } from '../lib/canonical';
 
 interface Props {
   text: string;
   /** `paper` is the published abstract; `summary` was written from the repo */
   kind?: 'paper' | 'summary';
+  /** what the quoted abstract does not say about the scope of the work */
+  note?: string;
   class?: string;
 }
-const { text, kind = 'summary', class: cls = '' } = Astro.props;
-const word = kind === 'paper' ? 'Abstract' : 'About the paper';
+const { text, kind = 'summary', note, class: cls = '' } = Astro.props;
+const word = kind === 'paper' ? 'Full abstract' : 'About the paper';
 ---
 
-<details class:list={['abs', cls]} open>
+<details class:list={['abs', cls]}>
   <summary class="abs__sum">
     <span class="abs__word">{word}</span>
     <svg class="abs__chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
@@ -38,6 +43,10 @@ const word = kind === 'paper' ? 'Abstract' : 'About the paper';
     </svg>
   </summary>
   <p class="abs__body">{clean(text)}</p>
+  {/* The paper's own words stop at the paragraph above. Anything the site has
+      to say about what the work did not do is set apart from them, so a reader
+      can see where the quotation ends. */}
+  {note && <p class="abs__note">{clean(note)}</p>}
 </details>
 
 <style>
@@ -77,9 +86,22 @@ const word = kind === 'paper' ? 'Abstract' : 'About the paper';
   }
   .abs__body {
     margin-top: var(--sp-2);
+    /* The abstract is quoted source text, so it keeps whatever punctuation the
+       paper used, including the dashes the rest of the site does without. */
     max-width: var(--measure);
     color: var(--ink-2);
     line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .abs__note {
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--rule);
+    max-width: var(--measure);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+    color: var(--ink-3);
     text-wrap: pretty;
   }
 

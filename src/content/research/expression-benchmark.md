@@ -15,8 +15,10 @@ summary: >-
   per-gene cis-heritability ceilings. Per-gene linear models reach a median
   correlation of 0.23 on held-out European individuals while a pretrained
   sequence model run zero-shot sits at 0.05 with a bootstrap interval spanning
-  zero. The contribution is the audit rather than the model: it measures a gap
-  the field had so far only described.
+  zero. The splits, the paralog audit and the per-gene ceilings ship frozen, so
+  a new model can be scored on the same held-out genes and individuals, with
+  genes seen in training kept separate from genes never seen and each
+  correlation read against the ceiling it could reach.
 problem: >-
   Sequence models predict expression across genes very well and across
   individuals very badly. The second axis is the one that connects a genome to
