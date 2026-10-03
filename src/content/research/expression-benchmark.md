@@ -53,6 +53,22 @@ evidence:
     label: "median ρ on held-out individuals, 78 learnable genes, European subset"
   - value: "0.05"
     label: "pretrained sequence model, zero-shot, 15 genes"
+abstract_kind: summary
+abstract: >-
+    Sequence-to-expression models predict expression well across genomic loci and badly across
+    people: from one person's nearby variants they cannot say who expresses a gene more highly.
+    Per-gene linear models can, but they are undefined on a gene with no training labels, so a
+    model that transferred cis-regulatory grammar to an unseen gene would be a new capability
+    rather than a better score. This work builds a leakage-audited benchmark on fully open data
+    to test for it, with frozen family-grouped individual splits and chromosome-level gene
+    splits. On held-out chromosome 22 genes the per-gene linear baselines reach a median
+    Spearman correlation of about 0.4 while a pretrained sequence model run zero-shot sits near
+    0.05. Three gene-agnostic transfer approaches are tested and none closes the gap, and the
+    European to African ancestry drop runs 72 to 79 percent. The bottleneck is localised to the
+    learned variant-effect map: the model's sign agreement with measured eQTLs is 49.7 percent
+    overall, which is chance, but 69.6 percent on the high-confidence subset where it predicts a
+    large effect. Negative controls pass, with permuted labels giving a correlation of about
+    zero.
 plate:
   caption: >-
     Why the transfer fails on average, and what is left underneath it. Per-gene

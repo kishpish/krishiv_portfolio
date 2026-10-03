@@ -65,6 +65,27 @@ media:
     a compact blue fold. A long helical binder grows out to the right, changing
     colour from red and orange to green and blue as the model becomes more
     confident in the structure it is building.
+abstract_kind: paper
+abstract: >-
+    The emergence of TEM-171 beta-lactamase represents a significant threat to modern
+    antimicrobial therapy, because it hydrolyses an extended spectrum of beta-lactam
+    antibiotics. Traditional beta-lactamase inhibitors such as tazobactam show diminishing
+    efficacy against this enzyme, and no true systematic approach exists for developing targeted
+    protein-based inhibitors. Here I present an integrated computational pipeline for de novo
+    protein design targeting TEM-171, combining quantum-inspired diffusion models with
+    evolutionary optimization. The dual-platform approach uses RFDiffusion for scaffold
+    generation (n = 2048) and BindCraft for interface refinement (n = 67), guided by AlphaFold2
+    structural prediction (mean pLDDT 93.2) and ProteinMPNN sequence optimization. The designed
+    inhibitor shows exceptional structural stability (RMSD 1.2 to 1.5 A) and binding affinity
+    (dG -12.3 kcal/mol) in microsecond-scale molecular dynamics, with force-displacement
+    profiles revealing peak unbinding forces of 1500 to 1700 kN/mol. It maintains stable
+    contacts with critical catalytic residues including Ser70, and holds its conformation across
+    varied physiological conditions (pH 6.5 to 8.0, 298 to 310 K). Beyond the immediate
+    therapeutic application, the framework shows 38.4 s average computation time per design and
+    a 94 percent success rate in generating stable protein-protein interfaces (i_pTM above 0.8),
+    establishing a pipeline for accelerated therapeutic protein development. These findings
+    present a promising candidate for combating TEM-171-mediated resistance and a wider
+    methodology for addressing emerging therapeutic challenges through rational protein design.
 figure:
   id: tem171-funnel
   caption: >-

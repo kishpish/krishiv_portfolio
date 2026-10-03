@@ -55,6 +55,21 @@ evidence:
     label: "hydrogel formulations across the searched design space"
   - value: "16× A100"
     label: "distributed training configuration"
+abstract_kind: summary
+abstract: >-
+    Scar replaces contractile muscle permanently after a myocardial infarction. An injectable
+    hydrogel can support the wall mechanically, but its chemistry, stiffness, degradation,
+    conductivity, thickness and coverage all interact with the geometry of one patient's damage,
+    so the experiment worth running is the one that cannot be run. This work closes that loop in
+    simulation. A geometry pipeline turns ten patient left-ventricle surfaces into solver-ready
+    tetrahedral meshes totalling 3.66 million elements, each carrying fibre architecture and a
+    scar and border zone inferred from wall thinning along a computed transmural coordinate
+    rather than read off contrast-enhanced imaging. A pretrained polymer chemical language
+    model, fine-tuned and then refined with reinforcement learning, scores candidate
+    formulations against outcome and safety thresholds fixed in code, which turns an open-ended
+    material search into a ranked shortlist. Because the search runs on surrogate predictions
+    rather than a full simulation for every design, a shortlisted formulation is a hypothesis
+    for the solver rather than a result from it.
 plate:
   source: Figure 2
   caption: >-

@@ -15,14 +15,17 @@ import { clean } from '../lib/canonical';
 
 interface Props {
   text: string;
+  /** `paper` is the published abstract; `summary` was written from the repo */
+  kind?: 'paper' | 'summary';
   class?: string;
 }
-const { text, class: cls = '' } = Astro.props;
+const { text, kind = 'summary', class: cls = '' } = Astro.props;
+const word = kind === 'paper' ? 'Abstract' : 'About the paper';
 ---
 
 <details class:list={['abs', cls]} open>
   <summary class="abs__sum">
-    <span class="abs__word">Abstract</span>
+    <span class="abs__word">{word}</span>
     <svg class="abs__chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
       <path
         d="M2.4 4.3 6 7.9l3.6-3.6"

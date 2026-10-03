@@ -53,6 +53,21 @@ evidence:
     label: "strongest drug association, MEK inhibition, n = 484"
   - value: "748,679"
     label: "cells in the validation atlas"
+abstract_kind: summary
+abstract: >-
+    Single-cell atlases name leukemic cell states but say nothing about how stable a state is or
+    what it costs to leave one, which is the question that matters for the rare populations
+    behind relapse. This work fits an explicit energy landscape to acute myeloid leukemia
+    single-cell data, healthy donors included. A neural network learns a scalar potential and
+    the dynamics are its negative gradient, so the field is conservative by construction and a
+    barrier height does not depend on the path taken to measure it. Critical points come from
+    many trial trajectories, and each cell is assigned to the attractor its deterministic flow
+    descends to. Across 38,193 cells the landscape has four attractors and two saddles, and drug
+    action is modelled as a constant force that tilts the potential. With no drug supervision,
+    deconvolving the state signatures into bulk expression recovers a known response split, with
+    monocytic states tracking MEK sensitivity and venetoclax resistance. The landscape's own
+    mechanistic predictions did not work: basin escape failed to beat background, and basin
+    depth does not predict which states persist after treatment.
 plate:
   source: Figure 1(a)
   caption: >-

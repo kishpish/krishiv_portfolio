@@ -68,7 +68,7 @@ const authorHtml = (a: string[]) =>
 
     {/* What used to be a page of its own. A reader who wants the detail gets it
         here rather than at a second address that said most of this again. */}
-    {!compact && d.abstract && <Abstract text={d.abstract} class="rcard__abstract" />}
+    {!compact && d.abstract && <Abstract text={d.abstract} kind={d.abstract_kind} class="rcard__abstract" />}
   </div>
 
   {

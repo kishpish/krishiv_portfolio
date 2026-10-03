@@ -605,23 +605,19 @@ conflicts:
 
 me_page:
   lede: >-
-    I have been playing since I was nine, first on select and travel teams, then as the first
-    freshman in my program's history to make the varsity roster. I pitch right handed and play
-    third, short, or the outfield when I am not on the mound. My exit velocity is 95 and my sixty
-    is 7.13, both of which took a great deal longer to earn than they take to write down.
+    I've been playing since I was nine and I still play. Pitching mostly, third or short or the
+    outfield when I'm not on the mound. It's the thing I've done longest and the thing I'd miss
+    first.
   trajectories: >-
-    Baseball is the other place I think hard about trajectories. A pitch is a boundary value
-    problem you get four tenths of a second to solve, and the awkward part is that the ball does
-    not travel in a straight line even before gravity has its say.
+    A pitch takes about four tenths of a second to get there, and the ball is bending the whole
+    way. Gravity is only part of that. I wanted to see the rest, so I wrote it out.
   photo_caption: >-
     It started about here.
   pitch_intro: >-
-    So here it is written out. The figure below is a real integration rather than a drawing:
-    gravity, quadratic drag, and the Magnus force the ball makes from its own spin, stepped from
-    release to the front of the plate. Every pitch leaves on the same two angles, the ones that
-    would carry a ball with no spin through the middle of the zone, so everything that happens
-    after release is the spin and only the spin. Drag the dial and watch how little of it you
-    need to miss.
+    The figure below is a real integration, not a drawing: gravity, quadratic drag, and the
+    Magnus force from the ball's own spin, stepped from release to the front of the plate. Every
+    pitch leaves on the same two angles, so the difference you see is all spin. Drag the dial to
+    move the spin axis.
   # Rendered with the page name as a link straight after it, so the sentence is
   # written to run into it.
   closing: >-

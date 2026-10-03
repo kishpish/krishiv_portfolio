@@ -44,10 +44,16 @@ const research = defineCollection({
       .default([]),
     /** compact "number + unit" for the home-page index, e.g. "38,193 cells" */
     headline: z.string().optional(),
-    /** The paper's abstract, lightly simplified, shown in place on the research
-     *  page. There is no per-project page any more, so this is where a reader
-     *  who wants the detail gets it. Projects without a paper have none. */
+    /** The detail that used to live on a per-project page. There is no such
+     *  page any more, so this is where a reader who wants more than the summary
+     *  gets it. Projects without a paper have none. */
     abstract: z.string().optional(),
+    /** `paper` means this is the paper's own published abstract, lightly
+     *  simplified. `summary` means the paper is not public and this was written
+     *  from the project's repository instead. The label on the page says which,
+     *  because calling the second one an abstract would be a claim about
+     *  provenance that is not true. */
+    abstract_kind: z.enum(['paper', 'summary']).default('summary'),
     figure: z
       .object({
         id: z.string(), // key into src/lib/figures
