@@ -14,11 +14,13 @@ summary: >-
   polymer chemical language model with a geometry pipeline that turns patient
   surface meshes into ten solver-ready tetrahedral hearts totalling 3.66
   million elements, each carrying fibre architecture and a scar and border zone
-  inferred from wall thinning. Candidates are scored against outcome and safety
-  thresholds fixed in code, which turns an open-ended material search into a
-  ranked shortlist. Because the search runs on surrogate predictions rather
-  than a full simulation per design, a shortlisted formulation is a hypothesis
-  for the solver rather than a result from it.
+  inferred from wall thinning rather than read off contrast-enhanced imaging,
+  so a cohort that has only surface geometry can still be taken through
+  mechanics and electrophysiology solvers. Candidates are scored against
+  outcome and safety thresholds fixed in code, which turns an open-ended
+  material search into a ranked shortlist. What that gives a lab is an order to
+  work in: which of the 24 formulations to put in front of a given heart first,
+  and a list short enough that the full solver can be run on whatever survives.
 problem: >-
   Scar replaces muscle permanently after a myocardial infarction. An injectable
   hydrogel could support the wall while the tissue remodels, but a gel is not

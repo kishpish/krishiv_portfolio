@@ -18,7 +18,9 @@ const p = data.person;
 const rs = data.research_statement;
 const portrait = data.images.portrait;
 const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
-const topProjects = projects.slice(0, 3);
+// Every paper-backed project, so none of the four is the one left out. The
+// two in progress stay on the research page until they have a paper.
+const topProjects = projects.slice(0, 4);
 const posts = await allPosts();
 const featuredPosts = [
   'energy-is-a-modeling-choice',
@@ -64,7 +66,7 @@ const jsonLd = {
 };
 ---
 
-<Base description={clean(data.site.description)} og="default" type="profile" jsonLd={jsonLd} mascot="particle">
+<Base description={clean(data.site.description)} og="default" type="profile" jsonLd={jsonLd} mascot="wave">
   <!-- ============================================ hero -->
   <section class="wrap hero" aria-labelledby="hero-name">
     <div class="hero__text">
@@ -177,11 +179,11 @@ const jsonLd = {
     <div class="section__head" data-reveal>
       <h2 id="research">Research</h2>
     </div>
-    <div class="prow">
+    <div class="prow prow--pairs">
       {topProjects.map((entry) => <ResearchPreview entry={entry} />)}
     </div>
     <p class="section__more" data-reveal>
-      <a href={url('/research/')}>All five projects, with the publication list</a>
+      <a href={url('/research/')}>All six projects, with the publication list</a>
     </p>
   </section>
 
@@ -412,6 +414,22 @@ const jsonLd = {
   }
   @media (max-width: 40rem) {
     .prow {
+      grid-template-columns: 1fr;
+    }
+  }
+  /* Four cards go two by two rather than four across. Four in a row is about
+     300px a card at laptop width, which takes these paper titles to five lines
+     and leaves the figure windows too small to read anything in. Two by two
+     gives each card the width the three-across row had and only has to collapse
+     once, at the point where a second column stops fitting.
+     These two rules carry the same specificity as the .prow rules above, so
+     they are written after them on purpose: source order is what makes the
+     modifier win. */
+  .prow--pairs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 44rem) {
+    .prow--pairs {
       grid-template-columns: 1fr;
     }
   }

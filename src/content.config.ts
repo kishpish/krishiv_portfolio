@@ -48,12 +48,19 @@ const research = defineCollection({
      *  page any more, so this is where a reader who wants more than the summary
      *  gets it. Projects without a paper have none. */
     abstract: z.string().optional(),
-    /** `paper` means this is the paper's own published abstract, lightly
-     *  simplified. `summary` means the paper is not public and this was written
+    /** `paper` means this is the paper's own published abstract, quoted
+     *  verbatim. `summary` means the paper is not public and this was written
      *  from the project's repository instead. The label on the page says which,
      *  because calling the second one an abstract would be a claim about
      *  provenance that is not true. */
     abstract_kind: z.enum(['paper', 'summary']).default('summary'),
+    /** What the paper's own abstract does not say about the scope of the work.
+     *  A verbatim abstract is the paper arguing its case, and a paper does not
+     *  list what it never did, so a quoted one needs this line underneath it or
+     *  the limits of the work are nowhere on the page. Written here rather than
+     *  folded into the summary above, which is the reader's first impression
+     *  and is not the place for it. */
+    abstract_note: z.string().optional(),
     figure: z
       .object({
         id: z.string(), // key into src/lib/figures

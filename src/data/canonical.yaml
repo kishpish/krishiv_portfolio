@@ -608,17 +608,28 @@ me_page:
     I've been playing since I was nine and I still play. Pitching mostly, third or short or the
     outfield when I'm not on the mound. It's the thing I've done longest and the thing I'd miss
     first.
-  trajectories: >-
-    A pitch takes about four tenths of a second to get there, and the ball is bending the whole
-    way. Gravity is only part of that. I wanted to see the rest, so I wrote it out.
   photo_caption: >-
     It started about here.
+  # Said, not explained. It is set on its own line on the page for that reason:
+  # a reader should hear it land before the rest of the paragraph starts.
+  team_line: "The Cardinals are my team."
+  baseball_life: >-
+    I've never lived in Missouri and I don't know another Cardinals fan in Austin, and it has
+    never once been up for a vote. What baseball actually did was put me on a varsity roster as
+    a freshman, the first one the program had ever taken, which bought me a season of being the
+    youngest person on the field with everybody waiting to see whether that had been a mistake.
+    Eleven hours a week, forty-four weeks a year, every year since. There's another one on
+    Saturday.
   pitch_intro: >-
-    The figure below is a real integration, not a drawing: gravity, quadratic drag, and the
-    Magnus force from the ball's own spin, stepped from release to the front of the plate. Every
-    pitch leaves on the same two angles, so the difference you see is all spin. Drag the dial to
-    move the spin axis.
+    A real integration, not a drawing: gravity, drag, and the Magnus force off the ball's own
+    spin, from release to the front of the plate. Every pitch leaves on the same two angles, so
+    the difference you see is all spin. Drag the dial.
   # Rendered with the page name as a link straight after it, so the sentence is
   # written to run into it.
   closing: >-
     Robotics, debate, the biotech club, and the tutoring program are all one page over, on
+  # A note about the page rather than something on it, so it is set apart from
+  # the copy above and reads as a placeholder.
+  wip: "in development.."
+  demo_heading: "A little thing I built"
+

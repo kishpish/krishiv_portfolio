@@ -50,10 +50,16 @@ const schema = z.object({
   ),
   me_page: z.object({
     lede: z.string(),
-    trajectories: z.string(),
     photo_caption: z.string(),
+    /** the declaration, set on its own line because it is said rather than
+     *  explained, and then the rest of what baseball is for him */
+    team_line: z.string(),
+    baseball_life: z.string(),
     pitch_intro: z.string(),
+    demo_heading: z.string(),
     closing: z.string(),
+    /** the note saying the page is not finished */
+    wip: z.string(),
   }),
   cv: z.object({ path: z.string(), updated_fallback: z.string(), label: z.string() }),
   site: z.object({ title: z.string(), description: z.string(), repo: z.url(), repo_branch: z.string() }),
