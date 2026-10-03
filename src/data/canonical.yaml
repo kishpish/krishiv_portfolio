@@ -605,21 +605,21 @@ conflicts:
 
 me_page:
   lede: >-
-    I've been playing since I was nine and I still play. Pitching mostly, third or short or the
-    outfield when I'm not on the mound. It's the thing I've done longest and the thing I'd miss
-    first.
+    I've been playing baseball since I was four, and honestly, I never stopped. Mostly I pitch,
+    but if I'm not on the mound, you'll find me at third, short, or out in the outfield. It's
+    easily the longest-running thing in my life, and if I had to give everything else up, it's the
+    one thing I'd miss the most.
   photo_caption: >-
     It started about here.
-  # Said, not explained. It is set on its own line on the page for that reason:
-  # a reader should hear it land before the rest of the paragraph starts.
-  team_line: "The Cardinals are my team."
   baseball_life: >-
-    I've never lived in Missouri and I don't know another Cardinals fan in Austin, and it has
-    never once been up for a vote. What baseball actually did was put me on a varsity roster as
-    a freshman, the first one the program had ever taken, which bought me a season of being the
-    youngest person on the field with everybody waiting to see whether that had been a mistake.
-    Eleven hours a week, forty-four weeks a year, every year since. There's another one on
-    Saturday.
+    The Cardinals are my team. I was born in Edwardsville, Illinois, so it was in my blood long
+    before I became the lone fan in Austin. But baseball honestly gave me something far deeper
+    than a team to root for: it taught me how to handle the humbling weight of a sport that can
+    slip through your fingers in a single inning. It's the feeling of walking back to the dugout
+    after blowing a lead and realizing you have to wake up the next day and trust your arm all
+    over again. Baseball showed me that resilience is never a loud, cinematic moment. It's the
+    daily grind of fixing your mechanics, swallowing your pride, and earning your confidence back
+    one pitch at a time.
   pitch_intro: >-
     A real integration, not a drawing: gravity, drag, and the Magnus force off the ball's own
     spin, from release to the front of the plate. Every pitch leaves on the same two angles, so

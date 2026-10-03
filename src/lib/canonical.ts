@@ -51,9 +51,7 @@ const schema = z.object({
   me_page: z.object({
     lede: z.string(),
     photo_caption: z.string(),
-    /** the declaration, set on its own line because it is said rather than
-     *  explained, and then the rest of what baseball is for him */
-    team_line: z.string(),
+    /** what baseball has been, in one paragraph */
     baseball_life: z.string(),
     pitch_intro: z.string(),
     demo_heading: z.string(),

@@ -51,15 +51,9 @@ const photos = [
       <p class="me-photos__cap">{clean(me.photo_caption)}</p>
     </div>
 
-    {/* The declaration gets its own line at its own size, because it is a thing
-        somebody says out loud rather than a topic sentence, and setting it in
-        with the rest of the paragraph would bury it. No heading above it: a
-        heading would announce the subject, and announcing it is the opposite
-        of saying it. */}
-    <div class="me-team" data-reveal>
-      <p class="me-team__line">{clean(me.team_line)}</p>
-      <p class="me-team__p">{clean(me.baseball_life)}</p>
-    </div>
+    {/* No heading above it: a heading would announce the subject, and announcing
+        it is the opposite of saying it. */}
+    <p class="me-team" data-reveal>{clean(me.baseball_life)}</p>
 
     {/* A toy, not a section of a paper. It is set in its own narrower block with
         a smaller heading and one line of setup, so the weight on the page
@@ -122,16 +116,6 @@ const photos = [
   .me-team {
     margin-top: var(--sp-7);
     max-width: var(--measure);
-  }
-  .me-team__line {
-    font-size: var(--fs-h3);
-    font-weight: 700;
-    line-height: 1.25;
-    color: var(--ink);
-    text-wrap: balance;
-  }
-  .me-team__p {
-    margin-top: var(--sp-3);
     color: var(--ink-2);
     text-wrap: pretty;
   }
