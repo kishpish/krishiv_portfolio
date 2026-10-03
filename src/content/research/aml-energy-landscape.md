@@ -53,25 +53,26 @@ evidence:
     label: "strongest drug association, MEK inhibition, n = 484"
   - value: "748,679"
     label: "cells in the validation atlas"
-figure:
-  id: aml-drug-response
+plate:
+  source: Figure 1(a)
   caption: >-
-    Each point is one cell state. Its position is how strongly that state's
-    estimated abundance across Beat AML patient samples tracks response to a MEK
-    inhibitor (horizontal) and to the BCL2 inhibitor venetoclax (vertical).
-    Negative means more sensitive. The states were defined from single-cell data
-    alone, with no drug information, and they separate along lineage anyway:
-    monocytic states pair MEK sensitivity with venetoclax resistance, and
-    primitive states sit opposite. These are associations over 6,200 tests with
-    Benjamini-Hochberg correction, not causal claims.
-  alt: >-
-    Scatter plot of 40 cell states positioned by their correlation with MEK
-    inhibitor response on the horizontal axis and venetoclax response on the
-    vertical axis, with both axes running from sensitive to resistant.
-    Monocytic and dendritic states sit in the upper left, pairing MEK
-    sensitivity with venetoclax resistance. Primitive and progenitor states sit
-    near zero on the MEK axis and below zero on the venetoclax axis, meaning
-    venetoclax-sensitive.
+    38,193 single cells, coloured by which basin of the learned landscape each
+    one falls into under the deterministic flow. Four attractors come out of the
+    data: mature myeloid (A0), primitive and stem-like (A1), lymphoid (A2), and
+    erythroid (A3). The basins are not equally deep, which is the quantity the
+    whole project is about. Their depths are 0.179, 0.225, 0.364 and 0.243
+    respectively, so a cell sitting in the lymphoid basin is held far more
+    firmly than one in the mature myeloid basin, and that is a statement about
+    how hard each state is to leave.
+  panels:
+    - src: "/media/fig-aml"
+      width: 800
+      height: 685
+      fallback: png
+      alt: >-
+        UMAP of 38,193 single cells coloured by which of the four learned basins
+        each one falls into, with the mature myeloid basin in red and the
+        primitive and stem-like basin in blue.
 thumb:
   src: "/media/fig-aml"
   width: 800

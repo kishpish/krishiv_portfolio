@@ -1,0 +1,142 @@
+---
+// A figure lifted out of a paper, set the way the paper sets it.
+//
+// One <figure>, one caption, and however many panels the figure has, each
+// carrying the letter and the title it was given in the paper. The alternative,
+// which this replaces, was a stack of loose images each pretending to be its
+// own figure, and it read as a gallery rather than as evidence.
+//
+// A single-panel plate drops the letters entirely, because "(a)" on its own
+// labels nothing.
+import { url } from '../lib/urls';
+import { clean } from '../lib/canonical';
+
+interface Panel {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  fallback: 'png' | 'jpg';
+  label?: string;
+  title?: string;
+}
+interface Props {
+  panels: Panel[];
+  caption: string;
+  /** the figure's number in the paper it was taken from */
+  source?: string;
+  /** this site's own figure numeral, which is independent of the paper's */
+  n?: string;
+  class?: string;
+}
+const { panels, caption, source, n = '1', class: cls = '' } = Astro.props;
+const multi = panels.length > 1;
+---
+
+<figure class:list={['plate', multi && 'plate--multi', cls]}>
+  <div class="plate__panels" style={`--cols:${Math.min(panels.length, 2)}`}>
+    {
+      panels.map((pn) => (
+        <div class="plate__panel">
+          <div class="plate__frame">
+            <picture>
+              <source srcset={url(`${pn.src}.webp`)} type="image/webp" />
+              <img
+                src={url(`${pn.src}.${pn.fallback}`)}
+                alt={clean(pn.alt)}
+                width={pn.width}
+                height={pn.height}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          </div>
+          {multi && (pn.label || pn.title) && (
+            <p class="plate__panel-cap">
+              {pn.label && <span class="plate__letter">({pn.label})</span>}
+              {pn.title && <span>{clean(pn.title)}</span>}
+            </p>
+          )}
+        </div>
+      ))
+    }
+  </div>
+
+  <figcaption class="fig__caption plate__cap">
+    <span class="fig__n">Fig. {n}</span>{clean(caption)}
+    {source && <span class="plate__source">{source} of the paper.</span>}
+  </figcaption>
+</figure>
+
+<style>
+  .plate {
+    margin: 0;
+  }
+  .plate__panels {
+    display: grid;
+    gap: var(--sp-3);
+  }
+  /* Two across once there is more than one panel, because a paper figure is
+     read left to right before it is read top to bottom. The first panel of a
+     three-panel plate spans both columns: it is the overview the other two
+     magnify, and setting it full width says so without a word of caption. */
+  .plate--multi .plate__panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plate--multi .plate__panel:first-child:nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 34rem) {
+    .plate--multi .plate__panels {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .plate__frame {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    background: var(--plate-bg);
+    box-shadow: var(--shadow-1);
+  }
+  .plate__frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  /* The panels in a row rarely share an aspect ratio, so without this the two
+     captions sit at different heights and the row reads as sloppy. Stretching
+     the panel and pushing the caption to the bottom of it lines them up without
+     cropping a published figure to make them match. */
+  .plate--multi .plate__panel {
+    display: flex;
+    flex-direction: column;
+  }
+  .plate--multi .plate__panel-cap {
+    margin-top: auto;
+    padding-top: var(--sp-2);
+  }
+  .plate__panel-cap {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    color: var(--ink-3);
+    text-wrap: pretty;
+  }
+  .plate__letter {
+    font-weight: 700;
+    color: var(--ink-2);
+    margin-right: 0.4em;
+  }
+  .plate__cap {
+    margin-top: var(--sp-4);
+  }
+  /* The provenance sits at the end of the caption rather than above the figure,
+     because it answers a question a reader only has after they have looked. */
+  .plate__source {
+    display: block;
+    margin-top: 0.35em;
+    font-style: normal;
+    font-size: 0.94em;
+    color: var(--ink-4);
+  }
+</style>

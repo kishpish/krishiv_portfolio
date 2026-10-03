@@ -1,0 +1,156 @@
+---
+// The row of links under a paper.
+//
+// These are the highest-value things on the research page: a reader who wants
+// the preprint wants it now, not after hunting through a line of bracketed
+// words. So each one is a real target with a real hit area, and the two that
+// matter are drawn ahead of the rest.
+//
+// The DOI is deliberately not a chip. It is a reference identifier, not a thing
+// anyone clicks in a hurry, and giving it the same weight as the preprint would
+// flatten the one distinction the row exists to make.
+import { ICON, KIND_ICON, linkKind, linkTier } from '../lib/icons';
+
+interface Props {
+  links: { label: string; href: string }[];
+  doi?: string;
+  class?: string;
+  /** `sm` for the dense citation list, where the row sits under a reference */
+  size?: 'md' | 'sm';
+}
+const { links, doi, class: cls = '', size = 'md' } = Astro.props;
+
+const chips = links
+  .map((l) => {
+    const kind = linkKind(l.label, l.href);
+    return { ...l, kind, tier: linkTier(kind), icon: ICON[KIND_ICON[kind]] };
+  })
+  // Primary first, and otherwise the order the paper declared, so a reader's
+  // eye lands on the preprint and the code before anything else.
+  .sort((a, b) => (a.tier === b.tier ? 0 : a.tier === 'primary' ? -1 : 1));
+---
+
+{
+  (chips.length > 0 || doi) && (
+    <div class:list={['lrow', `lrow--${size}`, cls]}>
+      {chips.map((c) => (
+        <a class:list={['lrow__chip', `lrow__chip--${c.tier}`]} href={c.href} rel="noopener">
+          <svg class="lrow__i" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d={c.icon} />
+          </svg>
+          <span>{c.label}</span>
+        </a>
+      ))}
+      {doi && (
+        <a class="lrow__doi" href={`https://doi.org/${doi}`} rel="noopener">
+          <span class="lrow__doi-k">doi</span>
+          <span class="lrow__doi-v">{doi}</span>
+        </a>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .lrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+  }
+
+  .lrow__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    /* Tall enough to be a target rather than a word with a box drawn round it.
+       The vertical padding is uneven because Lato sits high in its box. */
+    padding: 0.42em 0.8em 0.46em;
+    border-radius: var(--radius);
+    border: 1px solid var(--rule-2);
+    font-size: var(--fs-small);
+    line-height: 1.25;
+    color: var(--ink-2);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      border-color var(--dur-lift-out) var(--ease-out),
+      color var(--dur-lift-out) var(--ease-out),
+      background-color var(--dur-lift-out) var(--ease-out),
+      transform var(--dur-lift-out) var(--ease-out);
+  }
+  .lrow--sm .lrow__chip {
+    padding: 0.3em 0.62em 0.34em;
+    font-size: var(--fs-tiny);
+  }
+
+  /* The preprint and the code. Blue edge and bold label, which is the same
+     treatment the CV button already carries, so the three strongest links on
+     the site look like one another and not like three decisions. */
+  .lrow__chip--primary {
+    border-color: var(--blue);
+    color: var(--blue-ink);
+    font-weight: 700;
+  }
+
+  .lrow__chip:hover,
+  .lrow__chip:focus-visible {
+    border-color: var(--orange);
+    background: var(--orange-12);
+    color: var(--ink);
+    /* A third of the card lift. Enough to confirm the press, small enough that
+       a row of four does not ripple. */
+    transform: translateY(calc(var(--lift) / 3));
+    transition-duration: var(--dur-lift);
+  }
+
+  .lrow__i {
+    width: 0.95em;
+    height: 0.95em;
+    flex: none;
+    opacity: 0.85;
+  }
+  /* The icon is a label for the kind of destination, so it carries no colour of
+     its own and goes wherever the text goes. */
+  .lrow__chip:hover .lrow__i,
+  .lrow__chip:focus-visible .lrow__i {
+    opacity: 1;
+  }
+
+  /* Reference metadata, set as a key and a value rather than a button. */
+  .lrow__doi {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4em;
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    text-decoration: none;
+    padding-block: 0.2em;
+  }
+  .lrow--sm .lrow__doi {
+    font-size: var(--fs-tiny);
+  }
+  .lrow__doi-k {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .lrow__doi-v {
+    font-variant-numeric: tabular-nums lining-nums;
+    border-bottom: 1px solid var(--rule-2);
+  }
+  .lrow__doi:hover,
+  .lrow__doi:focus-visible {
+    color: var(--orange-ink);
+  }
+  .lrow__doi:hover .lrow__doi-v,
+  .lrow__doi:focus-visible .lrow__doi-v {
+    border-bottom-color: currentColor;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lrow__chip:hover,
+    .lrow__chip:focus-visible {
+      transform: none;
+    }
+  }
+</style>

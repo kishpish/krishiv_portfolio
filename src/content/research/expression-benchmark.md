@@ -53,23 +53,40 @@ evidence:
     label: "median ρ on held-out individuals, 78 learnable genes, European subset"
   - value: "0.05"
     label: "pretrained sequence model, zero-shot, 15 genes"
-figure:
-  id: expression-benchmark
+plate:
   caption: >-
-    The same fifteen genes, scored two ways on the same held-out individuals. A
-    per-gene model fitted on that gene's own labels reaches the blue mark; a
-    pretrained sequence model run zero-shot reaches the orange one. The grey tick
-    is the square root of that gene's estimated heritability, which is roughly
-    the best any method could do from local sequence. The pretrained model
-    scatters either side of zero, with a median of 0.05 and a bootstrap interval
-    that spans it, while the per-gene models get a long way toward the ceiling
-    on most of these genes.
-  alt: >-
-    Dot plot of fifteen genes. For each gene a blue mark shows the correlation a
-    per-gene model reaches on held-out individuals, an orange mark shows what a
-    pretrained sequence model reaches zero-shot, and a grey tick marks the
-    heritability ceiling. The orange marks cluster around zero while the blue
-    ones sit well above it.
+    Why the transfer fails on average, and what is left underneath it. Per-gene
+    linear models predict which individuals have higher expression of a held-out
+    chromosome 22 gene; a pretrained sequence model run zero-shot does not, and
+    half its genes fall below zero correlation. The second panel says why. Most
+    variants draw a near-zero, direction-less response, so sign agreement across
+    all of them sits at chance, 49.7 percent. For the sparse subset where the
+    model does predict a large effect, the direction is right 69.6 percent of
+    the time. The representation holds real directional grammar, it is just too
+    sparse to survive averaging.
+  panels:
+    - src: "/media/fig-benchmark"
+      width: 900
+      height: 627
+      fallback: png
+      label: a
+      title: Held-out-gene failure reproduction
+      alt: >-
+        Box plot comparing three methods on held-out chromosome 22 genes. Two
+        per-gene linear models sit well above zero correlation, while a
+        pretrained sequence model run zero-shot sits on the zero line, with half
+        its genes below it.
+    - src: "/media/fig-benchmark-direction"
+      width: 806
+      height: 614
+      fallback: png
+      label: b
+      title: Direction of effect against measured eQTLs
+      alt: >-
+        Scatter of the model's predicted variant effect against the measured
+        eQTL effect. Almost every point sits flat on the zero line whatever the
+        measured effect, and the handful of points with a large predicted effect
+        mostly fall in the quadrants where the two agree in sign.
 thumb:
   src: "/media/fig-benchmark"
   width: 900

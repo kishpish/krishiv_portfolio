@@ -4,11 +4,13 @@
 // every link the paper has. The publication metadata is read from
 // canonical.yaml, so a project and its paper are never out of step.
 import type { CollectionEntry } from 'astro:content';
-import { url } from '../lib/urls';
 import { data, publication, statusLabel, clean, sentence } from '../lib/canonical';
 import Evidence from './Evidence.astro';
 import ProjectFigure from './ProjectFigure.astro';
+import ProjectPlate from './ProjectPlate.astro';
 import ProjectMedia from './ProjectMedia.astro';
+import LinkRow from './LinkRow.astro';
+import Abstract from './Abstract.astro';
 
 interface Props {
   entry: CollectionEntry<'research'>;
@@ -23,10 +25,13 @@ const { entry, n, compact = false, level = 3, anchor = false } = Astro.props;
 const H = `h${level}` as 'h2' | 'h3';
 const d = entry.data;
 const pub = d.paper ? publication(d.paper) : null;
-const href = url(`/research/${entry.id}/`);
 // The paper's own title, not the project file's short label. Projects without a
 // paper yet fall back to their working title.
 const heading = pub ? clean(pub.title) : d.title;
+// There is no page below this one any more: the project is fully here. The
+// title is therefore a self link, so the anchor is still copyable from it.
+const selfHref = `#${entry.id}`;
+const hasFigure = Boolean(d.media || d.figure || d.plate);
 const authorHtml = (a: string[]) =>
   a.map((n) => (n === data.person.name ? `<strong>${n}</strong>` : n)).join(', ');
 ---
@@ -42,8 +47,8 @@ const authorHtml = (a: string[]) =>
       {d.honor && <span class="badge badge--honor">{d.honor}</span>}
     </p>
 
-    <H class="rcard__title">
-      <a href={href}>{heading}</a>
+    <H class="rcard__title" id={anchor ? `${entry.id}-h` : undefined}>
+      {anchor ? <a href={selfHref}>{heading}</a> : heading}
     </H>
 
     {pub && <p class="rcard__authors" set:html={authorHtml(pub.authors)} />}
@@ -59,21 +64,15 @@ const authorHtml = (a: string[]) =>
       {pub && <span class="tnum">{pub.year}</span>}
     </p>
 
-    {
-      (pub?.links.length || d.links.length || pub?.doi) && (
-        <p class="links rcard__links">
-          {(pub ? pub.links : d.links).map((l) => (
-            <a href={l.href} rel="noopener">{l.label}</a>
-          ))}
-          {pub?.doi && <a href={`https://doi.org/${pub.doi}`} rel="noopener">doi</a>}
-          <a href={href}>project page</a>
-        </p>
-      )
-    }
+    <LinkRow links={pub ? pub.links : d.links} doi={pub?.doi} class="rcard__links" />
+
+    {/* What used to be a page of its own. A reader who wants the detail gets it
+        here rather than at a second address that said most of this again. */}
+    {!compact && d.abstract && <Abstract text={d.abstract} class="rcard__abstract" />}
   </div>
 
   {
-    !compact && (d.media || d.figure) && (
+    !compact && hasFigure && (
       <div class="rcard__fig">
         {d.media ? (
           <ProjectMedia
@@ -83,30 +82,28 @@ const authorHtml = (a: string[]) =>
             alt={clean(d.media.alt)}
             n={String(n)}
           />
+        ) : d.plate ? (
+          <ProjectPlate
+            panels={d.plate.panels}
+            caption={d.plate.caption}
+            source={d.plate.source}
+            n={String(n)}
+          />
         ) : (
           <ProjectFigure id={d.figure!.id} caption={clean(d.figure!.caption)} alt={clean(d.figure!.alt)} n={String(n)} />
         )}
 
-        {/* Further panels from the paper, where one picture does not carry the
-            work on its own. */}
-        {d.gallery.length > 0 && (
-          <div class="rcard__gallery">
-            {d.gallery.map((g) => (
-              <figure class="rcard__gitem card">
-                <picture>
-                  <source srcset={url(`${g.src}.webp`)} type="image/webp" />
-                  <img
-                    src={url(`${g.src}.${g.fallback}`)}
-                    alt={clean(g.alt)}
-                    width={g.width}
-                    height={g.height}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </picture>
-              </figure>
-            ))}
-          </div>
+        {/* TEM-171 is the one project with both a clip and a generated figure,
+            because the clip shows the search running and the figure shows what
+            came out of it. */}
+        {d.media && d.figure && (
+          <ProjectFigure
+            id={d.figure.id}
+            caption={clean(d.figure.caption)}
+            alt={clean(d.figure.alt)}
+            n={`${n}b`}
+            class="rcard__fig2"
+          />
         )}
       </div>
     )
@@ -168,7 +165,7 @@ const authorHtml = (a: string[]) =>
     color: var(--ink-2);
   }
   .rcard__links {
-    margin-top: var(--sp-3);
+    margin-top: var(--sp-4);
   }
   .rcard__q {
     margin-top: var(--sp-3);
@@ -191,46 +188,24 @@ const authorHtml = (a: string[]) =>
      click, and lifting it would say otherwise. What it does instead is let the
      picture inside grow a little, which reads as an invitation to look rather
      than an invitation to click. */
-  .rcard__fig :global(figure) {
+  .rcard__fig > :global(figure:not(.plate)) {
     border-radius: var(--card-radius);
     overflow: hidden;
     background: var(--card);
     box-shadow: var(--shadow-1);
   }
-  .rcard__fig :global(figcaption) {
+  .rcard__fig > :global(figure:not(.plate) figcaption) {
     padding: 0 var(--sp-4) var(--sp-4);
   }
   /* Anchored sections need room under the sticky header when linked to. */
   .rcard[id] {
     scroll-margin-top: var(--sp-6);
   }
-  .rcard__gallery {
-    margin-top: var(--sp-4);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    gap: var(--sp-3);
+  .rcard__fig2 {
+    margin-top: var(--sp-5);
   }
-  .rcard__gitem {
-    margin: 0;
-    overflow: hidden;
-    line-height: 0;
-  }
-  .rcard__gitem :global(img) {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 2 / 1;
-    object-fit: cover;
-    display: block;
-    transition: transform var(--dur-lift-out) var(--ease-out);
-  }
-  .rcard__gitem:hover :global(img) {
-    transform: scale(var(--media-zoom));
-    transition-duration: var(--dur-lift);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .rcard__gitem :global(img) {
-      transform: none !important;
-    }
+  .rcard__abstract {
+    margin-top: var(--sp-5);
   }
   .rcard--compact {
     padding-block: var(--sp-4);

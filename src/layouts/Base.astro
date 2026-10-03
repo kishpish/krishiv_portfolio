@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import Head from '../components/Head.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Mascot from '../components/Mascot.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -13,8 +14,10 @@ interface Props {
   jsonLd?: object | object[];
   noindex?: boolean;
   class?: string;
+  /** the object that flies across on arrival. Omit for a page that gets none. */
+  mascot?: 'particle' | 'computer' | 'notepad' | 'baseball';
 }
-const { class: cls, ...head } = Astro.props;
+const { class: cls, mascot, ...head } = Astro.props;
 ---
 
 <!doctype html>
@@ -31,6 +34,7 @@ const { class: cls, ...head } = Astro.props;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <Mascot kind={mascot} />
     <Header transition:persist />
     <main id="main" class={cls}>
       <slot />

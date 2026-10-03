@@ -1,10 +1,11 @@
 ---
-// Dispatches a figure id from research frontmatter to its component, and wraps
-// it as a numbered paper figure with an italic caption.
-import AmlDrugResponse from './figures/AmlDrugResponse.astro';
-import ExpressionBenchmark from './figures/ExpressionBenchmark.astro';
+// The one generated figure left on the site, wrapped as a numbered paper figure
+// with an italic caption.
+//
+// Every other project now shows the figure from its own paper instead, which is
+// what a reader came for. This one stays because the funnel is a view of the
+// pipeline's own search, not a result that exists as a published panel.
 import Tem171Funnel from './figures/Tem171Funnel.astro';
-import CardiacMeshes from './figures/CardiacMeshes.astro';
 
 interface Props {
   id: string;
@@ -15,10 +16,7 @@ interface Props {
 }
 const { id, caption, alt, n = '1', class: cls = '' } = Astro.props;
 const map: Record<string, any> = {
-  'aml-drug-response': AmlDrugResponse,
-  'expression-benchmark': ExpressionBenchmark,
   'tem171-funnel': Tem171Funnel,
-  'cardiac-meshes': CardiacMeshes,
 };
 const Fig = map[id];
 if (!Fig) throw new Error(`Unknown figure id "${id}". Add it to src/components/ProjectFigure.astro.`);

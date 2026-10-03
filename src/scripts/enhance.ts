@@ -6,6 +6,7 @@
 // client-side navigation, which makes it the one correct hook for both.
 import { initAllLandscapes } from './landscape';
 import { initAllPitchLabs } from './pitch';
+import { initMascot } from './mascot';
 
 /** Elements that reveal on scroll. Blocks and cards, never prose paragraphs. */
 const REVEAL_SELECTOR = [
@@ -65,6 +66,7 @@ function revealHashTarget(): void {
 function boot(): void {
   initAllLandscapes();
   initAllPitchLabs();
+  initMascot();
   initReveal();
 }
 

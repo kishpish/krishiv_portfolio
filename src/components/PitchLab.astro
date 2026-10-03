@@ -351,10 +351,14 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
     stroke: var(--ink-4);
     stroke-dasharray: 2 3;
   }
+  /* Lato rather than the mono face, with lining tabular figures so the foot
+     marks stay on a common width as the drawing redraws. Set a hair larger
+     than the mono was, because Lato runs smaller at the same pixel size. */
   .plab__tick,
   .plab__tick text {
-    font-family: var(--mono);
-    font-size: 9px;
+    font-family: var(--sans);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-size: 10px;
     fill: var(--ink-4);
   }
   /* The side view is 620 units wide. On a phone it renders at half that, which
@@ -454,9 +458,9 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
   .plab__num {
     grid-column: 2;
     color: var(--ink-3);
-    font-family: var(--mono);
-    font-size: 0.92em;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--sans);
+    font-size: 0.95em;
+    font-variant-numeric: tabular-nums lining-nums;
   }
   .plab__break {
     color: var(--ink-4);
@@ -519,9 +523,11 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
     width: 100%;
     accent-color: var(--blue);
   }
+  /* Tabular, because these three readouts change under a dragging thumb and a
+     proportional comma or 1 would make the whole row twitch. */
   .plab__field output {
-    font-family: var(--mono);
-    font-variant-numeric: tabular-nums;
+    font-family: var(--sans);
+    font-variant-numeric: tabular-nums lining-nums;
     color: var(--ink-3);
     text-align: right;
   }
@@ -581,8 +587,8 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
     stroke-width: 2;
   }
   .plab__diallab text {
-    font-family: var(--mono);
-    font-size: 9px;
+    font-family: var(--sans);
+    font-size: 10px;
     fill: var(--ink-4);
   }
   .plab__axisout {
@@ -607,8 +613,8 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
   }
   .plab__readout dd {
     margin: 0;
-    font-family: var(--mono);
-    font-variant-numeric: tabular-nums;
+    font-family: var(--sans);
+    font-variant-numeric: tabular-nums lining-nums;
     color: var(--ink);
   }
 

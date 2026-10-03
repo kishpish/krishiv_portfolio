@@ -1,18 +1,11 @@
 ---
 import { data } from '../lib/canonical';
 import CVLink from './CVLink.astro';
+import ProfileIcons from './ProfileIcons.astro';
 import { buildLandscape } from '../lib/landscape/figure';
 import { url } from '../lib/urls';
 
 const p = data.person;
-const links = [
-  { label: 'email', href: `mailto:${p.email}` },
-  { label: 'github', href: p.profiles.github },
-  { label: 'linkedin', href: p.profiles.linkedin },
-  { label: 'orcid', href: p.profiles.orcid },
-  ...(p.profiles.scholar ? [{ label: 'scholar', href: p.profiles.scholar }] : []),
-  ...(p.profiles.x ? [{ label: 'x', href: p.profiles.x }] : []),
-].filter(Boolean);
 const year = 2026;
 // The easter egg is a computed quantity, so it reads the surface rather than
 // repeating a number that could drift away from the figure.
@@ -29,9 +22,7 @@ const deepestE = deepest.E.toFixed(1).replace('-', '\u2212');
 
     <nav class="site-footer__col" aria-label="Elsewhere">
       <p class="eyebrow">Elsewhere</p>
-      <ul class="site-footer__links">
-        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
-      </ul>
+      <ProfileIcons class="site-footer__icons" />
     </nav>
 
     <nav class="site-footer__col" aria-label="Site">
@@ -103,6 +94,11 @@ const deepestE = deepest.E.toFixed(1).replace('-', '\u2212');
     font-size: var(--fs-small);
     display: grid;
     gap: 0.25em;
+  }
+  /* The icon row sits a little tighter to its label than the text columns do,
+     because each link already carries the padding that makes up its hit area. */
+  .site-footer__icons {
+    margin-top: calc(var(--sp-1) * -1);
   }
   .site-footer__base {
     margin-top: var(--sp-6);

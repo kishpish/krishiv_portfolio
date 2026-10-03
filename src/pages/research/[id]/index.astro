@@ -1,0 +1,54 @@
+---
+// The per-project pages are gone: every project now renders in full on
+// /research/, abstract and all, so there was nothing left for a second address
+// to say that the first one did not.
+//
+// What stands here is a redirect, not a page. Those URLs were live and shared,
+// and deleting a route that has been linked to is how a site quietly loses the
+// traffic it already earned. This is noindex, so a crawler follows the move
+// instead of keeping two records of one project, and it is the same treatment
+// the retired /publications/ address already gets.
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import { url } from '../../../lib/urls';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const projects = await getCollection('research');
+  return projects.map((entry) => ({
+    params: { id: entry.id },
+    props: { title: entry.data.title, short: entry.data.short },
+  }));
+};
+
+const { id } = Astro.params;
+const { title, short } = Astro.props;
+const to = url(`/research/#${id}`);
+---
+
+<Base title={`${short} has moved`} description={`${title} now sits on the research page.`} og="research" noindex>
+  <meta http-equiv="refresh" content={`0; url=${to}`} slot="head" />
+  <div class="wrap moved">
+    <p class="eyebrow">Moved</p>
+    <h1>{short} is on the research page</h1>
+    <p class="moved__lede">
+      Every project now carries its figures, its links and its abstract in place, so there is one
+      address for the work rather than two that said most of it twice.
+    </p>
+    <p class="moved__go"><a href={to}>Go to {title}</a></p>
+  </div>
+</Base>
+
+<style>
+  .moved {
+    padding-block: var(--sp-8);
+    max-width: var(--measure);
+  }
+  .moved__lede {
+    margin-top: var(--sp-4);
+    color: var(--ink-2);
+  }
+  .moved__go {
+    margin-top: var(--sp-5);
+  }
+</style>

@@ -1,4 +1,5 @@
 ---
+import LinkRow from '../components/LinkRow.astro';
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import { data, clean, cv } from '../lib/canonical';
@@ -87,9 +88,7 @@ const jsonLd = {
                   </div>
                   <p class="poslist__role">{h.role}, {h.event}</p>
                   <p class="poslist__sum">{clean(h.summary)}</p>
-                  <p class="links poslist__links">
-                    {h.links.map((l) => <a href={l.href} rel="noopener">{l.label}</a>)}
-                  </p>
+                  <LinkRow links={h.links} size="sm" class="poslist__links" />
                 </li>
               ))
             }

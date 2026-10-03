@@ -1,4 +1,5 @@
 ---
+import LinkRow from './LinkRow.astro';
 import { data, statusLabel, clean, type Publication } from '../lib/canonical';
 import { url } from '../lib/urls';
 
@@ -21,7 +22,7 @@ const authorHtml = (a: string[]) =>
         <span class="publist__n tnum" aria-hidden="true">[{sorted.length - i}]</span>
         <div class="publist__body">
           <p class="publist__title">
-            {p.project ? <a href={url(`/research/${p.project}/`)}>{clean(p.title)}</a> : clean(p.title)}
+            {p.project ? <a href={url(`/research/#${p.project}`)}>{clean(p.title)}</a> : clean(p.title)}
           </p>
           {variant === 'full' && (
             <p class="publist__authors" set:html={authorHtml(p.authors)} />
@@ -32,15 +33,8 @@ const authorHtml = (a: string[]) =>
             <span class:list={['badge', `badge--${p.status}`]}>{statusLabel[p.status]}</span>
           </p>
           {p.note && <p class="publist__note">{p.note}</p>}
-          {p.links.length > 0 && (
-            <p class="links publist__links">
-              {p.links.map((l) => (
-                <a href={l.href} rel="noopener">
-                  {l.label}
-                </a>
-              ))}
-              {p.doi && <a href={`https://doi.org/${p.doi}`} rel="noopener">doi</a>}
-            </p>
+          {(p.links.length > 0 || p.doi) && (
+            <LinkRow links={p.links} doi={p.doi} size="sm" class="publist__links" />
           )}
         </div>
       </li>

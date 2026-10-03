@@ -94,6 +94,11 @@
      tint, because at this base no warm tint can carry the link blue at 4.5:1. */
   --paper: #f6f1e5;
   --card: #fcfaf4;
+  /* The plate a paper figure sits on. Matplotlib exports a white canvas, so the
+     plate has to be white or a seam shows along the edge of every plot. It is a
+     token rather than a literal so the one place that has to stay white is
+     named, and so the surface work can find it. */
+  --plate-bg: #ffffff;
   --paper-2: #ece5d4;
   --paper-3: #e2d9c3;
   --ink: #1b1a17; /* 15.44 on paper */

@@ -1,0 +1,88 @@
+---
+// The paper's abstract, on the research page, in place.
+//
+// This is what replaced the per-project page. A reader who wants the detail
+// should not have to load a second address to get it, and the summary above it
+// is doing a different job: the summary says what the work is, the abstract
+// says what the paper claims.
+//
+// It is a <details> that starts open, so the text is simply there for the
+// reader who wants it and one click away from gone for the reader who does not.
+// It starts open rather than closed because an abstract behind a shut drawer is
+// an abstract nobody reads, and nothing about the open state depends on script,
+// so the first paint is already correct.
+import { clean } from '../lib/canonical';
+
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: cls = '' } = Astro.props;
+---
+
+<details class:list={['abs', cls]} open>
+  <summary class="abs__sum">
+    <span class="abs__word">Abstract</span>
+    <svg class="abs__chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+      <path
+        d="M2.4 4.3 6 7.9l3.6-3.6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </summary>
+  <p class="abs__body">{clean(text)}</p>
+</details>
+
+<style>
+  .abs {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--sp-3);
+  }
+  .abs__sum {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--fs-small);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ink-3);
+    /* A summary is a button in everything but name, so it gets a button's
+       target rather than the height of one word. */
+    padding-block: 0.25em;
+    transition: color var(--dur-lift-out) var(--ease-out);
+  }
+  .abs__sum::-webkit-details-marker {
+    display: none;
+  }
+  .abs__sum:hover,
+  .abs__sum:focus-visible {
+    color: var(--orange-ink);
+  }
+  .abs__chev {
+    width: 0.7em;
+    height: 0.7em;
+    transition: transform var(--dur-lift) var(--ease-out);
+  }
+  .abs[open] .abs__chev {
+    transform: rotate(-180deg);
+  }
+  .abs__body {
+    margin-top: var(--sp-2);
+    max-width: var(--measure);
+    color: var(--ink-2);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abs__chev {
+      transition: none;
+    }
+  }
+</style>

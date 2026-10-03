@@ -501,8 +501,7 @@ notion:
 writing:
   intro: >-
     Technical notes on machine learning for biology. Mostly arguments with
-    things I have read, or with my own projects, worked out far enough to be
-    checkable.
+    things I have read, or with my own projects.
   sections:
     - name: Models & objectives
       slug: models-and-objectives

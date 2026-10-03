@@ -55,20 +55,46 @@ evidence:
     label: "hydrogel formulations across the searched design space"
   - value: "16× A100"
     label: "distributed training configuration"
-figure:
-  id: cardiac-meshes
+plate:
+  source: Figure 2
   caption: >-
-    The ten patient meshes, by size and by what the tagging step found in them.
-    Each heart is a quarter to half a million tetrahedra. Scar and border zone
-    are inferred from wall thinning along a computed transmural coordinate,
-    fibre coherence, and anatomical constraints, not read from contrast-enhanced
-    imaging, and the detection is bounded to a plausible infarct range by
-    construction. Percentages are by element count.
-  alt: >-
-    Two-panel figure. The left panel is a dot plot of tetrahedral element count
-    for each of ten patient meshes, ranging from about 263,000 to 468,000. The
-    right panel plots the percentage of each mesh labelled infarct, around 7 to
-    9 percent, and border zone, around 15 to 24 percent.
+    Patient-specific tissue classification, which is the input every injection
+    site is scored against. Healthy myocardium, border zone and core scar are
+    assigned per element from wall thinning along a computed transmural
+    coordinate, fibre coherence, and anatomical constraints, rather than read
+    off contrast-enhanced imaging. The border zone is the tissue the patch is
+    aimed at, so where it begins and how deep it runs is the whole question.
+  panels:
+    - src: "/media/fig-cardiac"
+      width: 800
+      height: 395
+      fallback: png
+      label: a
+      title: Global tissue classification
+      alt: >-
+        Three-dimensional patient-specific left-ventricle mesh coloured by
+        tissue type, with healthy myocardium in blue, the border zone in green
+        and yellow, and the core infarct scar in red.
+    - src: "/media/fig-cardiac-b"
+      width: 1200
+      height: 594
+      fallback: jpg
+      label: b
+      title: Apical infarct and border zone transition
+      alt: >-
+        Magnified view of the apex, where healthy myocardium meets infarct. The
+        border zone shows visible wall thinning and a sharp change in curvature
+        at the scar boundary.
+    - src: "/media/fig-cardiac-c"
+      width: 1200
+      height: 540
+      fallback: jpg
+      label: c
+      title: Transmural extent of the scar
+      alt: >-
+        Longitudinal cross-section through the same heart, showing how far the
+        scar and border zone run through the thickness of the wall rather than
+        only across its surface.
 thumb:
   src: "/media/fig-cardiac"
   width: 800
@@ -77,31 +103,6 @@ thumb:
   alt: >-
     Three-dimensional patient-specific left-ventricle mesh coloured by tissue type, with healthy myocardium in blue, the border zone in green and yellow, and the core infarct scar in red.
   fit: cover
-gallery:
-  - src: "/media/fig-cardiac"
-    width: 800
-    height: 395
-    fallback: png
-    alt: >-
-      Three-dimensional patient-specific left-ventricle mesh coloured by tissue
-      type, with healthy myocardium in blue, the border zone in green and
-      yellow, and the core infarct scar in red.
-  - src: "/media/fig-cardiac-b"
-    width: 1200
-    height: 594
-    fallback: jpg
-    alt: >-
-      Magnified view of the apex, where the healthy wall meets the infarct. The
-      border zone shows visible wall thinning and a sharp change in curvature at
-      the scar boundary.
-  - src: "/media/fig-cardiac-c"
-    width: 1200
-    height: 540
-    fallback: jpg
-    alt: >-
-      Longitudinal cross-section through the same heart, showing how far the
-      scar and border zone extend through the thickness of the wall rather than
-      only across its surface.
 links: []
 related:
   - reward-is-a-bad-interface-for-design

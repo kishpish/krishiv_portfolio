@@ -44,6 +44,10 @@ const research = defineCollection({
       .default([]),
     /** compact "number + unit" for the home-page index, e.g. "38,193 cells" */
     headline: z.string().optional(),
+    /** The paper's abstract, lightly simplified, shown in place on the research
+     *  page. There is no per-project page any more, so this is where a reader
+     *  who wants the detail gets it. Projects without a paper have none. */
+    abstract: z.string().optional(),
     figure: z
       .object({
         id: z.string(), // key into src/lib/figures
@@ -65,19 +69,32 @@ const research = defineCollection({
         fit: z.enum(['contain', 'cover']).default('contain'),
       })
       .optional(),
-    /** Extra figures shown with the project on the research page, under its
-     *  main figure. Extensionless src, as with `thumb`. */
-    gallery: z
-      .array(
-        z.object({
-          src: z.string(),
-          alt: z.string(),
-          width: z.number(),
-          height: z.number(),
-          fallback: z.enum(['png', 'jpg']).default('jpg'),
-        }),
-      )
-      .default([]),
+    /** A figure lifted straight from the paper, as one or more panels under a
+     *  single shared caption. This is how a paper sets a multi-panel figure and
+     *  it is why the panels carry labels rather than being stacked loose.
+     *  Extensionless src, as with `thumb`. */
+    plate: z
+      .object({
+        /** the figure's number in the paper it came from, e.g. "Figure 2" */
+        source: z.string().optional(),
+        caption: z.string(),
+        panels: z
+          .array(
+            z.object({
+              src: z.string(),
+              alt: z.string(),
+              width: z.number(),
+              height: z.number(),
+              fallback: z.enum(['png', 'jpg']).default('png'),
+              /** the panel letter the paper gives it; omit on a single panel */
+              label: z.string().optional(),
+              /** the panel's own one-line title, as the paper sets it */
+              title: z.string().optional(),
+            }),
+          )
+          .min(1),
+      })
+      .optional(),
     media: z
       .object({
         src: z.string(), // path under public/, e.g. /media/rfdiffusion.mp4
