@@ -76,25 +76,55 @@ const fit = thumb?.fit ?? 'contain';
     overflow: hidden;
     height: 100%;
   }
-  /* 3:2 frames a paper figure better than 4:3 did, and it is close enough to
-     the real aspect of all three that nothing is badly letterboxed. */
+  /* The figure is a window cut into the card, not a panel laid on top of it.
+     Insetting it means the board shows on all four sides and there is no seam
+     left to colour-match, which is what the old hard-edged plate and its 1px
+     rule under it were doing. ProjectMedia and ProjectFigure already set a
+     figure in a --paper window inside a --card panel on the research page; this
+     card was the one surface ignoring that convention.
+
+     3:2 frames a paper figure better than 4:3 did, and it is close enough to the
+     real aspect of all three that nothing is badly letterboxed. */
   .rpre__media {
     position: relative;
     display: block;
+    margin: var(--sp-3) var(--sp-3) 0;
     aspect-ratio: 3 / 2;
     overflow: hidden;
-    border-bottom: 1px solid var(--rule);
+    border-radius: var(--radius);
+    /* The window is the page showing through the cut. It is also the value the
+       figure below is multiplied onto, so one token does both jobs. */
+    background: var(--paper);
+    /* Without a stacking context the multiply reaches past the window to the
+       board and the page, and neither position nor overflow opens one. */
+    isolation: isolate;
   }
-  /* A plot keeps its own white margin, so the plate behind it is white and the
-     two meet without a seam. A render that carries its own background bleeds to
-     the card edges instead and needs no plate at all. */
-  .rpre__media--contain {
-    background: #fff;
+  /* The cut edge and the shade inside it, on a pseudo-element because an inset
+     shadow paints below replaced content and the image fills the window. */
+  .rpre__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 0 1px var(--rule),
+      inset 0 2px 3px -1px var(--window-shade);
+    pointer-events: none;
+    transition: box-shadow var(--dur-lift-out) var(--ease-out);
   }
-  .rpre__media--cover {
-    background: var(--paper-2);
+  /* The window sinks as the board rises, which is what a cut in a board does
+     when it comes up toward the light. The hairline steps one rung on the rule
+     ramp rather than warming, because only the card's outer ring carries the
+     accent and the window should not compete with it. Colour rather than
+     transform, so a reader on reduced motion still gets an answer here. */
+  .rpre:hover .rpre__media::after,
+  .rpre:focus-visible .rpre__media::after {
+    box-shadow:
+      inset 0 0 0 1px var(--rule-2),
+      inset 0 3px 6px -1px var(--window-shade-deep);
+    transition-duration: var(--dur-edge);
   }
-  /* Absolute, so a child's intrinsic size can never stretch the plate: a
+  /* Absolute, so a child's intrinsic size can never stretch the window: a
      440 square poster and a 900 by 627 figure get the same box. */
   .rpre__media :global(picture),
   .rpre__media :global(img) {
@@ -108,25 +138,43 @@ const fit = thumb?.fit ?? 'contain';
      the card keeps every piece of text rendering at its natural size. */
   .rpre__media :global(img) {
     transition: transform var(--dur-lift-out) var(--ease-out);
+    /* Stated at rest so leaving reads the zero from here and the whole card
+       arrives home together. */
+    transition-delay: 0s;
   }
+  /* A plot ships a white canvas, and white on a warm window is a visible
+     rectangle however warm the window is. Multiply removes it rather than
+     matching it: white times the window is the window exactly, and black cannot
+     move because anything times zero is zero. The same idiom, with the same
+     reasoning, is already in ProjectMedia. */
   .rpre__media--contain :global(img) {
     object-fit: contain;
     padding: var(--sp-3);
+    mix-blend-mode: multiply;
   }
+  /* A figure carrying its own background must not be multiplied or its darks get
+     pushed further down, which is exactly what fit: cover already marks. */
   .rpre__media--cover :global(img) {
     object-fit: cover;
   }
+  /* The third beat. The board is already moving before the figure starts to
+     open, which is what stops the lift and the zoom reading as one event. The
+     delay is on the way in only. */
   .rpre:hover .rpre__media :global(img),
   .rpre:focus-visible .rpre__media :global(img) {
     transform: scale(var(--media-zoom));
     transition-duration: var(--dur-lift);
+    transition-delay: var(--delay-media);
   }
 
   .rpre__body {
     display: flex;
     flex-direction: column;
     gap: var(--sp-2);
-    padding: var(--sp-4) var(--sp-4) var(--sp-5);
+    /* The side padding matches the board around the window, so the title aligns
+       to the figure's own left edge and the board reads as one continuous
+       margin rather than two different insets. */
+    padding: var(--sp-4) var(--sp-3) var(--sp-5);
     /* Three titles of different lengths otherwise leave the row ragged. */
     min-height: 7.25rem;
   }
@@ -169,5 +217,16 @@ const fit = thumb?.fit ?? 'contain';
   .rpre__status::before {
     content: '·';
     margin-right: 0.5em;
+  }
+
+  /* The component carries its own guard as well as the global one, because this
+     is the only place on the site with a transition-delay to clear. :global() is
+     correct here, inside an Astro component style block, which is exactly what
+     made the same construct invalid in the plain stylesheet. */
+  @media (prefers-reduced-motion: reduce) {
+    .rpre__media :global(img) {
+      transform: none !important;
+      transition-delay: 0s !important;
+    }
   }
 </style>

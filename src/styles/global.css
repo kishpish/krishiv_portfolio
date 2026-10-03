@@ -93,12 +93,19 @@
      hold --ink and --ink-2 only. No link and no --ink-4 goes on a recessed
      tint, because at this base no warm tint can carry the link blue at 4.5:1. */
   --paper: #f6f1e5;
-  --card: #fcfaf4;
-  /* The plate a paper figure sits on. Matplotlib exports a white canvas, so the
-     plate has to be white or a seam shows along the edge of every plot. It is a
-     token rather than a literal so the one place that has to stay white is
-     named, and so the surface work can find it. */
-  --plate-bg: #ffffff;
+  /* The old --card #fcfaf4 did not fail because 1.08:1 was too much lightness.
+     It failed because it held oklch chroma 0.0082 against the page's 0.0168 and
+     sat 3.48 degrees off the page's hue, so it was a desaturated rectangle lying
+     on a saturated one, and a tint carrying half the page's saturation reads as
+     white at any lightness. That is why no amount of shadow tuning rescued it.
+     This value is the page's own hue and chroma to five decimal places, lifted
+     in lightness only, by a third of the --paper to --paper-2 step. */
+  --card: #faf5e9; /* oklch(0.9708 0.0167 88.00), 1.0360 on --paper */
+
+  /* --plate-bg is retired. A figure now sits in a window of --paper behind a
+     --rule hairline, which is already what ProjectMedia and ProjectFigure do
+     inside a --card panel. Keeping one pure white rectangle in a token was the
+     thing every surface pass before this one left standing. */
   --paper-2: #ece5d4;
   --paper-3: #e2d9c3;
   --ink: #1b1a17; /* 15.44 on paper */
@@ -123,6 +130,23 @@
   --blue-16: rgb(23 114 208 / 0.16);
   --orange-12: rgb(240 146 40 / 0.12);
   --orange-ink: #a85a00; /* 4.51, orange that holds AA on paper */
+  /* The ring under the cursor: --rule-2 carried a third of the way to
+     --orange-ink, so one parameter buys darker, warmer and more saturated at
+     once. It stops there because 2.34 just passes --orange's own 2.11, which
+     makes a card's hover exactly as present as the orange rule the site already
+     uses, and stays well under --border-ui's 3.13 so it can never be mistaken
+     for a border that means something. */
+  --edge-hover: #bd9972; /* 2.34 on paper */
+  /* The light a top edge catches as a card comes up. The warmest the cream
+     family reaches at this lightness, so a brighter warm would be out of gamut
+     rather than merely unchosen. A bare triplet because it is only used at an
+     alpha. */
+  --edge-lit: 255 253 249;
+  /* The shade a cut window sits in, because a board has thickness and the light
+     is above. The deep value stops below --rule's own 1.31 so a soft fall-off
+     never out-weighs the drawn edge. */
+  --window-shade: rgb(61 51 32 / 0.08);
+  --window-shade-deep: rgb(61 51 32 / 0.14);
   /* #1772d0 is 4.28 on cream, just under AA for body text, so link TEXT uses a
      4% darker variant at 4.59 while the brand colour itself is unchanged and
      still what the figure, the focus ring and the fills are drawn in. The two
@@ -140,15 +164,36 @@
      resolves at the card edge and is most of what makes this look drawn rather
      than defaulted. It is a shadow rather than a border so the box model never
      moves. */
-  --shadow-1:
-    0 0 0 1px rgb(61 51 32 / 0),
-    0 1px 1px rgb(61 51 32 / 0.04),
-    0 2px 4px rgb(61 51 32 / 0.04);
-  --shadow-2:
-    0 0 0 1px rgb(61 51 32 / 0.09),
+  /* The cast is surface-agnostic and carries no ring and no inset light, which
+     is the whole reason for the split: these two are worn by four surfaces whose
+     backgrounds this pass does not control, and a near-white hairline inside a
+     shared token would paint a line across the near-black X pill and across the
+     portrait itself. */
+  --cast-1:
+    0 1px 1px rgb(61 51 32 / 0.05),
+    0 2px 4px rgb(61 51 32 / 0.05),
+    0 8px 18px rgb(61 51 32 / 0.035);
+  /* Alpha rises with blur, which reads backwards for an ambient and direct split
+     and is kept anyway: a card held 6px off the page lets light in under its own
+     edges, so the near-field layer is the lighter one. */
+  --cast-2:
     0 1px 2px rgb(61 51 32 / 0.07),
-    0 6px 12px rgb(61 51 32 / 0.08),
-    0 20px 40px rgb(61 51 32 / 0.14);
+    0 7px 14px rgb(61 51 32 / 0.09),
+    0 22px 44px rgb(61 51 32 / 0.15);
+  --shadow-1: var(--cast-1);
+  --shadow-2: var(--cast-2);
+
+  /* A card's own elevation: the shared cast plus the two things only a card
+     wears. The resting ring is --rule-2 rather than a minted colour, so the edge
+     of a card and the rules elsewhere on the site are one ramp. */
+  --card-shadow-1:
+    inset 0 1px 0 rgb(var(--edge-lit) / 0),
+    0 0 0 1px var(--rule-2),
+    var(--cast-1);
+  --card-shadow-2:
+    inset 0 1px 0 rgb(var(--edge-lit) / 0.9),
+    0 0 0 1px var(--edge-hover),
+    var(--cast-2);
 
   /* one system: every card and every hover on the site reads from these */
   --card-radius: 10px;
@@ -159,6 +204,10 @@
   --dur-lift: 0.26s;
   --dur-lift-out: 0.16s;
   --media-zoom: 1.035;
+  /* The edge resolves before the body lands, and the figure starts behind both,
+     so the hover is three beats in and one beat out instead of one switch. */
+  --dur-edge: 0.18s;
+  --delay-media: 50ms;
   --dur-reveal: 0.52s;
 
   /* type */
@@ -793,13 +842,18 @@ hr {
    cannot drift apart.
    ========================================================================== */
 
-/* A raised surface. On cream a card reads better a shade lighter than the page
-   than it does behind a border, so the definition comes from the ring inside
-   --shadow-1 and --shadow-2 rather than from a border. */
+/* A raised surface, defined by a drawn edge rather than by a fill. The card is
+   the page's own colour one step up in lightness, so almost nothing separates it
+   from the paper but the ring in --card-shadow-1 and the cast under it. That is
+   deliberate: a plate that is visible because it is pale is albedo pretending to
+   be elevation, and it is what made the old card read as a div.
+
+   box-shadow is listed second in the transition so the hover rule can give it a
+   shorter duration by position, without restating the property list. */
 .card {
   background: var(--card);
   border-radius: var(--card-radius);
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--card-shadow-1);
   transition:
     transform var(--dur-lift-out) var(--ease-out),
     box-shadow var(--dur-lift-out) var(--ease-out);
@@ -820,16 +874,29 @@ hr {
 .card:has(a, button):hover,
 .card:has(a, button):focus-within {
   transform: translateY(var(--lift));
-  box-shadow: var(--shadow-2);
-  transition-duration: var(--dur-lift);
+  box-shadow: var(--card-shadow-2);
+  /* Two durations, matched to the two properties above. The ring warms and the
+     top edge catches light at 0.18s while the body is still rising to 0.26s,
+     because a real surface catches light before it has finished moving. */
+  transition-duration: var(--dur-lift), var(--dur-edge);
 }
 @supports not selector(:has(a)) {
   .card:hover,
   .card:focus-visible,
   .card:focus-within {
     transform: translateY(var(--lift));
-    box-shadow: var(--shadow-2);
-    transition-duration: var(--dur-lift);
+    box-shadow: var(--card-shadow-2);
+    transition-duration: var(--dur-lift), var(--dur-edge);
+  }
+}
+
+/* A box-shadow is not painted in forced-colours mode, so a card defined by its
+   ring would lose its whole boundary. An outline pulled inward gives it back
+   without touching the box model. */
+@media (forced-colors: active) {
+  .card {
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
   }
 }
 /* A card that is itself the link does not want the default underline. */
@@ -919,9 +986,22 @@ a.card:focus-visible {
   .card:focus-within {
     transform: none !important;
   }
-  .card :global(img),
-  .card img {
+  /* This used to read `.card :global(img), .card img`. :global() is an Astro
+     component-style construct and this is a plain stylesheet, so it reached the
+     browser verbatim, and a selector list is not forgiving: one unknown
+     pseudo-class invalidates the entire rule. The media zoom inside a card was
+     therefore never once disabled under reduced motion. */
+  .card img,
+  .card video {
     transform: none !important;
+  }
+  /* Zeroing a duration says nothing about a delay, and 50ms of nothing happening
+     before a state lands is still motion the reader did not ask for. */
+  *,
+  *::before,
+  *::after {
+    transition-delay: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 

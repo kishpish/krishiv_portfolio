@@ -92,16 +92,27 @@ const multi = panels.length > 1;
     }
   }
 
+  /* A window cut into the page rather than a white panel laid on it. The cast is
+     dropped on purpose: a panel already sits inside the --card surface of the
+     research card, and a shadow under a hole is a shadow cast by nothing. */
   .plate__frame {
-    border-radius: var(--card-radius);
+    border-radius: var(--radius);
     overflow: hidden;
-    background: var(--plate-bg);
-    box-shadow: var(--shadow-1);
+    background: var(--paper);
+    box-shadow:
+      inset 0 0 0 1px var(--rule),
+      inset 0 2px 3px -1px var(--window-shade);
   }
   .plate__frame img {
     display: block;
     width: 100%;
     height: auto;
+  }
+  /* A plot's white canvas multiplied onto the window resolves to the window
+     exactly, so the margin has nowhere left to be. A panel that carries its own
+     dark background is unaffected, because anything times zero is zero. */
+  .plate__frame :global(img) {
+    mix-blend-mode: multiply;
   }
   /* The panels in a row rarely share an aspect ratio, so without this the two
      captions sit at different heights and the row reads as sloppy. Stretching
