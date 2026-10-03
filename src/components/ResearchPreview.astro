@@ -7,7 +7,7 @@
 // summary, links) is one click away on the page this points at.
 import type { CollectionEntry } from 'astro:content';
 import { url } from '../lib/urls';
-import { publication, clean } from '../lib/canonical';
+import { publication, statusLabel, clean, sentence } from '../lib/canonical';
 
 interface Props {
   entry: CollectionEntry<'research'>;
@@ -16,16 +16,21 @@ const { entry } = Astro.props;
 const d = entry.data;
 const pub = d.paper ? publication(d.paper) : null;
 const heading = pub ? clean(pub.title) : d.title;
+// One quiet marker under the title: the venue for published work, the status
+// for work that has none yet.
+const marker = pub ? pub.venue : d.status ? sentence(d.status) : null;
+const markerStatus = pub ? statusLabel[pub.status] : null;
 
 // Projects carry either a still (`thumb`) or a video whose poster frame we use
 // here. A row of three autoplaying videos is not worth the bytes on a preview;
 // the video itself still plays on the research page.
 const thumb = d.thumb;
 const poster = d.media?.poster;
+const fit = thumb?.fit ?? 'contain';
 ---
 
 <a class="card rpre" href={url(`/research/#${entry.id}`)} data-reveal>
-  <span class="rpre__media">
+  <span class:list={['rpre__media', `rpre__media--${fit}`]}>
     {
       thumb ? (
         <picture>
@@ -51,7 +56,17 @@ const poster = d.media?.poster;
       ) : null
     }
   </span>
-  <span class="rpre__title">{heading}</span>
+  <span class="rpre__body">
+    <span class="rpre__title">{heading}</span>
+    {
+      marker && (
+        <span class="rpre__marker">
+          <span class="rpre__venue">{marker}</span>
+          {markerStatus && <span class="rpre__status">{markerStatus}</span>}
+        </span>
+      )
+    }
+  </span>
 </a>
 
 <style>
@@ -61,18 +76,26 @@ const poster = d.media?.poster;
     overflow: hidden;
     height: 100%;
   }
-  /* A white plate inside the cream card, so a figure on a white background
-     sits in it without a visible seam and everything lines up whatever shape
-     the underlying figure is. */
+  /* 3:2 frames a paper figure better than 4:3 did, and it is close enough to
+     the real aspect of all three that nothing is badly letterboxed. */
   .rpre__media {
     position: relative;
     display: block;
-    aspect-ratio: 4 / 3;
-    background: #fff;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
     border-bottom: 1px solid var(--rule);
   }
+  /* A plot keeps its own white margin, so the plate behind it is white and the
+     two meet without a seam. A render that carries its own background bleeds to
+     the card edges instead and needs no plate at all. */
+  .rpre__media--contain {
+    background: #fff;
+  }
+  .rpre__media--cover {
+    background: var(--paper-2);
+  }
   /* Absolute, so a child's intrinsic size can never stretch the plate: a
-     440 square poster and an 800 by 395 figure get the same box. */
+     440 square poster and a 900 by 627 figure get the same box. */
   .rpre__media :global(picture),
   .rpre__media :global(img) {
     position: absolute;
@@ -81,21 +104,70 @@ const poster = d.media?.poster;
     width: 100%;
     height: 100%;
   }
+  /* The media is the part that scales on hover. Doing it here rather than on
+     the card keeps every piece of text rendering at its natural size. */
   .rpre__media :global(img) {
+    transition: transform var(--dur-lift-out) var(--ease-out);
+  }
+  .rpre__media--contain :global(img) {
     object-fit: contain;
-    padding: var(--sp-4);
+    padding: var(--sp-3);
+  }
+  .rpre__media--cover :global(img) {
+    object-fit: cover;
+  }
+  .rpre:hover .rpre__media :global(img),
+  .rpre:focus-visible .rpre__media :global(img) {
+    transform: scale(var(--media-zoom));
+    transition-duration: var(--dur-lift);
+  }
+
+  .rpre__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    padding: var(--sp-4) var(--sp-4) var(--sp-5);
+    /* Three titles of different lengths otherwise leave the row ragged. */
+    min-height: 7.25rem;
   }
   .rpre__title {
-    display: block;
-    padding: var(--sp-4) var(--sp-4) var(--sp-5);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
     font-size: var(--fs-body);
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.3;
     color: var(--ink);
     text-wrap: pretty;
   }
   .rpre:hover .rpre__title,
   .rpre:focus-visible .rpre__title {
     color: var(--blue-ink);
+  }
+  /* Quiet at rest, legible on hover. One more layer without more clutter. */
+  .rpre__marker {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em;
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    transition: color var(--dur-lift-out) var(--ease-out);
+  }
+  .rpre:hover .rpre__marker,
+  .rpre:focus-visible .rpre__marker {
+    color: var(--ink-2);
+    transition-duration: var(--dur-lift);
+  }
+  .rpre__venue {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .rpre__status::before {
+    content: '·';
+    margin-right: 0.5em;
   }
 </style>

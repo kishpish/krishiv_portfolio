@@ -59,6 +59,16 @@ export const getStaticPaths: GetStaticPaths = async () => {
       },
     },
     {
+      slug: 'me',
+      og: {
+        eyebrow: 'me',
+        title: 'Baseball',
+        subtitle:
+          'A pitch is a boundary value problem you get four tenths of a second to solve. The page has the integrator that solves it.',
+        chips: ['right handed', 'since age nine'],
+      },
+    },
+    {
       slug: 'colophon',
       og: {
         eyebrow: 'colophon',

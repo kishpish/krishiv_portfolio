@@ -124,20 +124,36 @@
      are a deltaE of 2.5 apart, which is below the threshold of noticing. */
   --blue-ink: #166dc8;
 
-  /* elevation. A neutral black shadow goes grey and dead on cream, so these
-     are warm, mixed from the ink rather than from black. */
+  /* Elevation. A neutral black shadow goes grey and dead on cream, so these
+     are warm, mixed from the ink rather than from black.
+
+     Resting is almost nothing: a hairline contact shadow and a transparent
+     ring. Hover is a real ramp, three layers doing three jobs. The tight layer
+     is the contact edge that stops the card looking like it is floating free,
+     the middle layer carries the bulk, and the wide layer is the soft cast that
+     reads as height. The fourth entry is the ring, a warm hairline that
+     resolves at the card edge and is most of what makes this look drawn rather
+     than defaulted. It is a shadow rather than a border so the box model never
+     moves. */
   --shadow-1:
-    0 1px 2px rgb(61 51 32 / 0.05),
-    0 2px 6px rgb(61 51 32 / 0.05);
+    0 0 0 1px rgb(61 51 32 / 0),
+    0 1px 1px rgb(61 51 32 / 0.04),
+    0 2px 4px rgb(61 51 32 / 0.04);
   --shadow-2:
-    0 2px 4px rgb(61 51 32 / 0.06),
-    0 12px 26px rgb(61 51 32 / 0.1);
+    0 0 0 1px rgb(61 51 32 / 0.09),
+    0 1px 2px rgb(61 51 32 / 0.07),
+    0 6px 12px rgb(61 51 32 / 0.08),
+    0 20px 40px rgb(61 51 32 / 0.14);
 
   /* one system: every card and every hover on the site reads from these */
   --card-radius: 10px;
-  --lift: -3px;
+  --lift: -6px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-lift: 0.2s;
+  /* Slower in than out. Arriving should feel considered, leaving should feel
+     immediate, which is what stops a big lift feeling twitchy on a grid. */
+  --dur-lift: 0.26s;
+  --dur-lift-out: 0.16s;
+  --media-zoom: 1.035;
   --dur-reveal: 0.52s;
 
   /* type */
@@ -346,6 +362,7 @@ a:focus-visible {
     .moved__lede,
     .tagfoot,
     .rfoot,
+    .me-closing,
     .section__more
   )
   a {
@@ -772,22 +789,43 @@ hr {
    ========================================================================== */
 
 /* A raised surface. On cream a card reads better a shade lighter than the page
-   than it does behind a border, so there is no border by default. */
+   than it does behind a border, so the definition comes from the ring inside
+   --shadow-1 and --shadow-2 rather than from a border. */
 .card {
   background: var(--card);
   border-radius: var(--card-radius);
   box-shadow: var(--shadow-1);
   transition:
-    transform var(--dur-lift) var(--ease-out),
-    box-shadow var(--dur-lift) var(--ease-out);
+    transform var(--dur-lift-out) var(--ease-out),
+    box-shadow var(--dur-lift-out) var(--ease-out);
 }
 /* Hover for pointers, focus-visible for keyboards, focus-within for a card
-   whose link sits inside it. All three get the same physical response. */
-.card:hover,
-.card:focus-visible,
-.card:focus-within {
+   whose link sits inside it. All three get the same physical response.
+   The card itself does not scale: it carries text, and a scaled raster of text
+   stays soft for as long as the pointer is on it. The media inside does scale,
+   which is where the sense of depth actually comes from.
+
+   Only cards that lead somewhere lift. A paragraph in a card that happens to
+   rise under the cursor is a promise the page cannot keep, so the elevation is
+   spent on the surfaces that answer a click and withheld from the ones that do
+   not. :has() is what decides, and a browser without it simply lifts every
+   card, which is what this site did before. */
+:is(a, button).card:hover,
+:is(a, button).card:focus-visible,
+.card:has(a, button):hover,
+.card:has(a, button):focus-within {
   transform: translateY(var(--lift));
   box-shadow: var(--shadow-2);
+  transition-duration: var(--dur-lift);
+}
+@supports not selector(:has(a)) {
+  .card:hover,
+  .card:focus-visible,
+  .card:focus-within {
+    transform: translateY(var(--lift));
+    box-shadow: var(--shadow-2);
+    transition-duration: var(--dur-lift);
+  }
 }
 /* A card that is itself the link does not want the default underline. */
 a.card,
@@ -805,14 +843,17 @@ a.card:focus-visible {
     animation: rise var(--dur-reveal) var(--ease-out) both;
     animation-delay: calc(var(--i, 0) * 70ms);
   }
+  /* `translate`, not `transform`: a card that is both revealed and hovered
+     needs both effects, and they compose only if they sit on separate
+     properties. */
   @keyframes rise {
     from {
       opacity: 0;
-      transform: translateY(14px);
+      translate: 0 14px;
     }
     to {
       opacity: 1;
-      transform: none;
+      translate: none;
     }
   }
 }
@@ -825,14 +866,14 @@ a.card:focus-visible {
 @media (prefers-reduced-motion: no-preference) {
   .js-reveal [data-reveal] {
     opacity: 0;
-    transform: translateY(16px);
+    translate: 0 16px;
   }
   .js-reveal [data-reveal].is-in {
     opacity: 1;
-    transform: none;
+    translate: none;
     transition:
       opacity var(--dur-reveal) var(--ease-out),
-      transform var(--dur-reveal) var(--ease-out);
+      translate var(--dur-reveal) var(--ease-out);
   }
 }
 
@@ -863,12 +904,18 @@ a.card:focus-visible {
   .rise,
   [data-reveal] {
     opacity: 1 !important;
+    translate: none !important;
     transform: none !important;
     animation: none !important;
   }
+  /* The shadow may still resolve, but nothing moves and nothing scales. */
   .card:hover,
   .card:focus-visible,
   .card:focus-within {
+    transform: none !important;
+  }
+  .card :global(img),
+  .card img {
     transform: none !important;
   }
 }

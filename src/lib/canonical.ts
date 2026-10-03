@@ -48,6 +48,13 @@ const schema = z.object({
     z.string(),
     z.object({ src: z.string(), alt: z.string(), width: z.number(), height: z.number() }),
   ),
+  me_page: z.object({
+    lede: z.string(),
+    trajectories: z.string(),
+    photo_caption: z.string(),
+    pitch_intro: z.string(),
+    closing: z.string(),
+  }),
   cv: z.object({ path: z.string(), updated_fallback: z.string(), label: z.string() }),
   site: z.object({ title: z.string(), description: z.string(), repo: z.url(), repo_branch: z.string() }),
   research_statement: z.object({

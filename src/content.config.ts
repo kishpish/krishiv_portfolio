@@ -60,8 +60,24 @@ const research = defineCollection({
         width: z.number(),
         height: z.number(),
         fallback: z.enum(['png', 'jpg']).default('png'),
+        /** `cover` bleeds a figure that carries its own background to the card
+         *  edges; `contain` keeps a plot's white margin intact. */
+        fit: z.enum(['contain', 'cover']).default('contain'),
       })
       .optional(),
+    /** Extra figures shown with the project on the research page, under its
+     *  main figure. Extensionless src, as with `thumb`. */
+    gallery: z
+      .array(
+        z.object({
+          src: z.string(),
+          alt: z.string(),
+          width: z.number(),
+          height: z.number(),
+          fallback: z.enum(['png', 'jpg']).default('jpg'),
+        }),
+      )
+      .default([]),
     media: z
       .object({
         src: z.string(), // path under public/, e.g. /media/rfdiffusion.mp4

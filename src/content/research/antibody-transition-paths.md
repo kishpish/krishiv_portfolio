@@ -7,31 +7,23 @@ role: "Student researcher, Computational Visualization Center"
 kind: lab
 status: "in progress"
 summary: >-
-  Antibody discovery is almost entirely search, so the regions of design space
-  a library never contained stay unreached however much compute is spent on
-  screening it. This project treats de novo design as control instead, using a
-  port-Hamiltonian model that carries an explicit energy and dissipation term,
-  so a reinforcement learning policy moving a structure through design space is
-  choosing a path and paying for it. The work is in progress and has no results
-  to report yet. The claim being tested is that this makes the cost of a design
-  legible, since a path has a length and a barrier and two candidates can be
-  compared by what it took to reach them.
+  Antibody discovery is almost entirely search: build a library, screen it, keep
+  what binds, and never reach what the library did not contain. This treats de
+  novo design as control instead, with a port-Hamiltonian model carrying an
+  explicit energy and dissipation term, so a policy moving a structure through
+  design space is choosing a path and paying for it. In progress, no results yet.
 problem: >-
-  Antibody discovery is mostly search. You build or borrow a large library, you
-  screen it, and you keep what binds. The method is bounded by what happens to
-  be in the library, and the parts of design space nobody has sampled stay
-  unsampled no matter how much compute you spend.
+  Search is bounded by the library. Whatever is not in it stays unsampled
+  however much compute is spent screening.
 approach: >-
-  Treat generation as control rather than search. A port-Hamiltonian model
-  carries an explicit energy and an explicit dissipation term, so a policy that
-  moves a structure through design space is choosing a path across an energy
-  surface and paying for it. The agent is rewarded for reaching a binding
-  configuration cheaply, which is a transition-path objective, not a
-  classification objective.
+  Generation as control. A port-Hamiltonian model carries energy and
+  dissipation explicitly, and the agent is rewarded for reaching a binding
+  configuration cheaply, which is a transition-path objective rather than a
+  classification one.
 result: >-
-  In progress. The point of the framing is that it makes the cost of a design
-  legible: a path has a length and a barrier, and two candidate designs can be
-  compared by what it took to reach them rather than only by a score at the end.
+  In progress. The claim being tested is that this makes the cost of a design
+  legible: a path has a length and a barrier, so two candidates can be compared
+  by what it took to reach them.
 landscape: >-
   This is the landscape stated outright: the model's job is the path, and the
   energy is in the architecture rather than bolted on afterwards.

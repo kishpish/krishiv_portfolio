@@ -2,7 +2,6 @@
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import PostCard from '../../components/PostCard.astro';
-import PageLandscape from '../../components/PageLandscape.astro';
 import NotionCard from '../../components/NotionCard.astro';
 import { data, clean } from '../../lib/canonical';
 import { url, absolute } from '../../lib/urls';
@@ -32,18 +31,10 @@ const jsonLd = {
 >
   <div class="wrap">
     <PageHeader eyebrow="Writing" title="Notes" lede={clean(data.writing.intro)}>
-      <p class="whead__honest">
-        Two things worth saying up front. There are no dates on these, because they are
-        organized by subject and by depth rather than by recency. And I edit them in place
-        when I find out I was wrong, which means some of them are currently wrong in ways I
-        have not found yet.
-      </p>
       <p class="whead__count tnum">
         {total} notes · {groups.length} sections · <a href={url('/rss.xml')}>RSS</a>
       </p>
     </PageHeader>
-
-    <PageLandscape view="profile" n="0.2" class="whead__fig" />
 
     <!-- tag filter: real links to real pages, so it works without JavaScript -->
     <nav class="tagbar" aria-label="Filter by tag">
@@ -159,16 +150,6 @@ const jsonLd = {
 </Base>
 
 <style>
-  .whead__fig {
-    margin-block: var(--sp-6);
-  }
-  .whead__honest {
-    margin-top: var(--sp-4);
-    max-width: var(--measure);
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-    text-wrap: pretty;
-  }
   .whead__count {
     margin-top: var(--sp-4);
     font-size: var(--fs-small);
@@ -298,8 +279,8 @@ const jsonLd = {
     font-variant-numeric: tabular-nums;
   }
   .wsec__list {
-    border-bottom: 1px solid var(--rule);
-    margin-top: var(--sp-4);
+    display: grid;
+    gap: var(--sp-4);
   }
   .wsec--progress .wsec__list {
     border-left: 2px dashed var(--orange);

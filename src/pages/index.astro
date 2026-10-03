@@ -130,11 +130,11 @@ const jsonLd = {
           }
         </ul>
         <p class="now__where">
-          All three at the{' '}
+          The two port-Hamiltonian projects are at the{' '}
           <a href={p.affiliation.group_url} rel="noopener">
             {p.affiliation.group}
           </a>
-          , advised by {p.affiliation.advisor}.
+          , advised by {p.affiliation.advisor}. The hydrogel work is my own.
         </p>
 
         <p class="now__honors">
@@ -209,13 +209,11 @@ const jsonLd = {
       <h2 id="me">Me</h2>
     </div>
     <div class="me" data-reveal>
-      <p>
-        I bench 245 and I play a lot of baseball. Basketball and football with friends when
-        there is a game on, and some Fortnite when there is not.
-      </p>
-      <p>
-        Mostly I like learning things, and right now that means computation, AI, and
-        computational biology. :)
+      <p class="me__say card">
+        Hi. When I'm not trying to keep up with the ever-expanding world of AI, you can
+        usually find me in the gym pushing 245 on bench, on the baseball field with the boys,
+        or running pickup basketball games at the local rec. If I'm not there, I'm probably
+        running 2K with LeBron as my main.
       </p>
 
       <div class="hitme card">
@@ -249,7 +247,7 @@ const jsonLd = {
     display: block;
     /* Modest: an identifier, not a portrait feature. Shrinks before the figure
        does at laptop widths. */
-    width: clamp(6.25rem, 10vw, 8.75rem);
+    width: clamp(7.5rem, 11.5vw, 10.25rem);
   }
   .hero__photo :global(img) {
     width: 100%;
@@ -434,11 +432,15 @@ const jsonLd = {
   .me {
     max-width: var(--measure);
   }
-  .me p {
+  /* The one casual moment on the page, so it gets room to breathe rather than
+     being packed in: larger than body copy, a generous measure, real padding. */
+  .me__say {
+    padding: var(--sp-6);
+    max-width: 58ch;
+    font-size: calc(var(--fs-body) * 1.12);
+    line-height: 1.65;
+    color: var(--ink-2);
     text-wrap: pretty;
-  }
-  .me p + p {
-    margin-top: var(--sp-3);
   }
   .hitme {
     margin-top: var(--sp-6);

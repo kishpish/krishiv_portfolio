@@ -1,0 +1,639 @@
+---
+// A thrown baseball, integrated rather than drawn.
+//
+// Every pitch here leaves the hand on the same two release angles: the angles
+// that would put a ball with no spin through the middle of the strike zone. So
+// whatever takes it off that line is the Magnus force and nothing else, which
+// is the whole point of the picture.
+//
+// The static figure is three canonical pitches computed at build time. When the
+// browser allows motion the controls appear and the same functions recompute
+// the paths live, so what the reader drags around is the same arithmetic that
+// drew the figure they are looking at.
+import {
+  simulate,
+  atPlate,
+  aimAngles,
+  axisWord,
+  rideWord,
+  runWord,
+  zoneWord,
+  PRESETS,
+  MPH,
+  MPH_RANGE,
+  RPM_RANGE,
+  PLATE_X,
+} from '../lib/pitch/physics';
+import {
+  SIDE,
+  FRONT,
+  sidePath,
+  breakVector,
+  frontX,
+  frontY,
+  zoneRect,
+  sideGround,
+  sidePlate,
+  sideX,
+  sideY,
+  DIAL,
+  dialKnob,
+  dialAxis,
+} from '../lib/pitch/project';
+
+// Build time: the three named pitches, and the spinless line all three are
+// aimed on, which is what their break is measured against.
+const shots = PRESETS.map((q) => {
+  const speed = q.mph * MPH;
+  const aim = aimAngles(speed);
+  const path = simulate({ speed, rpm: q.rpm, axisDeg: q.axisDeg, eff: q.eff, ...aim });
+  const flat = simulate({ speed, rpm: 0, axisDeg: 0, eff: 1, ...aim });
+  const end = atPlate(path);
+  const flatEnd = atPlate(flat);
+  return {
+    ...q,
+    side: sidePath(path),
+    vector: breakVector(end, flatEnd),
+    flatSide: sidePath(flat),
+    flatEnd,
+    end,
+    ride: rideWord(end.z - flatEnd.z),
+    run: runWord(end.y - flatEnd.y),
+    where: zoneWord(end),
+    axis: axisWord(q.axisDeg),
+    seconds: end.t,
+  };
+});
+
+const colors = ['var(--blue)', 'var(--orange)', '#0e7350'];
+
+// Ticks along the side view in feet, because that is how a mound is measured.
+// The labels are anchored away from the edges of the drawing, because on a
+// phone the side view is scaled down hard enough that the type has to be set
+// large, and a centred label at either end would then run off the frame.
+const ftMarks = [0, 20, 40, 55];
+const ftTicks = ftMarks.map((ft, i) => ({
+  ft,
+  px: sideX(Math.min(ft * 0.3048, PLATE_X)),
+  anchor: i === 0 ? 'start' : i === ftMarks.length - 1 ? 'end' : 'middle',
+}));
+
+const first = PRESETS[0];
+const startKnob = dialKnob(first.axisDeg);
+const startAxis = dialAxis(first.axisDeg);
+
+// One sentence per pitch, written from the numbers rather than alongside them,
+// so the description a screen reader gets cannot drift from the drawing.
+const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} and ${s.run}, finishing ${s.where}.`).join(' ');
+---
+
+<figure class="plab" data-pitchlab>
+  <div class="plab__views">
+    <!-- side on: height against distance -->
+    <svg
+      class="plab__side"
+      viewBox={`0 0 ${SIDE.w} ${SIDE.h}`}
+      role="img"
+      aria-labelledby="plab-side-t plab-side-d"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <title id="plab-side-t">Three pitches seen from the side</title>
+      <desc id="plab-side-d">
+        Height against distance from release to the plate. All three leave on the same angle,
+        the dashed line, which is the angle that would carry a ball with no spin through the
+        middle of the zone. {spoken}
+      </desc>
+      <g class="plab__axis">
+        <line x1={SIDE.pad.l} y1={sideGround} x2={SIDE.w - SIDE.pad.r} y2={sideGround} />
+        {ftTicks.map((t) => <line x1={t.px} y1={sideGround} x2={t.px} y2={sideGround + 4} />)}
+        <line class="plab__plate" x1={sidePlate} y1={sideY(0)} x2={sidePlate} y2={sideY(1.4)} />
+      </g>
+      <g class="plab__tick">
+        {ftTicks.map((t) => <text x={t.px} y={sideGround + 16} text-anchor={t.anchor}>{t.ft} ft</text>)}
+        <text x={sidePlate - 3} y={sideY(1.52)} text-anchor="end">plate</text>
+      </g>
+      <path class="plab__flat" data-flat-side d={shots[0].flatSide} />
+      {
+        shots.map((s, i) => (
+          <path class="plab__trace" data-side={s.id} d={s.side} style={`--c:${colors[i]}`} />
+        ))
+      }
+      <path class="plab__trace plab__trace--live" data-live-side-path d="" />
+    </svg>
+
+    <!-- catcher's view: lateral against height, same scale in both -->
+    <svg
+      class="plab__front"
+      viewBox={`0 0 ${FRONT.w} ${FRONT.h}`}
+      role="img"
+      aria-labelledby="plab-front-t plab-front-d"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <title id="plab-front-t">The same three pitches from behind the plate</title>
+      <desc id="plab-front-d">
+        The rule-book strike zone as a rectangle, with a cross at its middle marking where a
+        ball with no spin would finish. A line runs from that cross to the spot each pitch
+        actually crossed. Aimed at the same middle, all three miss it: the four-seam rides above
+        the zone, the curveball drops under it, and the slider runs off its glove side.
+      </desc>
+      <g class="plab__axis">
+        <line x1={FRONT.pad.l} y1={frontY(0)} x2={FRONT.w - FRONT.pad.r} y2={frontY(0)} />
+      </g>
+      <rect
+        class="plab__zone"
+        x={zoneRect.x}
+        y={zoneRect.y}
+        width={zoneRect.w}
+        height={zoneRect.h}
+        rx="2"
+      />
+      <!-- where a ball with no spin would finish: the thing every pitch here
+           was aimed at, and the foot of every break line -->
+      <g class="plab__aim" data-aim transform={`translate(${frontX(0)} ${frontY(shots[0].flatEnd.z)})`}>
+        <line x1="-5" y1="0" x2="5" y2="0" />
+        <line x1="0" y1="-5" x2="0" y2="5" />
+      </g>
+      {
+        shots.map((s, i) => (
+          <g style={`--c:${colors[i]}`}>
+            <path class="plab__vec" data-front={s.id} d={s.vector} />
+            <circle class="plab__dot" data-dot={s.id} cx={frontX(s.end.y)} cy={frontY(s.end.z)} r="5" />
+          </g>
+        ))
+      }
+      <g class="plab__livefront">
+        <path class="plab__vec plab__vec--live" data-live-front-path d="" />
+        <circle class="plab__dot plab__dot--live" data-live-dot cx="0" cy="0" r="6" />
+      </g>
+      <text class="plab__tick" x={FRONT.w / 2} y={FRONT.h - 8} text-anchor="middle">
+        catcher&apos;s view, at the plate
+      </text>
+    </svg>
+  </div>
+
+  <!-- The legend is also the whole explanation when no script runs. -->
+  <ul class="plab__legend">
+    {
+      shots.map((s, i) => (
+        <li style={`--c:${colors[i]}`}>
+          <span class="plab__key" />
+          <span class="plab__name">{s.label}</span>
+          <span class="plab__num">
+            {s.mph} mph, {s.rpm.toLocaleString('en-US')} rpm, {Math.round(s.eff * 100)}% efficient
+          </span>
+          <span class="plab__num plab__break">
+            {s.ride}, {s.run}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <!-- Controls, revealed only once the script has decided motion is allowed. -->
+  <div class="plab__controls" data-controls hidden>
+    <div class="plab__left">
+      <div class="plab__presets" role="group" aria-label="Pitch presets">
+        {
+          PRESETS.map((q, i) => (
+            <button
+              type="button"
+              class="plab__preset"
+              data-preset={q.id}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {q.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="plab__sliders">
+        <label class="plab__field">
+          <span class="plab__lab">Release speed</span>
+          <input
+            type="range"
+            min={MPH_RANGE.min}
+            max={MPH_RANGE.max}
+            step="1"
+            value={first.mph}
+            data-ctl="mph"
+          />
+          <output data-out="mph">{first.mph} mph</output>
+        </label>
+        <label class="plab__field">
+          <span class="plab__lab">Spin rate</span>
+          <input
+            type="range"
+            min={RPM_RANGE.min}
+            max={RPM_RANGE.max}
+            step="25"
+            value={first.rpm}
+            data-ctl="rpm"
+          />
+          <output data-out="rpm">{first.rpm.toLocaleString('en-US')} rpm</output>
+        </label>
+        <label class="plab__field">
+          <span class="plab__lab">Spin efficiency</span>
+          <input type="range" min="0" max="100" step="1" value={Math.round(first.eff * 100)} data-ctl="eff" />
+          <output data-out="eff">{Math.round(first.eff * 100)}%</output>
+        </label>
+      </div>
+    </div>
+
+    <div class="plab__dialwrap">
+      <span class="plab__lab" id="plab-axis-lab">Spin axis</span>
+      <svg
+        class="plab__dial"
+        viewBox={`${-DIAL.pad} 0 ${DIAL.size + DIAL.pad * 2} ${DIAL.size}`}
+        style={`--dial-ar:${DIAL.size + DIAL.pad * 2} / ${DIAL.size}`}
+        data-dial
+        role="slider"
+        tabindex="0"
+        aria-labelledby="plab-axis-lab"
+        aria-valuemin="0"
+        aria-valuemax="359"
+        aria-valuenow={first.axisDeg}
+        aria-valuetext={`${shots[0].axis}: ${shots[0].ride}, ${shots[0].run}`}
+      >
+        <circle class="plab__dialbg" cx={DIAL.c} cy={DIAL.c} r={DIAL.r} />
+        <!-- the spin axis, a quarter turn from the force it makes -->
+        <line
+          class="plab__dialaxis"
+          data-dial-axis
+          x1={startAxis.x1}
+          y1={startAxis.y1}
+          x2={startAxis.x2}
+          y2={startAxis.y2}
+        />
+        <!-- the direction the ball is pushed, which is what the knob sets -->
+        <line
+          class="plab__dialarm"
+          data-dial-arm
+          x1={DIAL.c}
+          y1={DIAL.c}
+          x2={startKnob.x}
+          y2={startKnob.y}
+        />
+        <circle class="plab__dialknob" data-dial-knob cx={startKnob.x} cy={startKnob.y} r="7" />
+        <g class="plab__diallab">
+          <text x={DIAL.c} y="11" text-anchor="middle">ride</text>
+          <text x={DIAL.c} y={DIAL.size - 3} text-anchor="middle">drop</text>
+          <text x={-DIAL.pad + 1} y={DIAL.c + 3}>arm</text>
+          <text x={DIAL.size + DIAL.pad - 1} y={DIAL.c + 3} text-anchor="end">glove</text>
+        </g>
+      </svg>
+      <!-- The dial is a slider, and its accessible value already carries this
+           word along with the break it produces, so repeating it here as a live
+           region would only make every drag announce twice. -->
+      <span class="plab__axisout" data-out="axis" aria-hidden="true">{shots[0].axis}</span>
+    </div>
+
+    <dl class="plab__readout">
+      <div><dt>Flight</dt><dd data-out="time">{shots[0].seconds.toFixed(2)} s</dd></div>
+      <div><dt>Vertical break</dt><dd data-out="ride">{shots[0].ride}</dd></div>
+      <div><dt>Horizontal break</dt><dd data-out="run">{shots[0].run}</dd></div>
+      <div><dt>Crosses</dt><dd data-out="where">{shots[0].where}</dd></div>
+    </dl>
+  </div>
+
+  <figcaption class="fig__caption plab__cap">
+    <span class="plab__cap-lead" data-cap-live hidden>
+      Drag the dial or move a slider. Nothing here is drawn by hand, so the paths are recomputed
+      from scratch every time you move something.
+    </span>
+    <span class="plab__cap-desc">
+      A baseball under gravity, quadratic drag, and the Magnus force from its own spin,
+      integrated with RK4 from release to the front of the plate. Every pitch is thrown on the
+      same two release angles, the ones that put a spinless ball through the middle of the zone,
+      so the dashed line is where it was aimed and the gap is what the spin did. The lift
+      coefficient is the piecewise fit from the baseball aerodynamics literature, and it runs a
+      little generous at high spin, so read these breaks as the top of the range rather than the
+      middle of it.
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .plab {
+    margin: 0;
+  }
+  .plab__views {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.42fr);
+    gap: var(--sp-4);
+    align-items: center;
+    background: var(--card);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-1);
+    padding: var(--sp-4);
+  }
+  .plab__side,
+  .plab__front {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  @media (max-width: 44rem) {
+    .plab__views {
+      grid-template-columns: 1fr;
+    }
+    .plab__front {
+      max-width: 15rem;
+      margin-inline: auto;
+    }
+  }
+
+  .plab__axis line {
+    stroke: var(--rule-2);
+    stroke-width: 1;
+  }
+  .plab__plate {
+    stroke: var(--ink-4);
+    stroke-dasharray: 2 3;
+  }
+  .plab__tick,
+  .plab__tick text {
+    font-family: var(--mono);
+    font-size: 9px;
+    fill: var(--ink-4);
+  }
+  /* The side view is 620 units wide. On a phone it renders at half that, which
+     would take the axis labels under five pixels, so they are drawn larger in
+     the one place where the drawing is scaled down hardest. */
+  @media (max-width: 34rem) {
+    .plab__side .plab__tick,
+    .plab__side .plab__tick text {
+      font-size: 17px;
+    }
+  }
+  .plab__flat {
+    fill: none;
+    stroke: var(--ink-4);
+    stroke-width: 1.1;
+    stroke-dasharray: 2 4;
+  }
+  .plab__trace,
+  .plab__vec {
+    fill: none;
+    stroke: var(--c);
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .plab__vec {
+    stroke-width: 1.6;
+    opacity: 0.6;
+  }
+  .plab__aim line {
+    stroke: var(--ink-3);
+    stroke-width: 1.2;
+  }
+  .plab__dot {
+    fill: var(--c);
+    stroke: var(--card);
+    stroke-width: 1.5;
+  }
+  .plab__zone {
+    fill: var(--blue-08);
+    stroke: var(--ink-3);
+    stroke-width: 1;
+  }
+  /* Once the reader is driving, the three named pitches stay on as ghosts so
+     there is something to measure their own pitch against. */
+  .plab[data-live] .plab__trace:not(.plab__trace--live),
+  .plab[data-live] .plab__vec:not(.plab__vec--live),
+  .plab[data-live] .plab__dot:not(.plab__dot--live) {
+    opacity: 0.26;
+  }
+  /* The live overlay is absent until the script says it is driving. SVG
+     children cannot be hidden with the hidden attribute reliably, so this is
+     the one switch that controls all of it. */
+  .plab__trace--live,
+  .plab__livefront {
+    display: none;
+  }
+  .plab[data-live] .plab__trace--live,
+  .plab[data-live] .plab__livefront {
+    display: initial;
+  }
+  .plab__trace--live,
+  .plab__vec--live {
+    stroke: var(--ink);
+    opacity: 1;
+  }
+  .plab__dot--live {
+    fill: var(--ink);
+    stroke: var(--card);
+    stroke-width: 2;
+  }
+
+  .plab__legend {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--sp-4);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--sp-2) var(--sp-5);
+    font-size: var(--fs-small);
+  }
+  .plab__legend li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.6em;
+    align-items: baseline;
+  }
+  .plab__key {
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 2px;
+    background: var(--c);
+  }
+  .plab__name {
+    font-weight: 700;
+  }
+  .plab__num {
+    grid-column: 2;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 0.92em;
+    font-variant-numeric: tabular-nums;
+  }
+  .plab__break {
+    color: var(--ink-4);
+  }
+
+  .plab__controls {
+    margin-top: var(--sp-5);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--sp-4) var(--sp-6);
+    align-items: start;
+  }
+  @media (max-width: 40rem) {
+    .plab__controls {
+      grid-template-columns: 1fr;
+    }
+  }
+  .plab__presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .plab__preset {
+    font: inherit;
+    font-size: var(--fs-small);
+    padding: 0.3em 0.75em 0.35em;
+    border: 1px solid var(--border-ui);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink-2);
+    cursor: pointer;
+    transition:
+      border-color 0.14s ease,
+      color 0.14s ease,
+      background-color 0.14s ease;
+  }
+  .plab__preset:hover,
+  .plab__preset:focus-visible {
+    border-color: var(--blue);
+    color: var(--blue-ink);
+  }
+  .plab__preset[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .plab__sliders {
+    display: grid;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+  }
+  .plab__field {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr) 6.5rem;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: var(--fs-small);
+  }
+  .plab__field input[type='range'] {
+    width: 100%;
+    accent-color: var(--blue);
+  }
+  .plab__field output {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+    text-align: right;
+  }
+  .plab__lab {
+    color: var(--ink-2);
+  }
+  @media (max-width: 34rem) {
+    .plab__field {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .plab__field input[type='range'] {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+
+  .plab__dialwrap {
+    display: grid;
+    justify-items: center;
+    gap: var(--sp-1);
+    /* The two side labels live at the very edge of the dial's box, so the box
+       is kept off the edge of the figure. */
+    padding-inline: var(--sp-3);
+    font-size: var(--fs-small);
+  }
+  .plab__dial {
+    width: 12rem;
+    aspect-ratio: var(--dial-ar);
+    height: auto;
+    cursor: grab;
+    touch-action: none;
+    /* The element is wider than the circle it holds, so the focus ring is a
+       rounded rectangle around the control rather than an ellipse around
+       nothing. */
+    border-radius: var(--card-radius);
+  }
+  .plab__dial:active {
+    cursor: grabbing;
+  }
+  .plab__dialbg {
+    fill: var(--paper-2);
+    stroke: var(--rule-2);
+  }
+  .plab__dialaxis {
+    stroke: var(--ink-4);
+    stroke-width: 1.4;
+    stroke-dasharray: 3 3;
+  }
+  .plab__dialarm {
+    stroke: var(--ink-3);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .plab__dialknob {
+    fill: var(--orange);
+    stroke: var(--card);
+    stroke-width: 2;
+  }
+  .plab__diallab text {
+    font-family: var(--mono);
+    font-size: 9px;
+    fill: var(--ink-4);
+  }
+  .plab__axisout {
+    font-weight: 700;
+    color: var(--ink-2);
+    text-align: center;
+    max-width: 11rem;
+    text-wrap: balance;
+  }
+
+  .plab__readout {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: var(--sp-2) var(--sp-4);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-small);
+  }
+  .plab__readout dt {
+    color: var(--ink-4);
+  }
+  .plab__readout dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  .plab__cap {
+    display: grid;
+    gap: 0.4em;
+    margin-top: var(--sp-4);
+  }
+  .plab__cap-lead {
+    font-style: normal;
+    color: var(--ink-2);
+  }
+  .plab__cap-desc {
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+
+  /* Same standard as the hero figure. With motion off the controls never
+     appear, and what is left is three pitches that were still integrated, which
+     is the whole idea minus anything that moves. */
+  @media (prefers-reduced-motion: reduce) {
+    .plab__controls,
+    .plab__cap-lead {
+      display: none !important;
+    }
+  }
+</style>

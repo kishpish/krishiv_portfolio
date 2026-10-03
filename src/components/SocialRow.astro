@@ -2,27 +2,29 @@
 // The pipe-separated row of contact links. Used in the hero and again in the
 // contact box at the foot of the home page, so the two cannot drift apart.
 //
-// The CV keeps its bordered box, because it is the one thing here a reader is
-// most likely to want and the box says "this is a button". Everything else is
-// a plain text link with a rule between.
+// Two things are deliberately not plain text links. The CV keeps its bordered
+// box, because it is the one thing here a reader is most likely to want. X gets
+// a filled pill with the mark and the handle, because a bare "X" in a row of
+// words is unreadable as a brand and ambiguous as a letter.
 import CVLink from './CVLink.astro';
 import { data } from '../lib/canonical';
 
 interface Props {
-  /** `hero` carries the CV box; `contact` is text links only. */
+  /** `hero` carries the CV box; `contact` is the compact version. */
   variant?: 'hero' | 'contact';
   class?: string;
 }
 const { variant = 'hero', class: cls = '' } = Astro.props;
 const p = data.person;
 
-// X is rendered only once a handle exists in canonical.yaml, the same way the
-// Google Scholar link already behaves.
 const links = [
   { label: 'Email', href: `mailto:${p.email}` },
   { label: 'LinkedIn', href: p.profiles.linkedin },
-  ...(p.profiles.x ? [{ label: 'X', href: p.profiles.x }] : []),
 ];
+// Rendered only once a handle exists in canonical.yaml, the same way the
+// Google Scholar link already behaves.
+const xUrl = p.profiles.x;
+const xHandle = xUrl ? `@${xUrl.replace(/\/+$/, '').split('/').pop()}` : null;
 ---
 
 <div class:list={['srow', `srow--${variant}`, cls]}>
@@ -38,6 +40,19 @@ const links = [
       ))
     }
   </ul>
+  {
+    xUrl && (
+      <a class="xpill" href={xUrl} rel="noopener">
+        <svg class="xpill__mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            fill="currentColor"
+            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+          />
+        </svg>
+        <span>{xHandle}</span>
+      </a>
+    )
+  }
 </div>
 
 <style>
@@ -74,6 +89,47 @@ const links = [
   }
   .srow--contact .srow__list li + li::before {
     margin-inline: var(--sp-3);
+  }
+
+  /* The X pill. Filled ink rather than true black, so it belongs to the same
+     palette as everything else on the page, and it lifts on hover using the
+     same tokens as every card. */
+  .xpill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.42em 0.9em 0.46em;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      transform var(--dur-lift-out) var(--ease-out),
+      box-shadow var(--dur-lift-out) var(--ease-out),
+      background-color var(--dur-lift-out) var(--ease-out);
+  }
+  .xpill:hover,
+  .xpill:focus-visible {
+    color: var(--paper);
+    background: #000;
+    transform: translateY(calc(var(--lift) / 2));
+    box-shadow: var(--shadow-2);
+    transition-duration: var(--dur-lift);
+  }
+  .xpill__mark {
+    width: 0.95em;
+    height: 0.95em;
+    flex: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .xpill:hover,
+    .xpill:focus-visible {
+      transform: none;
+    }
   }
   @media (max-width: 26rem) {
     .srow__list li + li::before {

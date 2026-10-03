@@ -65,19 +65,21 @@ figure:
     that spans it, while the per-gene models get a long way toward the ceiling
     on most of these genes.
   alt: >-
-    A dumbbell chart with one row per gene for fifteen genes. Each row has a blue
-    dot for the per-gene linear model's correlation and an orange dot for the
-    pretrained sequence model's correlation, joined by a line, with a grey tick
-    marking the heritability ceiling. Blue dots run from about zero to 0.84, most
-    of them between 0.24 and 0.64. Orange dots scatter from about minus 0.4 to
-    0.56, with a median near zero.
+    Dot plot of fifteen genes. For each gene a blue mark shows the correlation a
+    per-gene model reaches on held-out individuals, an orange mark shows what a
+    pretrained sequence model reaches zero-shot, and a grey tick marks the
+    heritability ceiling. The orange marks cluster around zero while the blue
+    ones sit well above it.
 thumb:
   src: "/media/fig-benchmark"
-  width: 800
-  height: 570
+  width: 900
+  height: 627
   fallback: png
   alt: >-
-    Scatter plot of a pretrained sequence model\u2019s predicted variant effect against the measured eQTL effect, with most points flat against zero on the vertical axis.
+    Box plot comparing three methods on held-out chromosome 22 genes. Two per-gene
+    linear models sit well above zero correlation, while a pretrained sequence
+    model run zero-shot sits on the zero line, with half its genes below it.
+  fit: contain
 links: []
 related:
   - benchmarks-decide-what-a-field-discovers

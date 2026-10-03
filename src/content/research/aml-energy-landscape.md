@@ -79,6 +79,7 @@ thumb:
   fallback: png
   alt: >-
     UMAP of 38,193 single cells coloured by which of the four learned basins each one falls into, with the mature myeloid basin in red and the primitive and stem-like basin in blue.
+  fit: cover
 links: []
 related:
   - energy-is-a-modeling-choice

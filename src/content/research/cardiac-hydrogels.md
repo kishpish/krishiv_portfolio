@@ -76,6 +76,32 @@ thumb:
   fallback: png
   alt: >-
     Three-dimensional patient-specific left-ventricle mesh coloured by tissue type, with healthy myocardium in blue, the border zone in green and yellow, and the core infarct scar in red.
+  fit: cover
+gallery:
+  - src: "/media/fig-cardiac"
+    width: 800
+    height: 395
+    fallback: png
+    alt: >-
+      Three-dimensional patient-specific left-ventricle mesh coloured by tissue
+      type, with healthy myocardium in blue, the border zone in green and
+      yellow, and the core infarct scar in red.
+  - src: "/media/fig-cardiac-b"
+    width: 1200
+    height: 594
+    fallback: jpg
+    alt: >-
+      Magnified view of the apex, where the healthy wall meets the infarct. The
+      border zone shows visible wall thinning and a sharp change in curvature at
+      the scar boundary.
+  - src: "/media/fig-cardiac-c"
+    width: 1200
+    height: 540
+    fallback: jpg
+    alt: >-
+      Longitudinal cross-section through the same heart, showing how far the
+      scar and border zone extend through the thickness of the wall rather than
+      only across its surface.
 links: []
 related:
   - reward-is-a-bad-interface-for-design

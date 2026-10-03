@@ -1,22 +1,129 @@
 ---
-// Intentionally empty. This becomes a photo timeline in the next pass; the
-// earliest entry (public/media/me-kid) is already staged. Nothing is invented
-// here in the meantime.
+// The Me page is one composition rather than a timeline. Two photographs and
+// five bullet points is not a timeline, and the rest of what would have gone
+// on one already lives on More, so repeating it here would only split it in
+// two. What this page has that no other page has is the pitch, which is worth
+// building the page around.
+//
+// All of the prose comes from canonical.yaml, so the page can be rewritten
+// without opening this file.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
+import PitchLab from '../components/PitchLab.astro';
+import { data, clean } from '../lib/canonical';
+import { url } from '../lib/urls';
+
+const me = data.me_page;
+const kid = data.images.portrait_child;
+const park = data.images.ballpark;
+
+// Both photographs are shown whole. The columns are sized by each one's own
+// aspect ratio, which is what makes the two frames end up the same height
+// without either of them being cropped to get there.
+const photos = [
+  { img: kid, ratio: kid.width / kid.height },
+  { img: park, ratio: park.width / park.height },
+];
 ---
 
-<Base
-  title="Me"
-  description="Krishiv Potluri, outside the research."
->
+<Base title="Me" description="Krishiv Potluri outside the lab: baseball, and the physics of a pitch." og="me">
   <div class="wrap me-page">
-    <PageHeader eyebrow="Me" title="Me" />
+    <PageHeader eyebrow="Me" title="Baseball" lede={clean(me.lede)} />
+
+    <div class="me-photos" data-reveal>
+      {
+        photos.map((ph) => (
+          <figure class="me-photo" style={`--ratio:${ph.ratio.toFixed(4)}`}>
+            <picture>
+              <source srcset={url(`${ph.img.src}.webp`)} type="image/webp" />
+              <img
+                src={url(`${ph.img.src}.jpg`)}
+                alt={clean(ph.img.alt)}
+                width={ph.img.width}
+                height={ph.img.height}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          </figure>
+        ))
+      }
+      <p class="me-photos__cap">{clean(me.photo_caption)}</p>
+    </div>
+
+    <section class="me-sec" aria-labelledby="pitch">
+      <h2 id="pitch">What the ball actually does</h2>
+      <p class="measure">{clean(me.trajectories)}</p>
+      <p class="measure">{clean(me.pitch_intro)}</p>
+      <div class="me-lab" data-reveal>
+        <PitchLab />
+      </div>
+    </section>
+
+    <p class="me-closing measure">
+      {clean(me.closing)}{' '}
+      <!-- "More" alone is not a description of where the link goes, so the rest
+           of the sentence is carried for anyone who is listening to it. -->
+      <a href={url('/about/')}>More<span class="visually-hidden">, the page with the rest of this</span></a>.
+    </p>
   </div>
 </Base>
 
 <style>
   .me-page {
     padding-bottom: var(--sp-9);
+  }
+
+  /* Two frames, neither cropped, ending the same height because each column is
+     as wide as its own picture needs to be. */
+  .me-photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    align-items: flex-start;
+  }
+  .me-photo {
+    flex: var(--ratio) 1 0;
+    min-width: 12rem;
+    margin: 0;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    background: var(--paper-2);
+    box-shadow: var(--shadow-1);
+  }
+  .me-photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .me-photos__cap {
+    flex: 1 0 100%;
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+  }
+
+  .me-sec {
+    margin-top: var(--sp-8);
+  }
+  .me-sec h2 {
+    font-size: var(--fs-h2);
+  }
+  .me-sec p {
+    margin-top: var(--sp-4);
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .me-lab {
+    margin-top: var(--sp-6);
+  }
+  .me-closing {
+    margin-top: var(--sp-8);
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 34rem) {
+    .me-photo {
+      flex-basis: 100%;
+    }
   }
 </style>

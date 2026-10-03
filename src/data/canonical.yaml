@@ -43,9 +43,7 @@ person:
     # No Google Scholar profile was found. Add the URL here if one is created
     # and it will appear in the header, footer, and JSON-LD automatically.
     scholar: null
-    # Supply the handle and the link appears in the hero social row and the
-    # contact box. Until then both render without it.
-    x: null
+    x: https://x.com/KishPish06
 
 # ---------------------------------------------------------------------------
 # Images served from public/media/. Dimensions are the real intrinsic size of
@@ -59,9 +57,15 @@ images:
     height: 400
   portrait_child:
     src: /media/me-kid
-    alt: Krishiv Potluri as a child, in a baseball cap and glove
-    width: 800
-    height: 1071
+    alt: A kid in a Texas Rangers cap buckled into the back seat of a car after a game, a glove in his lap
+    width: 1200
+    height: 1606
+  ballpark:
+    src: /media/me-ballpark
+    alt: Two kids leaning on the outfield rail at Dell Diamond at dusk, the lit scoreboard and an empty
+      outfield behind them
+    width: 1600
+    height: 1195
 
 cv:
   # Served from public/cv.pdf. Replace the file to update the CV; the link
@@ -599,3 +603,27 @@ conflicts:
       One state title (two of three documents) rather than two. The CV's own
       honors list records coaching qualification only for 2026, so a single
       2026 Worlds berth is stated rather than three.
+
+me_page:
+  lede: >-
+    I have been playing since I was nine, first on select and travel teams, then as the first
+    freshman in my program's history to make the varsity roster. I pitch right handed and play
+    third, short, or the outfield when I am not on the mound. My exit velocity is 95 and my sixty
+    is 7.13, both of which took a great deal longer to earn than they take to write down.
+  trajectories: >-
+    Baseball is the other place I think hard about trajectories. A pitch is a boundary value
+    problem you get four tenths of a second to solve, and the awkward part is that the ball does
+    not travel in a straight line even before gravity has its say.
+  photo_caption: >-
+    It started about here.
+  pitch_intro: >-
+    So here it is written out. The figure below is a real integration rather than a drawing:
+    gravity, quadratic drag, and the Magnus force the ball makes from its own spin, stepped from
+    release to the front of the plate. Every pitch leaves on the same two angles, the ones that
+    would carry a ball with no spin through the middle of the zone, so everything that happens
+    after release is the spin and only the spin. Drag the dial and watch how little of it you
+    need to miss.
+  # Rendered with the page name as a link straight after it, so the sentence is
+  # written to run into it.
+  closing: >-
+    Robotics, debate, the biotech club, and the tutoring program are all one page over, on

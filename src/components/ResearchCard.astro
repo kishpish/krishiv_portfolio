@@ -86,6 +86,28 @@ const authorHtml = (a: string[]) =>
         ) : (
           <ProjectFigure id={d.figure!.id} caption={clean(d.figure!.caption)} alt={clean(d.figure!.alt)} n={String(n)} />
         )}
+
+        {/* Further panels from the paper, where one picture does not carry the
+            work on its own. */}
+        {d.gallery.length > 0 && (
+          <div class="rcard__gallery">
+            {d.gallery.map((g) => (
+              <figure class="rcard__gitem card">
+                <picture>
+                  <source srcset={url(`${g.src}.webp`)} type="image/webp" />
+                  <img
+                    src={url(`${g.src}.${g.fallback}`)}
+                    alt={clean(g.alt)}
+                    width={g.width}
+                    height={g.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
+              </figure>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
@@ -164,20 +186,16 @@ const authorHtml = (a: string[]) =>
     margin-top: var(--sp-5);
     max-width: 44rem;
   }
-  /* Project media lifts exactly the way a preview card does, so the two pages
-     feel like the same object. */
+  /* A project figure sits on the same raised surface as a preview card, but it
+     does not rise under the cursor the way one does: there is nothing here to
+     click, and lifting it would say otherwise. What it does instead is let the
+     picture inside grow a little, which reads as an invitation to look rather
+     than an invitation to click. */
   .rcard__fig :global(figure) {
     border-radius: var(--card-radius);
     overflow: hidden;
     background: var(--card);
     box-shadow: var(--shadow-1);
-    transition:
-      transform var(--dur-lift) var(--ease-out),
-      box-shadow var(--dur-lift) var(--ease-out);
-  }
-  .rcard__fig :global(figure):hover {
-    transform: translateY(var(--lift));
-    box-shadow: var(--shadow-2);
   }
   .rcard__fig :global(figcaption) {
     padding: 0 var(--sp-4) var(--sp-4);
@@ -185,6 +203,34 @@ const authorHtml = (a: string[]) =>
   /* Anchored sections need room under the sticky header when linked to. */
   .rcard[id] {
     scroll-margin-top: var(--sp-6);
+  }
+  .rcard__gallery {
+    margin-top: var(--sp-4);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--sp-3);
+  }
+  .rcard__gitem {
+    margin: 0;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .rcard__gitem :global(img) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--dur-lift-out) var(--ease-out);
+  }
+  .rcard__gitem:hover :global(img) {
+    transform: scale(var(--media-zoom));
+    transition-duration: var(--dur-lift);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rcard__gitem :global(img) {
+      transform: none !important;
+    }
   }
   .rcard--compact {
     padding-block: var(--sp-4);
