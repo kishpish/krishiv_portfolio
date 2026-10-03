@@ -1,25 +1,21 @@
 ---
 title: "Port-Hamiltonian Reinforcement Learning for De Novo Antibody Design: Generation as Transition-Path Control Across an Energy Surface"
 short: "Antibody design"
-order: 1
+order: 5
 period: "Mar 2025 to present"
 role: "Student researcher, Computational Visualization Center"
 kind: lab
 status: "in progress"
 summary: >-
-  Antibody discovery is almost entirely search: build or borrow a large
-  library, screen it, keep what binds, and never reach the regions of design
-  space the library did not contain, however much compute is spent on it.
-  This project reformulates de novo antibody design as control rather than
-  classification, using a port-Hamiltonian model that carries an explicit
-  energy and an explicit dissipation term, so a reinforcement learning policy
-  moving a structure through design space is choosing a path across an energy
-  surface and paying for it, and the agent is rewarded for reaching a binding
-  configuration cheaply, which is a transition-path objective. The work is in
-  progress with no results to report yet, and the claim being tested is that
-  this formulation makes the cost of a design legible, since a path has a
-  length and a barrier and two candidates can be compared by what it took to
-  reach them rather than only by a terminal score.
+  Antibody discovery is almost entirely search, so the regions of design space
+  a library never contained stay unreached however much compute is spent on
+  screening it. This project treats de novo design as control instead, using a
+  port-Hamiltonian model that carries an explicit energy and dissipation term,
+  so a reinforcement learning policy moving a structure through design space is
+  choosing a path and paying for it. The work is in progress and has no results
+  to report yet. The claim being tested is that this makes the cost of a design
+  legible, since a path has a length and a barrier and two candidates can be
+  compared by what it took to reach them.
 problem: >-
   Antibody discovery is mostly search. You build or borrow a large library, you
   screen it, and you keep what binds. The method is bounded by what happens to

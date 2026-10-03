@@ -1,8 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
-import CVLink from '../components/CVLink.astro';
-import PageLandscape from '../components/PageLandscape.astro';
 import { data, clean, cv } from '../lib/canonical';
 import { url, absolute } from '../lib/urls';
 
@@ -24,15 +22,13 @@ const jsonLd = {
 ---
 
 <Base
-  title="About"
-  description="Krishiv Potluri: research interests, positions, honors, methods, and contact."
+  title="More"
+  description="Krishiv Potluri: positions, honors, education, methods and tools, and what happens outside the lab."
   og="about"
   jsonLd={jsonLd}
 >
   <div class="wrap">
-    <PageHeader eyebrow="About" title="About" />
-
-    <PageLandscape view="crop" n="0.3" class="ahead__fig" />
+    <PageHeader eyebrow="More" title="More" />
 
     <div class="about">
       <div class="about__main">
@@ -66,7 +62,7 @@ const jsonLd = {
           <ol class="poslist">
             {
               data.positions.map((pos) => (
-                <li>
+                <li class="card">
                   <div class="poslist__head">
                     <p class="poslist__org">
                       {pos.href ? <a href={pos.href} rel="noopener">{pos.org}</a> : pos.org}
@@ -84,7 +80,7 @@ const jsonLd = {
           <ol class="poslist">
             {
               data.hackathons.map((h) => (
-                <li>
+                <li class="card">
                   <div class="poslist__head">
                     <p class="poslist__org">{h.name}</p>
                     <p class="poslist__period tnum">{h.date}</p>
@@ -106,7 +102,7 @@ const jsonLd = {
           <ol class="honors">
             {
               data.honors.map((h) => (
-                <li>
+                <li class="card">
                   <span class="honors__y num">{h.year}</span>
                   <span class="honors__b">
                     <span class="honors__t">
@@ -142,7 +138,7 @@ const jsonLd = {
           <dl class="beyond">
             {
               data.beyond.map((b) => (
-                <div class="beyond__item">
+                <div class="beyond__item card">
                   <dt>
                     <span class="beyond__label">{b.label}</span>
                     <span class="beyond__title">{b.title}</span>
@@ -157,20 +153,7 @@ const jsonLd = {
 
       <!-- sidebar -->
       <aside class="about__side">
-        <section class="side">
-          <p class="eyebrow">Contact</p>
-          <ul class="side__links">
-            <li><a href={`mailto:${p.email}`}>{p.email}</a></li>
-            <li><a href={p.profiles.github} rel="noopener">github / {p.profiles.github_handle}</a></li>
-            <li><a href={p.profiles.linkedin} rel="noopener">linkedin</a></li>
-            <li><a href={p.profiles.orcid} rel="noopener">orcid / {p.profiles.orcid_id}</a></li>
-            {p.profiles.scholar && <li><a href={p.profiles.scholar} rel="noopener">google scholar</a></li>}
-          </ul>
-          <p class="side__cv"><CVLink variant="button" /></p>
-          <p class="side__loc">{p.location}</p>
-        </section>
-
-        <section class="side">
+        <section class="side card">
           <p class="eyebrow">Methods and tools</p>
           <dl class="side__methods">
             {
@@ -189,9 +172,6 @@ const jsonLd = {
 </Base>
 
 <style>
-  .ahead__fig {
-    margin-block: var(--sp-5) var(--sp-7);
-  }
   .about {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 17rem;
@@ -221,7 +201,10 @@ const jsonLd = {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: var(--sp-5);
+    gap: var(--sp-4);
+  }
+  .poslist > li {
+    padding: var(--sp-4) var(--sp-5);
   }
   .poslist__head {
     display: flex;
@@ -265,12 +248,15 @@ const jsonLd = {
     list-style: none;
     padding: 0;
   }
+  .honors {
+    display: grid;
+    gap: var(--sp-3);
+  }
   .honors li {
     display: grid;
     grid-template-columns: 4.6rem minmax(0, 1fr);
     gap: var(--sp-3);
-    padding-block: var(--sp-3);
-    border-bottom: 1px solid var(--rule);
+    padding: var(--sp-4) var(--sp-5);
   }
   .honors__y {
     font-size: var(--fs-small);
@@ -307,6 +293,9 @@ const jsonLd = {
     display: grid;
     gap: var(--sp-4);
   }
+  .beyond__item {
+    padding: var(--sp-4) var(--sp-5);
+  }
   .beyond__item dt {
     display: flex;
     flex-wrap: wrap;
@@ -332,17 +321,12 @@ const jsonLd = {
     position: sticky;
     top: var(--sp-5);
     display: grid;
-    gap: var(--sp-6);
+    gap: var(--sp-5);
+  }
+  .about__side .side {
+    padding: var(--sp-5);
   }
   .side__links,
-  .side__cv {
-    margin-top: var(--sp-4);
-  }
-  .side__loc {
-    margin-top: var(--sp-3);
-    font-size: var(--fs-small);
-    color: var(--ink-4);
-  }
   .side__methods {
     display: grid;
     gap: var(--sp-3);

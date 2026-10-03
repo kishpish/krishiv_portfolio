@@ -10,8 +10,6 @@ import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import ResearchCard from '../../components/ResearchCard.astro';
 import PubList from '../../components/PubList.astro';
-import CVLink from '../../components/CVLink.astro';
-import PageLandscape from '../../components/PageLandscape.astro';
 import { data, clean, statusLabel } from '../../lib/canonical';
 import { url, absolute } from '../../lib/urls';
 
@@ -37,23 +35,14 @@ const jsonLd = data.publications.map((pub) => ({
 
 <Base title="Research" description={description} og="research" jsonLd={jsonLd}>
   <div class="wrap">
-    <PageHeader
-      eyebrow="Research"
-      title="Research"
-      lede="Five projects. Each page states the problem, the method, the result, and what did not work. Papers, preprints, and code are linked from the project they came from, and the formal list is at the foot of this page."
-    >
-      <div class="rhead__aside">
-        <CVLink variant="button" />
-        <p class="rhead__note">
-          Everything here is first author. Venue and status are stated exactly as they stand.
-        </p>
-      </div>
-    </PageHeader>
+    <PageHeader eyebrow="Research" title="Research" />
 
-    <PageLandscape view="surface" n="0.1" class="rhead__fig" />
+    <p class="rlede" data-reveal>
+      <Fragment set:html={data.research_statement.core_html} />
+    </p>
 
     <section class="rlist" aria-label="Projects">
-      {projects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} level={2} />)}
+      {projects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} level={2} anchor />)}
     </section>
 
     <section class="pubsec" aria-labelledby="papers-h">
@@ -71,13 +60,13 @@ const jsonLd = data.publications.map((pub) => ({
       <ol class="simple">
         {
           data.talks.map((t) => (
-            <li>
+            <li class="card">
+              <span class="simple__y">{t.year}</span>
               <p class="simple__t">
                 {t.href ? <a href={t.href} rel="noopener">{t.title}</a> : t.title}
               </p>
               <p class="simple__m meta">
                 <span>{t.venue}</span>
-                <span class="num">{t.year}</span>
                 <span>{t.kind}</span>
               </p>
               {t.note && <p class="simple__n">{t.note}</p>}
@@ -93,13 +82,13 @@ const jsonLd = data.publications.map((pub) => ({
       <ol class="simple">
         {
           data.media.map((m) => (
-            <li>
+            <li class="card">
+              <span class="simple__y">{m.year}</span>
               <p class="simple__t">
                 <a href={m.href} rel="noopener">{m.title}</a>
               </p>
               <p class="simple__m meta">
                 <span>{m.outlet}</span>
-                <span class="num">{m.year}</span>
               </p>
             </li>
           ))
@@ -113,21 +102,18 @@ const jsonLd = data.publications.map((pub) => ({
 </Base>
 
 <style>
-  .rhead__aside {
-    margin-top: var(--sp-5);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-3) var(--sp-5);
+  /* The one sentence that says what the page is about. Larger than body copy,
+     a generous measure, and real space around it. */
+  .rlede {
+    margin-block: var(--sp-5) var(--sp-8);
+    max-width: 56ch;
+    font-size: calc(var(--fs-body) * 1.22);
+    line-height: 1.5;
+    color: var(--ink-2);
+    text-wrap: pretty;
   }
-  .rhead__note {
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-    max-width: 48ch;
-    flex: 1 1 22rem;
-  }
-  .rhead__fig {
-    margin-block: var(--sp-7) var(--sp-6);
+  .rlede :global(strong) {
+    color: var(--ink);
   }
   .rlist {
     border-bottom: 1px solid var(--rule);
@@ -151,15 +137,26 @@ const jsonLd = data.publications.map((pub) => ({
     list-style: none;
     padding: 0;
     max-width: var(--measure);
+    display: grid;
+    gap: var(--sp-3);
   }
   .simple li {
-    padding-block: var(--sp-4);
-    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 4.6rem minmax(0, 1fr);
+    gap: var(--sp-1) var(--sp-4);
+    align-items: baseline;
+    padding: var(--sp-4) var(--sp-5);
   }
-  .simple li:last-child {
-    border-bottom: 1px solid var(--rule);
+  /* The year leads the row, the title carries the weight, the venue and kind
+     sit under it quietly. Three levels, not one flat line. */
+  .simple__y {
+    grid-row: 1 / span 3;
+    font-size: var(--fs-small);
+    color: var(--ink-4);
+    font-variant-numeric: tabular-nums;
   }
   .simple__t {
+    font-size: calc(var(--fs-body) * 1.02);
     font-weight: 700;
     line-height: 1.35;
     text-wrap: pretty;

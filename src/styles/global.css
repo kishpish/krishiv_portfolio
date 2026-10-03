@@ -83,25 +83,29 @@
 :root {
   color-scheme: light;
 
-  /* paper and ink.
-     The link blue below is fixed, and it clears AA (4.5:1) on --paper but not
-     on the warmer tints. So the rule for this site is: anything containing a
-     link sits on --paper. The tints are for surfaces that hold ink only, such
-     as code blocks, asides and badges. */
-  --paper: #fbfaf6;
-  --paper-2: #f4f2ea;
-  --paper-3: #ebe7db;
-  --ink: #1b1a17;
-  --ink-2: #45433d;
-  --ink-3: #66635b;
-  /* Every ink level is AA on paper, so there is no shade of text on this site
-     that fails contrast. ink-4 is the quietest and is still 4.6:1. */
-  --ink-4: #767266;
-  --rule: #e4e0d4;
-  --rule-2: #cdc8b9;
+  /* Paper and ink, re-derived around a cream base rather than a near-white one.
+     Cream is darker than the old #fbfaf6, so every step had to move: the rules
+     need more contrast to stay visible, and the two quietest inks had to come
+     down to hold AA.
+
+     The surface rule: --card sits ABOVE the page (cards, asides) and every ink
+     clears AA on it. --paper-2 and --paper-3 sit BELOW it (code, badges) and
+     hold --ink and --ink-2 only. No link and no --ink-4 goes on a recessed
+     tint, because at this base no warm tint can carry the link blue at 4.5:1. */
+  --paper: #f6f1e5;
+  --card: #fcfaf4;
+  --paper-2: #ece5d4;
+  --paper-3: #e2d9c3;
+  --ink: #1b1a17; /* 15.44 on paper */
+  --ink-2: #45433d; /* 8.78 */
+  --ink-3: #66635b; /* 5.32 */
+  /* was #767266, which fell to 4.26 against cream */
+  --ink-4: #716d62; /* 4.58 */
+  --rule: #ded4bd;
+  --rule-2: #c4b89c;
   /* A border that carries meaning (a focusable control, a badge outline) needs
      3:1, which the decorative rules above do not reach. */
-  --border-ui: #8f8878;
+  --border-ui: #8f8878; /* 3.13 */
 
   /* the three Barron colours */
   --blue: #1772d0;
@@ -113,7 +117,28 @@
   --blue-08: rgb(23 114 208 / 0.08);
   --blue-16: rgb(23 114 208 / 0.16);
   --orange-12: rgb(240 146 40 / 0.12);
-  --orange-ink: #a85a00; /* orange that passes AA on paper, for small labels */
+  --orange-ink: #a85a00; /* 4.51, orange that holds AA on paper */
+  /* #1772d0 is 4.28 on cream, just under AA for body text, so link TEXT uses a
+     4% darker variant at 4.59 while the brand colour itself is unchanged and
+     still what the figure, the focus ring and the fills are drawn in. The two
+     are a deltaE of 2.5 apart, which is below the threshold of noticing. */
+  --blue-ink: #166dc8;
+
+  /* elevation. A neutral black shadow goes grey and dead on cream, so these
+     are warm, mixed from the ink rather than from black. */
+  --shadow-1:
+    0 1px 2px rgb(61 51 32 / 0.05),
+    0 2px 6px rgb(61 51 32 / 0.05);
+  --shadow-2:
+    0 2px 4px rgb(61 51 32 / 0.06),
+    0 12px 26px rgb(61 51 32 / 0.1);
+
+  /* one system: every card and every hover on the site reads from these */
+  --card-radius: 10px;
+  --lift: -3px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-lift: 0.2s;
+  --dur-reveal: 0.52s;
 
   /* type */
   --sans: 'Lato', 'Lato Fallback Verdana', 'Lato Fallback', Verdana, Helvetica, sans-serif;
@@ -268,7 +293,7 @@ small {
 /* Links: Barron's blue, orange on hover and focus. In running text the hover
    also draws an underline so the state never depends on colour alone. */
 a {
-  color: var(--blue);
+  color: var(--blue-ink);
   text-decoration: none;
   text-underline-offset: 0.18em;
   text-decoration-thickness: 1px;
@@ -418,7 +443,7 @@ hr {
   top: -100px;
   z-index: 100;
   background: var(--paper);
-  color: var(--blue);
+  color: var(--blue-ink);
   padding: var(--sp-2) var(--sp-3);
   border: 1px solid var(--rule-2);
   font-size: var(--fs-small);
@@ -563,9 +588,11 @@ hr {
   margin-right: 0.45em;
 }
 
-/* Section scaffolding used on most pages */
+/* Section scaffolding used on most pages. A major section gets noticeably more
+   air above it than anything inside it does, so the page reads as a sequence of
+   blocks rather than as one evenly spaced column. */
 .section {
-  padding-block: var(--sp-8) 0;
+  padding-block: var(--sp-9) 0;
 }
 .section__head {
   margin-bottom: var(--sp-6);
@@ -738,6 +765,77 @@ hr {
   outline-offset: 0;
 }
 
+/* ==========================================================================
+   One system. Every card, every hover and every reveal on this site reads
+   from here, so the research preview, the writing preview and the More page
+   cannot drift apart.
+   ========================================================================== */
+
+/* A raised surface. On cream a card reads better a shade lighter than the page
+   than it does behind a border, so there is no border by default. */
+.card {
+  background: var(--card);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-1);
+  transition:
+    transform var(--dur-lift) var(--ease-out),
+    box-shadow var(--dur-lift) var(--ease-out);
+}
+/* Hover for pointers, focus-visible for keyboards, focus-within for a card
+   whose link sits inside it. All three get the same physical response. */
+.card:hover,
+.card:focus-visible,
+.card:focus-within {
+  transform: translateY(var(--lift));
+  box-shadow: var(--shadow-2);
+}
+/* A card that is itself the link does not want the default underline. */
+a.card,
+a.card:hover,
+a.card:focus-visible {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- On load: content arrives rather than appears.
+   Only opacity and transform, so nothing reflows and first paint is not held
+   back. Stagger with --i on the child. */
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise var(--dur-reveal) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* ---------- On scroll: the same movement, triggered by an observer.
+   The hiding rule is scoped to .js-reveal, which the script adds to <html>
+   only once the observer is actually running. With no JavaScript, with a
+   blocked script, or under reduced motion, the class never lands and every
+   element renders at full opacity. */
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .js-reveal [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-reveal) var(--ease-out),
+      transform var(--dur-reveal) var(--ease-out);
+  }
+}
+
 /* ---------- View transitions (cross-document, progressive enhancement) */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
@@ -759,6 +857,19 @@ hr {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  /* Everything that moves is also pinned in place and shown in full, rather
+     than merely being moved quickly. */
+  .rise,
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .card:hover,
+  .card:focus-visible,
+  .card:focus-within {
+    transform: none !important;
   }
 }
 

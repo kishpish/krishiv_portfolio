@@ -326,6 +326,11 @@ export function initLandscape(root: HTMLElement): void {
 
 export function initAllLandscapes(): void {
   for (const el of document.querySelectorAll<HTMLElement>('[data-landscape]')) {
+    // With view transitions this runs again on every client-side navigation.
+    // A figure that is already wired must not get a second set of listeners,
+    // and after a navigation the node is new, so the flag comes back with it.
+    if (el.dataset.landscapeReady === '') continue;
+    el.dataset.landscapeReady = '';
     try {
       initLandscape(el);
     } catch {

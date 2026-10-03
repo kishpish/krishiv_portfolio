@@ -11,7 +11,7 @@ const links = [
   { label: 'linkedin', href: p.profiles.linkedin },
   { label: 'orcid', href: p.profiles.orcid },
   ...(p.profiles.scholar ? [{ label: 'scholar', href: p.profiles.scholar }] : []),
-  { label: 'rss', href: url('/rss.xml') },
+  ...(p.profiles.x ? [{ label: 'x', href: p.profiles.x }] : []),
 ].filter(Boolean);
 const year = 2026;
 // The easter egg is a computed quantity, so it reads the surface rather than
@@ -24,9 +24,6 @@ const deepestE = deepest.E.toFixed(1).replace('-', '\u2212');
   <div class="wrap site-footer__inner">
     <div class="site-footer__col">
       <p class="site-footer__name">{p.name}</p>
-      <p class="muted site-footer__where">
-        {p.affiliation.group}, <a href={p.affiliation.institute_url}>{p.affiliation.institute_short}</a>, {p.affiliation.university_short}
-      </p>
       <p class="site-footer__cv"><CVLink variant="inline" /></p>
     </div>
 
@@ -42,8 +39,10 @@ const deepestE = deepest.E.toFixed(1).replace('-', '\u2212');
       <ul class="site-footer__links">
         <li><a href={url('/research/')}>Research</a></li>
         <li><a href={url('/writing/')}>Writing</a></li>
-        <li><a href={url('/about/')}>About</a></li>
-        <li><a href={url('/colophon/')}>Colophon</a></li>
+        <li>
+          <a href={url('/about/')}>More<span class="visually-hidden"> about Krishiv Potluri</span></a>
+        </li>
+        <li><a href={url('/me/')}>Me</a></li>
       </ul>
     </nav>
   </div>
@@ -94,7 +93,6 @@ const deepestE = deepest.E.toFixed(1).replace('-', '\u2212');
   .site-footer__name {
     font-weight: 700;
   }
-  .site-footer__where,
   .site-footer__cv {
     font-size: var(--fs-small);
     margin-top: var(--sp-1);

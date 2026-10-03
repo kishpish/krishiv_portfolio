@@ -33,7 +33,7 @@ person:
     place: Cedar Park, Texas
     # See conflicts.graduation_month: the site shows the year only.
     class_of: 2027
-    coursework_beyond: Linear algebra, multivariable calculus, honors physics
+    coursework_beyond: Linear algebra and multivariable calculus
   profiles:
     github: https://github.com/kishpish
     github_handle: kishpish
@@ -43,6 +43,25 @@ person:
     # No Google Scholar profile was found. Add the URL here if one is created
     # and it will appear in the header, footer, and JSON-LD automatically.
     scholar: null
+    # Supply the handle and the link appears in the hero social row and the
+    # contact box. Until then both render without it.
+    x: null
+
+# ---------------------------------------------------------------------------
+# Images served from public/media/. Dimensions are the real intrinsic size of
+# each file, so every <img> can carry width and height and reserve its space.
+# ---------------------------------------------------------------------------
+images:
+  portrait:
+    src: /media/me
+    alt: Krishiv Potluri
+    width: 400
+    height: 400
+  portrait_child:
+    src: /media/me-kid
+    alt: Krishiv Potluri as a child, in a baseball cap and glove
+    width: 800
+    height: 1071
 
 cv:
   # Served from public/cv.pdf. Replace the file to update the CV; the link
@@ -63,16 +82,58 @@ site:
   repo_branch: main
 
 research_statement:
-  # Short version, used on the home page and research index.
+  # Short version, used in metadata and structured data.
   short: >-
     I build models of systems that move across energy landscapes, and the
     infrastructure that makes those models reproducible.
+  # Set the way the CV sets it: a bolded lead-in label, a colon, then running
+  # prose with the key terms emphasised. Stored as HTML because the emphasis is
+  # inside the sentence and a flat array cannot carry it.
+  core_label: Core Research Interests
+  core_html: >-
+    My research lies at the intersection of <strong>machine learning</strong>,
+    <strong>computational biology</strong>, and <strong>physics-based
+    simulation</strong>, with a focus on the <strong>computational
+    systems</strong> that make this work scalable and reproducible.
+  directions_label: Current Directions
+  directions_html: >-
+    <strong>Physics-informed reinforcement learning</strong> for <em>de
+    novo</em> antibody design; <strong>generative models</strong> for protein
+    and biomaterial design; <strong>energy-based models</strong> of cancer cell
+    states; <strong>leakage-audited benchmarks</strong> for genomic prediction;
+    and <strong>efficient, reproducible systems</strong> for scientific
+    computing.
+  # Plain list, kept for JSON-LD knowsAbout where markup is not wanted.
   interests:
     - Physics-informed reinforcement learning for de novo antibody design
     - Generative models for protein and biomaterial design
     - Energy-based models of cancer cell states
     - Leakage-audited benchmarks for genomic prediction
     - Efficient, reproducible systems for scientific computing
+
+# ---------------------------------------------------------------------------
+# What is on the bench right now. One sentence each, newest first.
+# ---------------------------------------------------------------------------
+current_work:
+  - title: Port-Hamiltonian Reinforcement Learning for De Novo Antibody Design
+    note: >-
+      A reinforcement learning policy that carries an explicit energy and
+      dissipation term, so generating an antibody is choosing a path across a
+      surface and paying for it rather than screening a library.
+  - title: >-
+      Port-Hamiltonian driven Structurally-Constrained Codon Optimization of
+      circRNA IRES-CDS Junctions
+    note: >-
+      Recoding the junction between the internal ribosome entry site and the
+      coding sequence so a circular RNA keeps its structure and still
+      translates reliably.
+  - title: >-
+      Continuation and full lab validation of AI-Driven Inverse Design of
+      Bio-Instructive Hydrogels for Myocardial Regeneration
+    note: >-
+      Taking the published inverse-design work off surrogate predictions and
+      into the wet lab, so the shortlisted formulations are tested rather than
+      proposed.
 
 # ---------------------------------------------------------------------------
 # Publications. Status vocabulary: preprint | accepted | under-review | published
@@ -115,7 +176,7 @@ publications:
     title: >-
       A Leakage-Audited Benchmark for Cross-Individual Gene Expression
       Prediction and a Dissection of the Held-Out-Gene Transfer Gap
-    authors: [Krishiv Potluri, M. Yurukcu]
+    authors: [Krishiv Potluri]
     venue: ICCBB 2026
     venue_long: 10th International Conference on Computational Biology and Bioinformatics (ICCBB)
     year: 2026
@@ -312,7 +373,7 @@ media:
 # Beyond the lab. Compact, specific, and clearly not the point.
 # ---------------------------------------------------------------------------
 beyond:
-  - label: baseball
+  - label: Baseball
     title: Varsity pitcher and infielder
     body: >-
       Right-handed pitcher who also plays third, short, and outfield. First
@@ -323,7 +384,7 @@ beyond:
     # Exit velocity in mph, sixty-yard dash in seconds.
     exit_velocity: "95"
     sixty: "7.13"
-  - label: robotics
+  - label: Robotics
     title: VEX coach, competitor, and camp director
     # See conflicts.vex_coaching.
     body: >-
@@ -332,58 +393,24 @@ beyond:
       World Championship. As a competitor, peaked at 14th in the world. Founded
       an eight-week summer camp that has taught 100+ middle schoolers to build
       and program over three summers.
-  - label: debate
+  - label: Debate
     title: Public Forum captain
     body: >-
       First in school history to qualify for the Texas Forensic Association
       State Championship. Coached 20+ novices through case writing, which turns
       out to be decent training for writing rebuttals to reviewers.
-  - label: teaching
+  - label: Teaching
     title: Biotechnology Club founder
     body: >-
       Started the club to widen access to wet-lab work. Weekly labs in DNA
       extraction, tissue culture, and genetic engineering, and 50+ students
       mentored through their first research projects.
-  - label: service
+  - label: Service
     title: Key Club vice president
     body: >-
       Built a student-led tutoring program serving 100+ middle schoolers, and
       ran a 200+ book drive for a low-income Austin-area district.
 
-# ---------------------------------------------------------------------------
-# The last section of the home page. Positions rather than activities: every
-# line is something a reader could disagree with, and three of the four argue
-# against his own record. Held at four items because the last section of a page
-# should not be its heaviest.
-# ---------------------------------------------------------------------------
-arguments:
-  intro: >-
-    Four things I actually believe, from the parts of my life that are not the
-    lab. If you think I am wrong about one, the subject line is already written.
-  items:
-    - claim: >-
-        Pitching is a control problem. Hitting is an inference problem. I am
-        better at the one I can rehearse.
-      defense: >-
-        Right-handed varsity pitcher, and the first freshman in program history
-        on the roster. Exit velocity 95, sixty in 7.13. Neither number has ever
-        told me what pitch is coming.
-    - claim: VEX is won on a spreadsheet, not with the controller.
-      defense: >-
-        I peaked at 14th in the world and most of that edge was scouting notes
-        and alliance math, which is what everyone ranked 14th thinks. A team
-        that out-drives you still loses if you pick better partners.
-    - claim: A novice debater should be taught to concede, not to answer.
-      defense: >-
-        All twenty-odd I have coached wanted to respond to everything. The ones
-        who got good learned to give up three arguments out loud and spend the
-        rest of the speech winning the fourth.
-    - claim: The book drive I ran was the least useful thing I have organized.
-      defense: >-
-        200+ books for a low-income district near Austin. Nobody there was
-        against reading, the books were just somewhere else. That district
-        needed shelf space and a librarian. I would run it again, and I would
-        still rank it last.
 
 # ---------------------------------------------------------------------------
 # Methods and tools, grouped. Shown as a definition list, never as bars.

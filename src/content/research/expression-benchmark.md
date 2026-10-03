@@ -1,26 +1,22 @@
 ---
 title: "A leakage-audited benchmark for cross-individual expression prediction"
 short: "Expression benchmark"
-order: 5
+order: 3
 period: "2026"
-role: "First author, with M. Yurukcu"
+role: "First author"
 kind: independent
 paper: expression-iccbb-2026
 summary: >-
-  Sequence models rank expression across genes well and across individuals
-  badly, and the cross-individual axis is the one that connects a genome to a
-  person's disease risk. The benchmark joins lymphoblastoid expression to
+  Sequence models rank expression well across genes and badly across
+  individuals, and the cross-individual axis is the one that connects a genome
+  to a person's disease risk. The benchmark joins lymphoblastoid expression to
   high-coverage genotypes for 449 individuals under whole-chromosome gene
-  splits, family-aware individual splits, a 251,275-pair paralog audit showing
-  that chromosome splitting still leaves 300 of 456 held-out genes with a
-  paralog in training, an ancestry-only negative control residualized on
-  sub-population labels from training data, and per-gene cis-heritability
-  ceilings. Per-gene linear models reach a median correlation of 0.23 on
-  held-out European individuals across the 78 learnable genes while a
-  pretrained sequence model run zero-shot sits at 0.05 with a bootstrap
-  interval spanning zero, those same per-gene models fall to about 0.05 on the
-  Yoruba individuals held out for that test, and three attempts to transfer a
-  gene-agnostic variant-effect map all returned negative.
+  splits, a 251,275-pair paralog audit, an ancestry-only negative control, and
+  per-gene cis-heritability ceilings. Per-gene linear models reach a median
+  correlation of 0.23 on held-out European individuals while a pretrained
+  sequence model run zero-shot sits at 0.05 with a bootstrap interval spanning
+  zero. The contribution is the audit rather than the model: it measures a gap
+  the field had so far only described.
 problem: >-
   Sequence models predict expression across genes very well and across
   individuals very badly. The second axis is the one that connects a genome to
@@ -75,6 +71,13 @@ figure:
     marking the heritability ceiling. Blue dots run from about zero to 0.84, most
     of them between 0.24 and 0.64. Orange dots scatter from about minus 0.4 to
     0.56, with a median near zero.
+thumb:
+  src: "/media/fig-benchmark"
+  width: 800
+  height: 570
+  fallback: png
+  alt: >-
+    Scatter plot of a pretrained sequence model\u2019s predicted variant effect against the measured eQTL effect, with most points flat against zero on the vertical axis.
 links: []
 related:
   - benchmarks-decide-what-a-field-discovers

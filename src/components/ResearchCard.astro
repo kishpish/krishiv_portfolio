@@ -14,10 +14,12 @@ interface Props {
   entry: CollectionEntry<'research'>;
   n: number;
   compact?: boolean;
+  /** give the card a stable id, so /research/#<id> lands on it */
+  anchor?: boolean;
   /** heading level for the card title, so each page keeps a correct outline */
   level?: 2 | 3;
 }
-const { entry, n, compact = false, level = 3 } = Astro.props;
+const { entry, n, compact = false, level = 3, anchor = false } = Astro.props;
 const H = `h${level}` as 'h2' | 'h3';
 const d = entry.data;
 const pub = d.paper ? publication(d.paper) : null;
@@ -29,7 +31,7 @@ const authorHtml = (a: string[]) =>
   a.map((n) => (n === data.person.name ? `<strong>${n}</strong>` : n)).join(', ');
 ---
 
-<article class:list={['rcard', compact && 'rcard--compact']}>
+<article class:list={['rcard', compact && 'rcard--compact']} id={anchor ? entry.id : undefined} data-reveal>
   <div class="rcard__index tnum" aria-hidden="true">{String(n).padStart(2, '0')}</div>
 
   <div class="rcard__body">
@@ -161,6 +163,28 @@ const authorHtml = (a: string[]) =>
     grid-column: 2;
     margin-top: var(--sp-5);
     max-width: 44rem;
+  }
+  /* Project media lifts exactly the way a preview card does, so the two pages
+     feel like the same object. */
+  .rcard__fig :global(figure) {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: var(--shadow-1);
+    transition:
+      transform var(--dur-lift) var(--ease-out),
+      box-shadow var(--dur-lift) var(--ease-out);
+  }
+  .rcard__fig :global(figure):hover {
+    transform: translateY(var(--lift));
+    box-shadow: var(--shadow-2);
+  }
+  .rcard__fig :global(figcaption) {
+    padding: 0 var(--sp-4) var(--sp-4);
+  }
+  /* Anchored sections need room under the sticky header when linked to. */
+  .rcard[id] {
+    scroll-margin-top: var(--sp-6);
   }
   .rcard--compact {
     padding-block: var(--sp-4);

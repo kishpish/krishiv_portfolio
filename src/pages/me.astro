@@ -1,0 +1,22 @@
+---
+// Intentionally empty. This becomes a photo timeline in the next pass; the
+// earliest entry (public/media/me-kid) is already staged. Nothing is invented
+// here in the meantime.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+---
+
+<Base
+  title="Me"
+  description="Krishiv Potluri, outside the research."
+>
+  <div class="wrap me-page">
+    <PageHeader eyebrow="Me" title="Me" />
+  </div>
+</Base>
+
+<style>
+  .me-page {
+    padding-bottom: var(--sp-9);
+  }
+</style>

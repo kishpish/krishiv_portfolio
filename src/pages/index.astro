@@ -7,15 +7,16 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import EnergyLandscape from '../components/EnergyLandscape.astro';
 import PathDivider from '../components/PathDivider.astro';
-import ResearchCard from '../components/ResearchCard.astro';
-import PostCard from '../components/PostCard.astro';
-import CVLink from '../components/CVLink.astro';
-import Arguments from '../components/Arguments.astro';
+import ResearchPreview from '../components/ResearchPreview.astro';
+import PostPreview from '../components/PostPreview.astro';
+import SocialRow from '../components/SocialRow.astro';
 import { data, clean } from '../lib/canonical';
 import { url, absolute } from '../lib/urls';
 import { allPosts } from '../lib/posts';
 
 const p = data.person;
+const rs = data.research_statement;
+const portrait = data.images.portrait;
 const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
 const topProjects = projects.slice(0, 3);
 const posts = await allPosts();
@@ -27,8 +28,14 @@ const featuredPosts = [
   .map((id) => posts.find((x) => x.id === id))
   .filter(Boolean) as typeof posts;
 
-// Three, inline, with the full list on About.
+// Three, inline, with the full list on More.
 const featuredHonors = data.honors.filter((h) => h.featured).slice(0, 3);
+
+// Previous positions for the hero, read from the positions list rather than
+// written out again here.
+const prev = ['Austin Energy', 'Shire Bio']
+  .map((org) => data.positions.find((x) => x.org === org))
+  .filter(Boolean) as typeof data.positions;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -37,11 +44,12 @@ const jsonLd = {
   givenName: p.given_name,
   familyName: p.family_name,
   url: absolute('/'),
+  image: absolute(`${portrait.src}.jpg`),
   email: `mailto:${p.email}`,
-  description: clean(data.research_statement.short),
-  knowsAbout: data.research_statement.interests,
+  description: clean(rs.short),
+  knowsAbout: rs.interests,
   address: { '@type': 'PostalAddress', addressLocality: 'Austin', addressRegion: 'TX', addressCountry: 'US' },
-  // The hero prints the affiliation as plain text now, but the structured data
+  // The hero prints the affiliation as plain text, but the structured data
   // still carries both institutional URLs.
   affiliation: {
     '@type': 'ResearchOrganization',
@@ -51,7 +59,7 @@ const jsonLd = {
     parentOrganization: { '@type': 'CollegeOrUniversity', name: p.affiliation.university },
   },
   alumniOf: { '@type': 'EducationalOrganization', name: p.education.school },
-  sameAs: [p.profiles.github, p.profiles.linkedin, p.profiles.orcid, p.profiles.scholar].filter(Boolean),
+  sameAs: [p.profiles.github, p.profiles.linkedin, p.profiles.orcid, p.profiles.scholar, p.profiles.x].filter(Boolean),
   identifier: { '@type': 'PropertyValue', propertyID: 'ORCID', value: p.profiles.orcid_id },
 };
 ---
@@ -60,28 +68,43 @@ const jsonLd = {
   <!-- ============================================ hero -->
   <section class="wrap hero" aria-labelledby="hero-name">
     <div class="hero__text">
-      <h1 id="hero-name" class="hero__name">{p.name}</h1>
-      <p class="hero__role">Student Researcher, Current @ Computational Visualization Center, UT Austin Oden Institute</p>
+      <div class="hero__id rise" style="--i:0">
+        <picture class="hero__photo">
+          <source srcset={url(`${portrait.src}.webp`)} type="image/webp" />
+          <img
+            src={url(`${portrait.src}.jpg`)}
+            alt={portrait.alt}
+            width={portrait.width}
+            height={portrait.height}
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+        <div class="hero__who">
+          <h1 id="hero-name" class="hero__name">{p.name}</h1>
+          <p class="hero__role">
+            Student Researcher, Current @ Computational Visualization Center, UT Austin Oden
+            Institute
+          </p>
+          <p class="hero__prev">
+            {prev.map((x) => <span>Prev @ {x.org}</span>)}
+          </p>
+        </div>
+      </div>
 
-      <p class="hero__statement">
+      <p class="hero__statement rise" style="--i:2">
         I work at the intersection of machine learning, computational biology, and
         physics-based simulation.
       </p>
-      <p class="hero__personal">
-        I would rather be worse off for a while than stay where I happened to land.
-      </p>
 
-      <div class="hero__actions">
-        <CVLink variant="button" />
-        <a class="hero__action" href={`mailto:${p.email}`}>{p.email}</a>
-      </div>
+      <SocialRow class="hero__social rise" />
     </div>
 
-    <div class="hero__fig">
+    <div class="hero__fig rise" style="--i:4">
       <EnergyLandscape
         mode="hero"
         caption={'The Müller-Brown potential: three basins, two saddles, and a dashed minimum-energy path between the two deepest wells. The orange trace is a particle finding the deepest one.'}
-        captionMotion={'Here it keeps running, filling whichever basin it sits in until it can escape. Move the cursor across the surface to push on it.'}
+        captionMotion={'Move the cursor to apply a local repulsive force.'}
       />
     </div>
   </section>
@@ -90,34 +113,29 @@ const jsonLd = {
 
   <!-- ============================================ currently -->
   <section class="wrap section" aria-labelledby="currently">
-    <div class="section__head">
+    <div class="section__head" data-reveal>
       <p class="eyebrow">Currently</p>
       <h2 id="currently">Research interests and current work</h2>
     </div>
 
-    <div class="now">
+    <div class="now" data-reveal>
       <div class="now__main">
         <ul class="now__list">
-          <li>
-            <strong>Antibody design as control.</strong> A port-Hamiltonian reinforcement
-            learning model that generates antibodies by optimizing a path across an energy
-            landscape rather than screening a library, at the
-            <a href={p.affiliation.group_url} rel="noopener">{p.affiliation.group}</a>, advised by
-            {' '}{p.affiliation.advisor}.
-            <a href={url('/research/antibody-transition-paths/')}>The project page.</a>
-          </li>
-          <li>
-            <strong>Circular RNA that translates reliably</strong>, as a durable therapy for the
-            lab's Parkinson's disease work. Presented at the 2026 Summer Research Demo Day in the
-            <a href="https://tacc.utexas.edu/" rel="noopener">TACC Visualization Lab</a>.
-          </li>
-          <li>
-            <strong>Writing up</strong> the
-            <a href={url('/research/aml-energy-landscape/')}>leukemia landscape</a> and the
-            <a href={url('/research/expression-benchmark/')}>expression benchmark</a>, and arguing
-            with both of them in <a href={url('/writing/')}>notes</a>.
-          </li>
+          {
+            data.current_work.map((w) => (
+              <li>
+                <strong>{clean(w.title)}.</strong> {clean(w.note)}
+              </li>
+            ))
+          }
         </ul>
+        <p class="now__where">
+          All three at the{' '}
+          <a href={p.affiliation.group_url} rel="noopener">
+            {p.affiliation.group}
+          </a>
+          , advised by {p.affiliation.advisor}.
+        </p>
 
         <p class="now__honors">
           Recently:{' '}
@@ -125,19 +143,29 @@ const jsonLd = {
             featuredHonors.map((h, i) => (
               <>
                 {i > 0 && ', '}
-                {h.href ? <a href={h.href} rel="noopener">{h.title}</a> : h.title}
-                {' '}<span class="tnum muted">{h.year}</span>
+                {h.href ? (
+                  <a href={h.href} rel="noopener">
+                    {h.title}
+                  </a>
+                ) : (
+                  h.title
+                )}{' '}
+                <span class="tnum muted">{h.year}</span>
               </>
             ))
-          }. <a href={url('/about/#honors')}>All honors, positions, and education are on About.</a>
+          }. <a href={url('/about/#honors')}>Honors, positions, and education are on More.</a>
         </p>
       </div>
 
-      <aside class="now__side">
-        <p class="eyebrow">Directions</p>
-        <ul class="now__interests">
-          {data.research_statement.interests.map((i) => <li>{i}</li>)}
-        </ul>
+      <aside class="now__side card">
+        <p class="now__int">
+          <strong class="now__int-label">{rs.core_label}:</strong>{' '}
+          <Fragment set:html={rs.core_html} />
+        </p>
+        <p class="now__int">
+          <strong class="now__int-label">{rs.directions_label}:</strong>{' '}
+          <Fragment set:html={rs.directions_html} />
+        </p>
       </aside>
     </div>
   </section>
@@ -146,18 +174,13 @@ const jsonLd = {
 
   <!-- ============================================ research (preview) -->
   <section class="wrap section" aria-labelledby="research">
-    <div class="section__head">
-      <p class="eyebrow">Selected</p>
+    <div class="section__head" data-reveal>
       <h2 id="research">Research</h2>
-      <p>
-        Three of five. Each one states the problem, the method, the result, and what did not
-        work, with the paper and the code on the same page.
-      </p>
     </div>
-    <div class="rlist">
-      {topProjects.map((entry, i) => <ResearchCard entry={entry} n={i + 1} compact />)}
+    <div class="prow">
+      {topProjects.map((entry) => <ResearchPreview entry={entry} />)}
     </div>
-    <p class="section__more">
+    <p class="section__more" data-reveal>
       <a href={url('/research/')}>All five projects, with the publication list</a>
     </p>
   </section>
@@ -166,77 +189,117 @@ const jsonLd = {
 
   <!-- ============================================ writing (preview) -->
   <section class="wrap section" aria-labelledby="writing">
-    <div class="section__head">
-      <p class="eyebrow">Notes</p>
+    <div class="section__head" data-reveal>
       <h2 id="writing">Writing</h2>
-      <p>Three of {posts.length}. No dates on any of them, and I edit them in place.</p>
+      <p class="section__sub">Reflections &amp; Perspectives</p>
     </div>
-    <div class="plist">
-      {featuredPosts.map((post) => <PostCard post={post} showSection />)}
+    <div class="prow">
+      {featuredPosts.map((post) => <PostPreview post={post} />)}
     </div>
-    <p class="section__more">
+    <p class="section__more" data-reveal>
       <a href={url('/writing/')}>All {posts.length} notes, by subject</a>
     </p>
   </section>
 
   <div class="wrap"><PathDivider at={0.381} mark="‡" /></div>
 
-  <Arguments />
+  <!-- ============================================ me -->
+  <section class="wrap section section--last" aria-labelledby="me">
+    <div class="section__head" data-reveal>
+      <h2 id="me">Me</h2>
+    </div>
+    <div class="me" data-reveal>
+      <p>
+        I bench 245 and I play a lot of baseball. Basketball and football with friends when
+        there is a game on, and some Fortnite when there is not.
+      </p>
+      <p>
+        Mostly I like learning things, and right now that means computation, AI, and
+        computational biology. :)
+      </p>
+
+      <div class="hitme card">
+        <p class="hitme__h">Hit me up</p>
+        <p class="hitme__p">to talk AI, fitness, video games, or whatever</p>
+        <SocialRow variant="contact" class="hitme__row" />
+      </div>
+    </div>
+  </section>
 </Base>
 
 <style>
-  /* ---------- hero */
+  /* ---------- hero
+     Two columns: everything about me on the left, the figure on the right,
+     with a full gutter between them so the photo never comes near it. The
+     photo and the name sit together in a row that survives the collapse. */
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
-    gap: var(--sp-7);
-    align-items: start;
-    padding-block: var(--sp-8) var(--sp-4);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.74fr);
+    gap: var(--sp-6) var(--sp-8);
+    align-items: center;
+    padding-block: var(--sp-7) var(--sp-5);
+  }
+  .hero__id {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+  }
+  .hero__photo {
+    flex: none;
+    display: block;
+    /* Modest: an identifier, not a portrait feature. Shrinks before the figure
+       does at laptop widths. */
+    width: clamp(6.25rem, 10vw, 8.75rem);
+  }
+  .hero__photo :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-1);
   }
   .hero__name {
     font-size: var(--fs-name);
-    font-weight: 400;
-    letter-spacing: -0.022em;
-    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    line-height: 1.0;
   }
   .hero__role {
-    margin-top: var(--sp-3);
+    /* real space under the name, so the name reads as a title */
+    margin-top: var(--sp-4);
     font-size: calc(var(--fs-body) * 1.02);
     color: var(--ink-2);
-    max-width: 38ch;
+    max-width: 36ch;
     text-wrap: pretty;
   }
-  .hero__statement {
-    margin-top: var(--sp-5);
-    max-width: 44ch;
-    text-wrap: pretty;
-  }
-  /* The personal line sits apart from the factual one above it, and next to the
-     figure. Nothing explains the pairing. */
-  .hero__personal {
-    margin-top: var(--sp-4);
-    max-width: 42ch;
-    font-size: calc(var(--fs-body) * 1.08);
-    line-height: 1.45;
-    color: var(--ink);
-    text-wrap: pretty;
-  }
-  .hero__actions {
-    margin-top: var(--sp-5);
+  .hero__prev {
+    margin-top: var(--sp-2);
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-3) var(--sp-5);
+    gap: 0.15em 1.1em;
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    color: var(--ink-4);
   }
-  .hero__action {
-    font-size: var(--fs-body);
+  .hero__statement {
+    margin-top: var(--sp-6);
+    max-width: 46ch;
+    text-wrap: pretty;
+  }
+  .hero__social {
+    margin-top: var(--sp-5);
   }
   .hero__fig {
     position: sticky;
     top: var(--sp-4);
+    max-width: 30rem;
+    margin-left: auto;
   }
 
-  @media (max-width: 54rem) {
+  /* Below three columns' worth of room the figure drops under the text and
+     takes the full width; the photo and name stay together. */
+  @media (max-width: 60rem) {
     .hero {
       grid-template-columns: 1fr;
       gap: var(--sp-6);
@@ -244,19 +307,46 @@ const jsonLd = {
     }
     .hero__fig {
       position: static;
-      max-width: 34rem;
+      max-width: 36rem;
+      margin-left: 0;
     }
     .hero__role,
-    .hero__statement,
-    .hero__personal {
+    .hero__statement {
       max-width: var(--measure);
+    }
+  }
+  /* On a phone the photo and the name still sit together at the top, but the
+     role and the previous positions get the full width instead of squeezing
+     into the column beside a photo. */
+  @media (max-width: 34rem) {
+    .hero__id {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--sp-4);
+      align-items: center;
+    }
+    .hero__who {
+      display: contents;
+    }
+    .hero__name {
+      grid-column: 2;
+    }
+    .hero__role,
+    .hero__prev {
+      grid-column: 1 / -1;
+    }
+    .hero__role {
+      margin-top: 0;
+    }
+    .hero__prev {
+      gap: 0.15em 0.8em;
     }
   }
 
   /* ---------- currently */
   .now {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     gap: var(--sp-6);
     align-items: start;
   }
@@ -272,50 +362,100 @@ const jsonLd = {
     border-left: 2px solid var(--blue-16);
     text-wrap: pretty;
   }
+  .now__where,
   .now__honors {
     margin-top: var(--sp-5);
-    padding-top: var(--sp-4);
-    border-top: 1px solid var(--rule);
     font-size: var(--fs-small);
     color: var(--ink-2);
     max-width: var(--measure);
     text-wrap: pretty;
   }
-  .now__interests {
-    margin-top: var(--sp-3);
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: var(--sp-2);
-    font-size: var(--fs-small);
+  .now__honors {
+    margin-top: var(--sp-4);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule);
   }
-  .now__interests li {
+  /* Research interests, set the way the CV sets them: a bolded lead-in, a
+     colon, then running prose. Not a list and not a table. */
+  .now__side {
+    padding: var(--sp-5);
+  }
+  .now__int {
+    font-size: var(--fs-small);
+    line-height: 1.6;
     color: var(--ink-2);
-    padding-left: 1.1em;
-    position: relative;
     text-wrap: pretty;
   }
-  .now__interests li::before {
-    content: '·';
-    position: absolute;
-    left: 0.1em;
-    color: var(--orange);
+  .now__int + .now__int {
+    margin-top: var(--sp-4);
   }
-  @media (max-width: 48rem) {
+  .now__int-label {
+    color: var(--ink);
+  }
+  @media (max-width: 52rem) {
     .now {
       grid-template-columns: 1fr;
       gap: var(--sp-5);
     }
   }
 
-  /* ---------- lists */
-  .rlist,
-  .plist {
-    border-bottom: 1px solid var(--rule);
+  /* ---------- preview rows: three across, one column on a phone, two on a
+     tablet. Research and writing share this exactly. */
+  .prow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-5);
+    align-items: stretch;
+  }
+  @media (max-width: 62rem) {
+    .prow {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 40rem) {
+    .prow {
+      grid-template-columns: 1fr;
+    }
+  }
+  .section__sub {
+    margin-top: var(--sp-2) !important;
+    font-size: var(--fs-body);
+    color: var(--ink-3);
   }
   .section__more {
-    margin-top: var(--sp-4);
+    margin-top: var(--sp-5);
     font-size: var(--fs-small);
   }
+  .section--last {
+    padding-bottom: var(--sp-8);
+  }
 
+  /* ---------- me */
+  .me {
+    max-width: var(--measure);
+  }
+  .me p {
+    text-wrap: pretty;
+  }
+  .me p + p {
+    margin-top: var(--sp-3);
+  }
+  .hitme {
+    margin-top: var(--sp-6);
+    padding: var(--sp-5);
+    max-width: 30rem;
+  }
+  .hitme__h {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .hitme__p {
+    margin-top: var(--sp-1);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .hitme__row {
+    margin-top: var(--sp-4);
+  }
 </style>

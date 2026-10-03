@@ -1,0 +1,83 @@
+---
+// The pipe-separated row of contact links. Used in the hero and again in the
+// contact box at the foot of the home page, so the two cannot drift apart.
+//
+// The CV keeps its bordered box, because it is the one thing here a reader is
+// most likely to want and the box says "this is a button". Everything else is
+// a plain text link with a rule between.
+import CVLink from './CVLink.astro';
+import { data } from '../lib/canonical';
+
+interface Props {
+  /** `hero` carries the CV box; `contact` is text links only. */
+  variant?: 'hero' | 'contact';
+  class?: string;
+}
+const { variant = 'hero', class: cls = '' } = Astro.props;
+const p = data.person;
+
+// X is rendered only once a handle exists in canonical.yaml, the same way the
+// Google Scholar link already behaves.
+const links = [
+  { label: 'Email', href: `mailto:${p.email}` },
+  { label: 'LinkedIn', href: p.profiles.linkedin },
+  ...(p.profiles.x ? [{ label: 'X', href: p.profiles.x }] : []),
+];
+---
+
+<div class:list={['srow', `srow--${variant}`, cls]}>
+  {variant === 'hero' && <CVLink variant="button" class="srow__cv" />}
+  <ul class="srow__list">
+    {
+      links.map((l) => (
+        <li>
+          <a href={l.href} rel={l.href.startsWith('mailto:') ? undefined : 'noopener'}>
+            {l.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .srow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-4);
+  }
+  .srow__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  /* The separators are drawn rather than typed, so they are never read out and
+     never end up selected when someone copies the row. */
+  .srow__list li + li::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.95em;
+    margin-inline: var(--sp-4);
+    background: var(--rule-2);
+    vertical-align: -0.12em;
+  }
+  .srow__list a {
+    font-size: var(--fs-body);
+  }
+  .srow--contact .srow__list a {
+    font-size: var(--fs-small);
+  }
+  .srow--contact .srow__list li + li::before {
+    margin-inline: var(--sp-3);
+  }
+  @media (max-width: 26rem) {
+    .srow__list li + li::before {
+      margin-inline: var(--sp-3);
+    }
+  }
+</style>

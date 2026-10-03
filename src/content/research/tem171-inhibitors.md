@@ -1,7 +1,7 @@
 ---
 title: "De novo protein inhibitors for a β-lactamase"
 short: "Protein inhibitors"
-order: 3
+order: 1
 period: "Jun 2024 to Jan 2025"
 role: "First author"
 kind: independent
@@ -9,18 +9,15 @@ paper: tem171-biorxiv-2025
 honor: "Regeneron ISEF 2025 Finalist"
 summary: >-
   TEM-171 is a β-lactamase that lets bacteria destroy an extended range of
-  β-lactam antibiotics, and resistance evolves around small-molecule
-  inhibitors of it quickly. This pipeline directs a diffusion model and an
-  inverse-folding model at nine active-site residues, four catalytic and five
-  shape-determining, treats structure-prediction interface confidence as a
-  filter rather than as evidence, and spends its compute on steered molecular
-  dynamics that pulls each binder off the target while recording force,
-  recovering the free energy from that non-equilibrium work under the
-  Jarzynski equality. The selected design gives a potential of mean force with
-  a single minimum at −12.3 kcal/mol and peak unbinding forces of 1,500 to
-  1,700 kN/mol against the 800 to 1,200 kN/mol the paper cites as typical for
-  protein-protein complexes, and the work is computational end to end, with no
-  binder expressed, purified, or assayed.
+  antibiotics, and resistance evolves around small-molecule inhibitors of it
+  quickly. This pipeline designs protein binders against nine active-site
+  residues with a diffusion and an inverse-folding model, then spends its
+  compute on steered molecular dynamics that pulls each candidate off the
+  target and recovers the free energy from that work under the Jarzynski
+  equality. The selected design holds a single-minimum potential of mean force
+  at −12.3 kcal/mol, with unbinding forces above the range the paper cites as
+  typical for protein-protein complexes. It is computational end to end: no
+  binder has been expressed, purified, or assayed.
 problem: >-
   TEM-171 is a β-lactamase: an enzyme that lets bacteria destroy an extended
   range of β-lactam antibiotics. Resistance evolves around small-molecule

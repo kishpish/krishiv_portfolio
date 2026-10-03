@@ -151,11 +151,22 @@ const canvasBox = {
     }
   </div>
   {
-    caption && (
-      <figcaption class="fig__caption">
-        <span class="fig__n">Fig. 0</span>
-        <Fragment set:html={caption} />
-        {captionMotion && <span class="fig__motion"> <Fragment set:html={captionMotion} /></span>}
+    (caption || captionMotion) && (
+      <figcaption class="fig__caption landscape__cap">
+        {/* The invitation to interact leads, because it is the thing a reader
+            can act on. The physics description sits under it, quieter. This
+            figure carries no number: it is the site's opening image, not a
+            numbered exhibit. */}
+        {captionMotion && (
+          <span class="fig__motion landscape__cap-lead">
+            <Fragment set:html={captionMotion} />
+          </span>
+        )}
+        {caption && (
+          <span class="landscape__cap-desc">
+            <Fragment set:html={caption} />
+          </span>
+        )}
       </figcaption>
     )
   }
@@ -263,6 +274,23 @@ const canvasBox = {
   .landscape__toggle:focus-visible {
     color: var(--orange);
     border-color: var(--orange);
+  }
+
+  .landscape__cap {
+    display: grid;
+    gap: 0.35em;
+  }
+  /* The interaction line is the loud one. */
+  .landscape__cap-lead {
+    font-style: normal;
+    font-size: calc(var(--fs-body) * 1.02);
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .landscape__cap-desc {
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    color: var(--ink-3);
   }
 
   /* The interactive half of the caption describes behaviour that does not

@@ -6,10 +6,16 @@ import CVLink from './CVLink.astro';
 const path = stripBase(Astro.url.pathname);
 // Four items. Research carries the papers, so a separate Papers entry would
 // only split a project from the publication it produced.
+// `more` is appended inside the link but hidden visually. "More" on its own
+// says nothing read aloud out of context, and it is on every search engine's
+// list of uninformative link text, so the accessible and crawlable name is the
+// full phrase while the visible label stays the one word.
 const nav = [
   { href: '/research/', label: 'Research' },
   { href: '/writing/', label: 'Writing' },
-  { href: '/about/', label: 'About' },
+  // The route stays /about/ so every link already out there keeps working.
+  { href: '/about/', label: 'More', more: ' about Krishiv Potluri' },
+  { href: '/me/', label: 'Me' },
 ];
 const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
 ---
@@ -26,6 +32,7 @@ const isCurrent = (href: string) => path === href || (href !== '/' && path.start
             <li>
               <a href={url(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
                 {item.label}
+                {item.more && <span class="visually-hidden">{item.more}</span>}
               </a>
             </li>
           ))

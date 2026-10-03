@@ -19,12 +19,10 @@ const href = url(cv.path);
   data-cv-link
 >
   <span class="cv-link__label">{cv.label}</span>
-  {variant !== 'compact' && (
-    <span class="cv-link__meta">
-      PDF · <time datetime={cv.updated.iso}>updated {cv.updated.short}</time>
-    </span>
-  )}
-  {variant === 'compact' && <span class="visually-hidden">(PDF, updated {cv.updated.long})</span>}
+  {/* The revision date is useful to a screen reader deciding whether to open a
+      PDF, and visual clutter next to a two-letter label. So it is announced
+      and not drawn. */}
+  <span class="visually-hidden">(PDF, updated {cv.updated.long})</span>
 </a>
 
 <style>
@@ -32,16 +30,6 @@ const href = url(cv.path);
     display: inline-flex;
     align-items: baseline;
     gap: 0.6em;
-  }
-  .cv-link__meta {
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .cv-link:hover .cv-link__meta,
-  .cv-link:focus-visible .cv-link__meta {
-    color: var(--ink-2);
   }
   .cv-link--button {
     border: 1px solid var(--blue);

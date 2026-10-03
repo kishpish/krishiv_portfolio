@@ -1,0 +1,101 @@
+---
+// A home-page research preview: the picture and the name, nothing else.
+//
+// The whole card is a single link to that project's section on the research
+// page, so there is no nested-link problem and the entire surface is the hit
+// area. Everything a reader might otherwise want here (venue, status, authors,
+// summary, links) is one click away on the page this points at.
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/urls';
+import { publication, clean } from '../lib/canonical';
+
+interface Props {
+  entry: CollectionEntry<'research'>;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const pub = d.paper ? publication(d.paper) : null;
+const heading = pub ? clean(pub.title) : d.title;
+
+// Projects carry either a still (`thumb`) or a video whose poster frame we use
+// here. A row of three autoplaying videos is not worth the bytes on a preview;
+// the video itself still plays on the research page.
+const thumb = d.thumb;
+const poster = d.media?.poster;
+---
+
+<a class="card rpre" href={url(`/research/#${entry.id}`)} data-reveal>
+  <span class="rpre__media">
+    {
+      thumb ? (
+        <picture>
+          <source srcset={url(`${thumb.src}.webp`)} type="image/webp" />
+          <img
+            src={url(`${thumb.src}.${thumb.fallback}`)}
+            alt={clean(thumb.alt)}
+            width={thumb.width}
+            height={thumb.height}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      ) : poster ? (
+        <img
+          src={url(poster)}
+          alt={d.media ? clean(d.media.alt) : ''}
+          width="440"
+          height="440"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : null
+    }
+  </span>
+  <span class="rpre__title">{heading}</span>
+</a>
+
+<style>
+  .rpre {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+  }
+  /* A white plate inside the cream card, so a figure on a white background
+     sits in it without a visible seam and everything lines up whatever shape
+     the underlying figure is. */
+  .rpre__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    background: #fff;
+    border-bottom: 1px solid var(--rule);
+  }
+  /* Absolute, so a child's intrinsic size can never stretch the plate: a
+     440 square poster and an 800 by 395 figure get the same box. */
+  .rpre__media :global(picture),
+  .rpre__media :global(img) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .rpre__media :global(img) {
+    object-fit: contain;
+    padding: var(--sp-4);
+  }
+  .rpre__title {
+    display: block;
+    padding: var(--sp-4) var(--sp-4) var(--sp-5);
+    font-size: var(--fs-body);
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .rpre:hover .rpre__title,
+  .rpre:focus-visible .rpre__title {
+    color: var(--blue-ink);
+  }
+</style>

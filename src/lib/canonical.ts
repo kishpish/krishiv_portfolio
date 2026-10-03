@@ -41,11 +41,24 @@ const schema = z.object({
       orcid: z.url(),
       orcid_id: z.string(),
       scholar: z.url().nullable(),
+      x: z.url().nullable(),
     }),
   }),
+  images: z.record(
+    z.string(),
+    z.object({ src: z.string(), alt: z.string(), width: z.number(), height: z.number() }),
+  ),
   cv: z.object({ path: z.string(), updated_fallback: z.string(), label: z.string() }),
   site: z.object({ title: z.string(), description: z.string(), repo: z.url(), repo_branch: z.string() }),
-  research_statement: z.object({ short: z.string(), interests: z.array(z.string()) }),
+  research_statement: z.object({
+    short: z.string(),
+    core_label: z.string(),
+    core_html: z.string(),
+    directions_label: z.string(),
+    directions_html: z.string(),
+    interests: z.array(z.string()),
+  }),
+  current_work: z.array(z.object({ title: z.string(), note: z.string() })),
   publications: z.array(
     z.object({
       id: z.string(),
@@ -114,10 +127,6 @@ const schema = z.object({
       sixty: z.string().optional(),
     }),
   ),
-  arguments: z.object({
-    intro: z.string(),
-    items: z.array(z.object({ claim: z.string(), defense: z.string() })),
-  }),
   methods: z.array(z.object({ area: z.string(), items: z.string() })),
   notion: z.object({
     index_url: z.url(),

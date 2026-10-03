@@ -1,0 +1,56 @@
+---
+// A home-page writing preview. Same card, same geometry, same hover physics as
+// the research preview, so the two rows read as one system. The only
+// difference is that these carry text where those carry a picture.
+//
+// No date, by the rule that governs the whole writing section.
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/urls';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+const { post } = Astro.props;
+const d = post.data;
+---
+
+<a class="card ppre" href={url(`/writing/${post.id}/`)} data-reveal>
+  <span class="ppre__section">{d.section}</span>
+  <span class="ppre__title">{d.title}</span>
+  <span class="ppre__desc">{d.description}</span>
+</a>
+
+<style>
+  .ppre {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    height: 100%;
+    padding: var(--sp-5);
+  }
+  .ppre__section {
+    font-size: var(--fs-small);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ink-3);
+  }
+  .ppre__title {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .ppre:hover .ppre__title,
+  .ppre:focus-visible .ppre__title {
+    color: var(--blue-ink);
+  }
+  .ppre__desc {
+    margin-top: auto;
+    padding-top: var(--sp-2);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+</style>

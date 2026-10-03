@@ -51,6 +51,17 @@ const research = defineCollection({
         alt: z.string(),
       })
       .optional(),
+    /** Card thumbnail for the home-page preview row. Paths are extensionless:
+     *  the component serves <src>.webp with a <src>.png or .jpg fallback. */
+    thumb: z
+      .object({
+        src: z.string(),
+        alt: z.string(),
+        width: z.number(),
+        height: z.number(),
+        fallback: z.enum(['png', 'jpg']).default('png'),
+      })
+      .optional(),
     media: z
       .object({
         src: z.string(), // path under public/, e.g. /media/rfdiffusion.mp4
