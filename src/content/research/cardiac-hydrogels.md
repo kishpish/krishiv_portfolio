@@ -10,8 +10,9 @@ honor: "1st Place, Texas Science and Engineering Fair 2026"
 summary: >-
   Scar replaces muscle permanently after a heart attack, and the gel you would
   inject interacts with the geometry of one patient's damage, so the experiment
-  you actually want is the one you cannot run. This work pairs a pretrained
-  polymer chemical language model with a geometry pipeline that turns patient
+  you actually want is the one you cannot run. This work pairs HYDRA-BERT, a
+  chemical language model adapted from a frozen 86M-parameter polymer
+  transformer, with a geometry pipeline that turns patient
   surface meshes into ten solver-ready tetrahedral hearts totalling 3.66
   million elements, each carrying fibre architecture and a scar and border zone
   inferred from wall thinning rather than read off contrast-enhanced imaging,
@@ -57,8 +58,6 @@ evidence:
     label: "tetrahedral elements across the ten meshes"
   - value: "24"
     label: "hydrogel formulations across the searched design space"
-  - value: "86M"
-    label: "parameters in the frozen polyBERT trunk HYDRA-BERT adapts"
   - value: "16× A100"
     label: "distributed training configuration"
 abstract_kind: summary

@@ -31,7 +31,7 @@ approach: >-
   interface refinement, structure prediction for the complex, and then the part
   that actually tests the design: steered molecular dynamics that pulls the
   binder off its target while measuring force, and free-energy calculation
-  along that pulling coordinate.
+  along that pulling coordinate, run on A100 and H100 GPUs.
 result: >-
   The published pipeline reports that 94% of the designs it accepts form stable
   interfaces, at 38.4 seconds per design, with a binding free energy of −12.3 kcal/mol for the
