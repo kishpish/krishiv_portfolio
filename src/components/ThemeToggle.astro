@@ -1,0 +1,116 @@
+---
+// Light, dark, or whatever the machine says.
+//
+// Three states rather than two, because "follow the system" is a real answer
+// and a two-way switch cannot express it: once a reader touches a two-way
+// switch they are pinned to one theme for good, including at 2am when their
+// phone has already gone dark on its own.
+//
+// It is a real <button> carrying aria-pressed-free semantics: the label says
+// which mode is active, and the live region announces the change, so it is
+// usable without seeing the icon at all. With JavaScript off the button is not
+// rendered at all, because a control that cannot do anything is worse than no
+// control, and the page still follows prefers-color-scheme on its own.
+---
+
+<button
+  class="theme"
+  type="button"
+  data-theme-toggle
+  hidden
+  aria-live="polite"
+>
+  <span class="theme__icons" aria-hidden="true">
+    {/* Sun, moon, and a half-filled disc for "follow the system". Only the one
+        matching the current mode is shown, by CSS, so there is no flash of the
+        wrong icon before script runs. */}
+    <svg class="theme__i theme__i--light" viewBox="0 0 16 16" focusable="false">
+      <circle cx="8" cy="8" r="3.1" fill="currentColor" />
+      <g stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+        <path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6" />
+        <path d="M3.2 3.2l1.13 1.13M11.67 11.67l1.13 1.13M12.8 3.2l-1.13 1.13M4.33 11.67L3.2 12.8" />
+      </g>
+    </svg>
+    <svg class="theme__i theme__i--dark" viewBox="0 0 16 16" focusable="false">
+      <path
+        d="M13.2 10.1A5.6 5.6 0 0 1 5.9 2.8a5.8 5.8 0 1 0 7.3 7.3z"
+        fill="currentColor"
+      />
+    </svg>
+    <svg class="theme__i theme__i--system" viewBox="0 0 16 16" focusable="false">
+      <circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.4" />
+      <path d="M8 2.4a5.6 5.6 0 0 1 0 11.2z" fill="currentColor" />
+    </svg>
+  </span>
+  <span class="theme__label" data-theme-label>System theme</span>
+</button>
+
+<style>
+  .theme {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.18em 0.5em;
+    border: 1px solid var(--rule-2);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink-3);
+    font: inherit;
+    font-size: var(--fs-small);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color var(--dur-lift-out) var(--ease-out),
+      border-color var(--dur-lift-out) var(--ease-out);
+  }
+  .theme:hover,
+  .theme:focus-visible {
+    color: var(--orange-ink);
+    border-color: var(--edge-hover);
+  }
+  .theme__icons {
+    display: grid;
+    width: 1em;
+    height: 1em;
+  }
+  .theme__i {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    display: none;
+  }
+  /* The label is the accessible name and is read aloud; on a narrow screen the
+     icon carries it alone, so the button keeps its name either way. */
+  .theme__label {
+    white-space: nowrap;
+  }
+
+  :global(html[data-theme='light']) .theme__i--light,
+  :global(html[data-theme='dark']) .theme__i--dark,
+  :global(html:not([data-theme])) .theme__i--system {
+    display: block;
+  }
+
+  @media (max-width: 46rem) {
+    .theme__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+    .theme {
+      padding: 0.3em 0.42em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme {
+      transition: none;
+    }
+  }
+</style>

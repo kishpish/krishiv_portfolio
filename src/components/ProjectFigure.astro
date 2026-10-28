@@ -39,7 +39,9 @@ if (!Fig) throw new Error(`Unknown figure id "${id}". Add it to src/components/P
   .projfig__frame {
     border: 1px solid var(--rule);
     border-radius: var(--radius);
-    background: var(--paper);
+    /* The generated plot bakes its colours at build time against light
+       paper, so the window it sits in stays light. */
+    background: var(--figure-paper);
     padding: var(--sp-3);
     overflow: hidden;
   }

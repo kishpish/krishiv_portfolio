@@ -132,6 +132,17 @@ const conflicts = Object.entries(data.conflicts);
           surface, and orange is what moves across it. The link hover is therefore the same
           event as the walker leaving a basin.
         </p>
+        <p>
+          There is a dark palette, and it is not an inversion. The cream is oklch hue 88, and so
+          is the dark page: the same warm axis read from the other end. Every ink, rule and
+          accent in it was solved to hold the light palette's own contrast ladder against the
+          lightest surface it can land on, so nothing drops below AA either way. The orange is
+          the one colour that does not move at all. Two things stay light on purpose: a
+          published figure keeps its paper, because these are plots drawn on white and composited
+          with <code>multiply</code>, and the generated figure bakes its colours at build time.
+          The control in the header carries three states rather than two, because following the
+          machine is a real answer and a two-way switch cannot express it.
+        </p>
 
         <h2 id="built">Built with</h2>
         <p>

@@ -51,7 +51,9 @@ const { src, poster, caption, alt, n = '1', class: cls = '' } = Astro.props;
   .pmedia__frame {
     border: 1px solid var(--rule);
     border-radius: var(--radius);
-    background: var(--paper);
+    /* The clip was rendered on white and is multiplied onto this, so the
+       window stays a sheet of paper in the dark theme too. */
+    background: var(--figure-paper);
     overflow: hidden;
     display: flex;
     justify-content: center;

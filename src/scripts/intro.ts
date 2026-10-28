@@ -503,6 +503,17 @@ export function initIntro(): void {
 
   layout(c);
 
+  // Four colours are read out of the stylesheet once, so a theme switched
+  // while this is still running has to say so.
+  document.addEventListener('theme:change', () => {
+    if (c.done) return;
+    c.ink = token('--ink-2', '#45433d');
+    c.hot = token('--orange', '#f09228');
+    c.rule = token('--rule-2', '#c4b89c');
+    c.paper = token('--paper', '#f6f1e5');
+    c.surface = renderSurface(c);
+  });
+
   // Any input ends it. The overlay never takes pointer events, so these are
   // read off the window and the click still reaches whatever is underneath.
   // Skipping pulls the clock forward to the landing beat rather than cutting

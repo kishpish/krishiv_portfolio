@@ -33,6 +33,13 @@ interface Ctx {
   w: number;
   h: number;
   dpr: number;
+  /** the page colour, re-read whenever the theme changes */
+  paper: string;
+}
+
+/** The page colour as the browser has resolved it under the current theme. */
+function surfaceColour(): string {
+  return getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f6f1e5';
 }
 
 function setup(root: HTMLElement): Ctx | null {
@@ -62,6 +69,7 @@ function setup(root: HTMLElement): Ctx | null {
     w: 0,
     h: 0,
     dpr: 1,
+    paper: surfaceColour(),
   };
 }
 
@@ -193,7 +201,9 @@ function draw(c: Ctx): void {
   ctx.fillStyle = '#f09228';
   ctx.fill();
   ctx.lineWidth = 1.6;
-  ctx.strokeStyle = '#fbfaf6';
+  // The outline is the surface itself, so the dot reads as sitting on the page
+  // rather than wearing a white ring once the page is dark.
+  ctx.strokeStyle = c.paper;
   ctx.stroke();
 }
 
@@ -251,6 +261,12 @@ export function initLandscape(root: HTMLElement): void {
   const motionOff = window.matchMedia('(prefers-reduced-motion: reduce)');
   const c = setup(root);
   if (!c) return;
+
+  // The surface colour is read once rather than every frame, so it has to be
+  // told when the palette moves under it.
+  document.addEventListener('theme:change', () => {
+    c.paper = surfaceColour();
+  });
 
   const toggle = root.querySelector<HTMLButtonElement>('[data-landscape-toggle]');
   const toggleLabel = root.querySelector<HTMLElement>('[data-landscape-toggle-label]');

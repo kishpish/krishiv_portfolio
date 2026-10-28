@@ -94,7 +94,8 @@ const fit = thumb?.fit ?? 'contain';
     border-radius: var(--radius);
     /* The window is the page showing through the cut. It is also the value the
        figure below is multiplied onto, so one token does both jobs. */
-    background: var(--paper);
+    /* Light in both themes, because the thumbnail is multiplied onto it. */
+    background: var(--figure-paper);
     /* Without a stacking context the multiply reaches past the window to the
        board and the page, and neither position nor overflow opens one. */
     isolation: isolate;

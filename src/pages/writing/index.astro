@@ -198,6 +198,12 @@ const jsonLd = {
     font-size: 0.85em;
     color: var(--ink-4);
   }
+  /* The selected pill sits on --highlight, which is a pale card in the light
+     theme and a dark wash in the dark one. --ink-4 holds 5.03 on the first and
+     3.49 on the second, so the count steps up a rung inside it. */
+  .tagpill[aria-current='page'] .tagpill__n {
+    color: var(--ink-2);
+  }
 
   .wgrid {
     display: grid;

@@ -83,6 +83,19 @@
 :root {
   color-scheme: light;
 
+  /* A published figure keeps its own paper in both themes, and this is the one
+     token the dark block deliberately does not override.
+
+     Two reasons. These are scans and plots drawn on white by their authors and
+     composited with mix-blend-mode: multiply; multiplied onto a dark surface a
+     white canvas turns black and takes the plot's dark ink down with it. And
+     the generated figure bakes its colours at build time, so a sheet that
+     moved would quietly drop those below AA: at #f6f1e5 the figure's axis ink
+     holds 5.33, and the first value dim enough to look settled on a dark page
+     put it at 4.46. A figure is a lit sheet on a dark desk, which is also what
+     it is in the room. */
+  --figure-paper: #f6f1e5;
+
   /* Paper and ink, re-derived around a cream base rather than a near-white one.
      Cream is darker than the old #fbfaf6, so every step had to move: the rules
      need more contrast to stay visible, and the two quietest inks had to come
@@ -152,6 +165,7 @@
      still what the figure, the focus ring and the fills are drawn in. The two
      are a deltaE of 2.5 apart, which is below the threshold of noticing. */
   --blue-ink: #166dc8;
+  --badge-accepted-ink: #0f5aa8;
 
   /* Elevation. A neutral black shadow goes grey and dead on cream, so these
      are warm, mixed from the ink rather than from black.
@@ -243,6 +257,153 @@
   --gutter: clamp(1rem, 4.2vw, 2.5rem);
   --measure: 66ch;
   --radius: 3px;
+}
+
+/* ---------- Dark
+   Not an inversion. The cream is oklch hue 88, and so is this: the same warm
+   axis read from the other end, so the site is the same object under different
+   light rather than a second design.
+
+   Every value below was solved rather than picked. The inks and the accents
+   hold the light palette's own contrast ladder (15.44, 8.78, 5.32, 4.58 for the
+   four inks; 1.31 and 1.74 for the two rules; 3.13 for a border that means
+   something) against the LIGHTEST surface in the set, which is the binding one
+   when the ink is pale. Nothing here is below AA on any of the four surfaces,
+   and that is checked in scripts/audit-contrast.mjs rather than asserted.
+
+   One thing is deliberately not mirrored. In the light palette the recessed
+   tints sit BELOW the page. Here they sit a little above it: black is the floor
+   in a dark theme, so a well dug below #191711 has nowhere to go and reads as a
+   hole rather than a tint. Inline code and a badge lift instead. */
+/* And the same values again for a reader who has expressed no choice, which is
+   most of them. The attribute block above wins when they have, because an
+   attribute selector outranks nothing here: both are one specificity point, and
+   this one is written first on purpose so `data-theme="light"` can pull a
+   machine in dark mode back to cream. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+  color-scheme: dark;
+
+  --paper: #191711;
+  --card: #201e17; /* 1.0747 on paper */
+  --paper-2: #1f1b13; /* 1.0448, a chip rather than a well */
+  --paper-3: #232016; /* 1.1004 */
+
+  --ink: #fbf9f3; /* 17.02 on paper, 15.47 on the lightest surface */
+  --ink-2: #c1bfb7; /* 9.73 / 8.84 */
+  --ink-3: #97938b; /* 5.86 / 5.32 */
+  --ink-4: #8c877e; /* 5.02 / 4.56 */
+  --rule: #312d25; /* 1.31 on paper, as in the light palette */
+  --rule-2: #454034; /* 1.74 */
+  --border-ui: #736c5d; /* 3.44 / 3.13 */
+
+  /* The brand blue is unchanged in hue and chroma and moved only in lightness,
+     because #1772d0 is 1.5:1 on this paper and unreadable. The orange needs no
+     move at all: it is 7.55 here against 2.11 on cream, which is the one place
+     the dark theme is simply better off. */
+  --blue: #3589ea; /* 5.05 / 4.59 */
+  --blue-ink: #398dee; /* 5.31 / 4.82 */
+  --orange: #f09228; /* 7.55 / 6.86, untouched */
+  --orange-ink: #d07400; /* 5.27 / 4.79 */
+  --badge-accepted-ink: #4194f7; /* 4.79 on the 10% blue the badge sits on */
+
+  --blue-08: rgb(53 137 234 / 0.1);
+  --blue-16: rgb(53 137 234 / 0.2);
+  --orange-12: rgb(240 146 40 / 0.14);
+
+  /* A pale yellow card would be a hole punched in the page, so the highlight is
+     a warm wash at the page's own end of the scale. */
+  --highlight: #3c3407;
+  --highlight-edge: #564c08;
+
+  --edge-hover: #74532e; /* 2.58 on paper, the same job the light 2.34 does */
+  /* The lit top edge survives, at a fifth of the alpha: on a dark card a
+     near-white hairline at 0.9 is a scar rather than a highlight. */
+  --edge-lit: 255 246 230;
+  --window-shade: rgb(0 0 0 / 0.3);
+  --window-shade-deep: rgb(0 0 0 / 0.45);
+
+  /* A warm brown cast is invisible on a dark page, so the shadows go black and
+     deeper. The ramp between resting and hover is the same shape. */
+  --cast-1:
+    0 1px 1px rgb(0 0 0 / 0.3),
+    0 2px 4px rgb(0 0 0 / 0.26),
+    0 8px 18px rgb(0 0 0 / 0.22);
+  --cast-2:
+    0 1px 2px rgb(0 0 0 / 0.36),
+    0 7px 14px rgb(0 0 0 / 0.4),
+    0 22px 44px rgb(0 0 0 / 0.5);
+  --card-shadow-1:
+    inset 0 1px 0 rgb(var(--edge-lit) / 0),
+    0 0 0 1px var(--rule-2),
+    var(--cast-1);
+  --card-shadow-2:
+    inset 0 1px 0 rgb(var(--edge-lit) / 0.16),
+    0 0 0 1px var(--edge-hover),
+    var(--cast-2);
+  }
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --paper: #191711;
+  --card: #201e17; /* 1.0747 on paper */
+  --paper-2: #1f1b13; /* 1.0448, a chip rather than a well */
+  --paper-3: #232016; /* 1.1004 */
+
+  --ink: #fbf9f3; /* 17.02 on paper, 15.47 on the lightest surface */
+  --ink-2: #c1bfb7; /* 9.73 / 8.84 */
+  --ink-3: #97938b; /* 5.86 / 5.32 */
+  --ink-4: #8c877e; /* 5.02 / 4.56 */
+  --rule: #312d25; /* 1.31 on paper, as in the light palette */
+  --rule-2: #454034; /* 1.74 */
+  --border-ui: #736c5d; /* 3.44 / 3.13 */
+
+  /* The brand blue is unchanged in hue and chroma and moved only in lightness,
+     because #1772d0 is 1.5:1 on this paper and unreadable. The orange needs no
+     move at all: it is 7.55 here against 2.11 on cream, which is the one place
+     the dark theme is simply better off. */
+  --blue: #3589ea; /* 5.05 / 4.59 */
+  --blue-ink: #398dee; /* 5.31 / 4.82 */
+  --orange: #f09228; /* 7.55 / 6.86, untouched */
+  --orange-ink: #d07400; /* 5.27 / 4.79 */
+  --badge-accepted-ink: #4194f7; /* 4.79 on the 10% blue the badge sits on */
+
+  --blue-08: rgb(53 137 234 / 0.1);
+  --blue-16: rgb(53 137 234 / 0.2);
+  --orange-12: rgb(240 146 40 / 0.14);
+
+  /* A pale yellow card would be a hole punched in the page, so the highlight is
+     a warm wash at the page's own end of the scale. */
+  --highlight: #3c3407;
+  --highlight-edge: #564c08;
+
+  --edge-hover: #74532e; /* 2.58 on paper, the same job the light 2.34 does */
+  /* The lit top edge survives, at a fifth of the alpha: on a dark card a
+     near-white hairline at 0.9 is a scar rather than a highlight. */
+  --edge-lit: 255 246 230;
+  --window-shade: rgb(0 0 0 / 0.3);
+  --window-shade-deep: rgb(0 0 0 / 0.45);
+
+  /* A warm brown cast is invisible on a dark page, so the shadows go black and
+     deeper. The ramp between resting and hover is the same shape. */
+  --cast-1:
+    0 1px 1px rgb(0 0 0 / 0.3),
+    0 2px 4px rgb(0 0 0 / 0.26),
+    0 8px 18px rgb(0 0 0 / 0.22);
+  --cast-2:
+    0 1px 2px rgb(0 0 0 / 0.36),
+    0 7px 14px rgb(0 0 0 / 0.4),
+    0 22px 44px rgb(0 0 0 / 0.5);
+  --card-shadow-1:
+    inset 0 1px 0 rgb(var(--edge-lit) / 0),
+    0 0 0 1px var(--rule-2),
+    var(--cast-1);
+  --card-shadow-2:
+    inset 0 1px 0 rgb(var(--edge-lit) / 0.16),
+    0 0 0 1px var(--edge-hover),
+    var(--cast-2);
 }
 
 /* ---------- Reset */
@@ -582,7 +743,10 @@ hr {
 }
 .badge--accepted,
 .badge--published {
-  color: #0f5aa8;
+  /* Was a hardcoded #0f5aa8, which could not follow a theme. The blue it sits
+     on is 8% over the page, so the ink has to be darker than the link blue in
+     the light theme and lighter in the dark one: that is a token, not a hex. */
+  color: var(--badge-accepted-ink);
   border-color: var(--blue);
   background: var(--blue-08);
 }

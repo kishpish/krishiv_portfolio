@@ -8,6 +8,7 @@ import { initAllLandscapes } from './landscape';
 import { initAllPitchLabs } from './pitch';
 import { initMascot } from './mascot';
 import { initIntro } from './intro';
+import { initTheme } from './theme';
 
 /** Elements that reveal on scroll. Blocks and cards, never prose paragraphs. */
 const REVEAL_SELECTOR = [
@@ -86,6 +87,10 @@ function mascotWhenClear(): void {
 }
 
 function boot(): void {
+  // First: the attribute is already set by the inline script in the head, but
+  // the button's label and the theme-color meta are this module's job, and a
+  // canvas that starts below reads its colours out of the resolved palette.
+  initTheme();
   initAllLandscapes();
   initAllPitchLabs();
   initIntro();

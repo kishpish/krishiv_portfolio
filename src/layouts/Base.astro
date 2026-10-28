@@ -31,6 +31,24 @@ const { class: cls, mascot, ...head } = Astro.props;
     <!-- for a page that needs one extra tag, such as the retired
          /publications/ address and its refresh -->
     <slot name="head" />
+    <!-- The theme, before the first paint. This has to be inline, synchronous
+         and in the head: a module would resolve after the browser has already
+         painted a cream page, which is a white flash for anyone who chose dark.
+         It writes the attribute only, never a style, so there is nothing here
+         to keep in step with the stylesheet. `data-astro-rerun` because the
+         router does re-execute head scripts on a client-side navigation and
+         this one must win again if the document was swapped. -->
+    <script is:inline data-astro-rerun>
+      (function () {
+        try {
+          var v = localStorage.getItem('theme');
+          if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v);
+        } catch (e) {
+          /* private mode or blocked storage: the prefers-color-scheme rule in
+             the stylesheet is already the right answer */
+        }
+      })();
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

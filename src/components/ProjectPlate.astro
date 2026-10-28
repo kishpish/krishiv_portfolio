@@ -98,7 +98,9 @@ const multi = panels.length > 1;
   .plate__frame {
     border-radius: var(--radius);
     overflow: hidden;
-    background: var(--paper);
+    /* The sheet a published figure is printed on, which stays light in
+       the dark theme: see --figure-paper. */
+    background: var(--figure-paper);
     box-shadow:
       inset 0 0 0 1px var(--rule),
       inset 0 2px 3px -1px var(--window-shade);
