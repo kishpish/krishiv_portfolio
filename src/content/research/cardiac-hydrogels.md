@@ -5,7 +5,7 @@ order: 2
 period: "May 2025 to Feb 2026"
 role: "First author"
 kind: independent
-paper: hydrogel-urtc-2026
+paper: hydrogel-bibm-2026
 honor: "1st Place, Texas Science and Engineering Fair 2026"
 summary: >-
   Scar replaces muscle permanently after a heart attack, and the gel you would
@@ -31,10 +31,12 @@ problem: >-
 approach: >-
   Close the loop in silico. On one side, a chemical language model fine-tuned
   from a pretrained polymer model proposes and scores formulations across the
-  design space. On the other, a geometry pipeline turns each patient's surface
-  meshes into a tetrahedral heart with inferred scar, border zone, transmural
-  coordinates, and helical fibre architecture, ready for mechanical and
-  electrophysiology solvers. A design is only a candidate if it clears
+  design space. That model is HYDRA-BERT, built on a frozen 86M-parameter
+  polyBERT trunk with low-rank adapters and a fusion network over it, trained
+  across 16 A100s. On the other, a geometry pipeline
+  turns each patient's surface meshes into a tetrahedral heart with inferred
+  scar, border zone, transmural coordinates, and helical fibre architecture,
+  ready for mechanical and electrophysiology solvers. A design is only a candidate if it clears
   thresholds on both sides.
 result: >-
   Ten patient-specific hearts built end to end, 3.66 million tetrahedral
@@ -55,6 +57,8 @@ evidence:
     label: "tetrahedral elements across the ten meshes"
   - value: "24"
     label: "hydrogel formulations across the searched design space"
+  - value: "86M"
+    label: "parameters in the frozen polyBERT trunk HYDRA-BERT adapts"
   - value: "16× A100"
     label: "distributed training configuration"
 abstract_kind: summary

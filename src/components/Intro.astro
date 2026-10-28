@@ -1,0 +1,100 @@
+---
+// The first-load overlay. Markup and arming only: the physics is in
+// src/scripts/intro.ts.
+//
+// The arming script below is inline and synchronous in the body, so it runs
+// before the first paint and the overlay is already opaque when the page
+// appears. That is the only way an intro can cover the load rather than
+// interrupt it. Everything it does is reversible, and it carries its own
+// failsafe, so a module that never arrives cannot leave a reader staring at a
+// cream rectangle.
+//
+// It is deliberately not wired to `astro:page-load`. A full-screen animation on
+// a client-side navigation would be an interruption rather than an arrival, so
+// this runs on a real document load of the home page and nowhere else.
+---
+
+<div class="intro" data-intro-root aria-hidden="true">
+  <canvas class="intro__canvas" data-intro-canvas></canvas>
+</div>
+
+<script is:inline>
+  (function () {
+    try {
+      var d = document.documentElement;
+      // Three reasons not to arm: the reader asked for less motion, they have
+      // already seen it this session, or they arrived part-way down the page
+      // from a deep link, where a full-screen overlay would be disorienting.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (location.hash) return;
+      var seen = null;
+      try {
+        seen = sessionStorage.getItem('intro-seen');
+      } catch (e) {
+        // Private mode or blocked storage. Play it; once is better than never.
+      }
+      if (seen) return;
+      try {
+        sessionStorage.setItem('intro-seen', '1');
+      } catch (e) {}
+
+      d.setAttribute('data-intro', 'armed');
+      // Failsafe. If the module is blocked, slow, or throws before it takes
+      // over, the attribute goes away on its own and the overlay with it.
+      window.setTimeout(function () {
+        if (d.getAttribute('data-intro') === 'armed') d.removeAttribute('data-intro');
+      }, 5200);
+    } catch (e) {
+      document.documentElement.removeAttribute('data-intro');
+    }
+  })();
+</script>
+
+<style>
+  /* Hidden by default and in every fallback path: no script, blocked script,
+     reduced motion, a second visit. The attribute is the only thing that turns
+     it on, and the arming script is the only thing that sets it. */
+  .intro {
+    display: none;
+  }
+
+  :global(html[data-intro='armed']) .intro {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    /* Fixed, so it cannot shift a line of text or widen the document, and
+       transparent to the pointer, so a reader who wants to click a link during
+       it reaches the link. */
+    pointer-events: none;
+    contain: strict;
+  }
+
+  /* The cream veil is a pseudo-element rather than a background on the overlay,
+     so the canvas can keep its own opacity while the backdrop clears first. */
+  :global(html[data-intro='armed']) .intro::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    opacity: var(--intro-veil, 1);
+  }
+
+  .intro__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* The landing animates this, so it gets its own layer and the rest of the
+       page is never repainted by it. */
+    will-change: transform;
+    transform-origin: 50% 50%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro {
+      display: none !important;
+    }
+  }
+</style>

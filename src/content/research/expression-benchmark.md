@@ -3,7 +3,7 @@ title: "A leakage-audited benchmark for cross-individual expression prediction"
 short: "Expression benchmark"
 order: 3
 period: "2026"
-role: "First author"
+role: "First author, with M. Yurukcu"
 kind: independent
 paper: expression-iccbb-2026
 summary: >-

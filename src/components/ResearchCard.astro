@@ -62,6 +62,14 @@ const authorHtml = (a: string[]) =>
       <span>{d.period}</span>
       {pub && <span>{pub.venue_long}</span>}
       {pub && <span class="tnum">{pub.year}</span>}
+      {/* A paper can be under review at one venue and already readable at
+          another. The link row below carries the preprint; this says so in
+          words, so the venue above is not mistaken for the only one. */}
+      {pub?.preprint && (
+        <span>
+          {pub.preprint.venue} preprint, <span class="tnum">{pub.preprint.year}</span>
+        </span>
+      )}
     </p>
 
     <LinkRow links={pub ? pub.links : d.links} doi={pub?.doi} class="rcard__links" />

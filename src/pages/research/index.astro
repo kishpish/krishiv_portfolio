@@ -15,7 +15,7 @@ import { url, absolute } from '../../lib/urls';
 
 const projects = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
 const description =
-  'Five research projects in machine learning for biology and physics-based simulation, each with its paper, preprint, and code: antibody design as transition-path control, an energy landscape of leukemic cell states, de novo protein inhibitors, patient-specific cardiac biomaterials, and a leakage-audited expression benchmark.';
+  'Six research projects in machine learning for biology and physics-based simulation: antibody design as transition-path control, circular RNA recoding, an energy landscape of leukemic cell states, de novo protein inhibitors, patient-specific cardiac biomaterials, and a leakage-audited expression benchmark.';
 
 // The publication records now live at /research/#<id>, so the structured data
 // points there rather than at the retired /publications/ address.

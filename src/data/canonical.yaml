@@ -150,10 +150,14 @@ publications:
       Using Integrated Deep Learning and Multi-Scale Simulations to Combat
       Bacterial Resistance
     authors: [Krishiv Potluri]
-    venue: bioRxiv
-    venue_long: bioRxiv preprint
-    year: 2025
-    status: preprint
+    venue: RECOMB 2027
+    venue_long: International Conference on Research in Computational Molecular Biology (RECOMB)
+    year: 2027
+    status: under-review
+    # The submission is the current venue; the preprint is the public artifact
+    # and keeps its own line, because a reader can read it today and cannot
+    # read a submission.
+    preprint: { venue: bioRxiv, year: 2025 }
     doi: 10.1101/2025.06.23.661177
     links:
       - { label: preprint, href: "https://www.biorxiv.org/content/10.1101/2025.06.23.661177v1" }
@@ -180,7 +184,7 @@ publications:
     title: >-
       A Leakage-Audited Benchmark for Cross-Individual Gene Expression
       Prediction and a Dissection of the Held-Out-Gene Transfer Gap
-    authors: [Krishiv Potluri]
+    authors: [Krishiv Potluri, M. Yurukcu]
     venue: ICCBB 2026
     venue_long: 10th International Conference on Computational Biology and Bioinformatics (ICCBB)
     year: 2026
@@ -189,15 +193,15 @@ publications:
       - { label: code, href: "https://github.com/kishpish/held-out-gene-benchmark" }
     project: expression-benchmark
 
-  - id: hydrogel-urtc-2026
+  - id: hydrogel-bibm-2026
     title: >-
       AI-Driven Inverse Design of Bio-Instructive Hydrogels for Myocardial
       Regeneration
     authors: [Krishiv Potluri]
-    venue: IEEE MIT URTC 2026
-    venue_long: IEEE MIT Undergraduate Research Technology Conference (URTC)
+    venue: IEEE BIBM 2026
+    venue_long: IEEE International Conference on Bioinformatics and Biomedicine (BIBM)
     year: 2026
-    status: under-review
+    status: accepted
     links:
       - { label: model code, href: "https://github.com/kishpish/HYDRA-BERT" }
       - { label: simulation code, href: "https://github.com/kishpish/MESH_FIBER_INJECTION" }
@@ -260,6 +264,10 @@ honors:
     title: 2nd Place, Computational Biology
     org: Greater Austin Regional Science and Engineering Fair
     href: https://austinscience.org/
+  - year: "2026"
+    title: National Merit Commended Student
+    org: National Merit Scholarship Corporation
+    detail: Top 4% of more than 1.2 million PSAT and NMSQT entrants
   - year: "2024"
     title: Recursion RxRx Prize
     org: Bio x ML Hackathon (Lux Capital and EvolutionaryScale)

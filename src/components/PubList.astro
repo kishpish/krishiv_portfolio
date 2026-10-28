@@ -31,6 +31,13 @@ const authorHtml = (a: string[]) =>
             <span>{variant === 'full' ? p.venue_long : p.venue}</span>
             <span class="publist__year num">{p.year}</span>
             <span class:list={['badge', `badge--${p.status}`]}>{statusLabel[p.status]}</span>
+            {/* Where it is going is the venue above. This is where it can be
+                read today, which is the more useful of the two facts. */}
+            {p.preprint && (
+              <span class="publist__pre">
+                {p.preprint.venue} preprint, <span class="num">{p.preprint.year}</span>
+              </span>
+            )}
           </p>
           {p.note && <p class="publist__note">{p.note}</p>}
           {(p.links.length > 0 || p.doi) && (
@@ -99,6 +106,9 @@ const authorHtml = (a: string[]) =>
     gap: 0.5em;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .publist__pre {
+    color: var(--ink-4);
   }
   .publist__year {
     color: var(--ink-3);

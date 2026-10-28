@@ -7,6 +7,7 @@
 import { initAllLandscapes } from './landscape';
 import { initAllPitchLabs } from './pitch';
 import { initMascot } from './mascot';
+import { initIntro } from './intro';
 
 /** Elements that reveal on scroll. Blocks and cards, never prose paragraphs. */
 const REVEAL_SELECTOR = [
@@ -63,10 +64,32 @@ function revealHashTarget(): void {
   }
 }
 
+/**
+ * The mascot and the first-load intro both own the whole viewport for a beat,
+ * so they are put in a queue rather than on top of each other: when the intro
+ * is armed the wave waits for it to land. The timeout is the same failsafe the
+ * arming script carries, so a blocked intro module cannot cost the mascot.
+ */
+function mascotWhenClear(): void {
+  if (document.documentElement.getAttribute('data-intro') !== 'armed') {
+    initMascot();
+    return;
+  }
+  let fired = false;
+  const go = (): void => {
+    if (fired) return;
+    fired = true;
+    initMascot();
+  };
+  document.addEventListener('intro:done', go, { once: true });
+  window.setTimeout(go, 5400);
+}
+
 function boot(): void {
   initAllLandscapes();
   initAllPitchLabs();
-  initMascot();
+  initIntro();
+  mascotWhenClear();
   initReveal();
 }
 

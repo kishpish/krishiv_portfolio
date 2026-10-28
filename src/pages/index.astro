@@ -6,6 +6,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import EnergyLandscape from '../components/EnergyLandscape.astro';
+import Intro from '../components/Intro.astro';
 import PathDivider from '../components/PathDivider.astro';
 import ResearchPreview from '../components/ResearchPreview.astro';
 import PostPreview from '../components/PostPreview.astro';
@@ -67,6 +68,11 @@ const jsonLd = {
 ---
 
 <Base description={clean(data.site.description)} og="default" type="profile" jsonLd={jsonLd} mascot="wave">
+  {/* First load only, home page only. It covers the arrival and then lands in
+      the figure below, so it is part of the hero rather than a splash in front
+      of it. Everything about it is off by default: see the component. */}
+  <Intro />
+
   <!-- ============================================ hero -->
   <section class="wrap hero" aria-labelledby="hero-name">
     <div class="hero__text">

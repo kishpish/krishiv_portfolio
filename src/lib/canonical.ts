@@ -79,6 +79,10 @@ const schema = z.object({
       venue_long: z.string(),
       year: z.number(),
       status: z.enum(['preprint', 'accepted', 'under-review', 'published']),
+      /** A paper under review at a conference can already have a public
+       *  preprint. The venue above is where it is going; this is where it can
+       *  be read now, and the two are different facts. */
+      preprint: z.object({ venue: z.string(), year: z.number() }).optional(),
       doi: z.string().optional(),
       links: z.array(link).default([]),
       note: z.string().optional(),

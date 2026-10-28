@@ -54,7 +54,7 @@ evidence:
   - value: "ρ = −0.42"
     label: "strongest drug association, MEK inhibition, n = 484"
   - value: "748,679"
-    label: "cells in the validation atlas"
+    label: "cells in the independent atlas, where all 40 evaluable signatures replicate"
 abstract_kind: summary
 abstract: >-
     Single-cell atlases name leukemic cell states but say nothing about how stable a state is or

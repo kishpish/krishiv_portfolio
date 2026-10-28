@@ -25,10 +25,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
       slug: 'research',
       og: {
         eyebrow: 'research',
-        title: 'Five projects, one shape',
+        title: 'Six projects, one shape',
         subtitle:
-          'Something moves across a surface, pays energy, and settles somewhere. The fifth project is the benchmark work that keeps the other four honest.',
-        chips: ['5 projects'],
+          'Something moves across a surface, pays energy, and settles somewhere. One of the six is the benchmark work that keeps the others honest.',
+        chips: ['6 projects'],
       },
     },
     {
