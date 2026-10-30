@@ -72,7 +72,7 @@ cv:
   # never changes. The "updated" marker is read from git history at build
   # time; this value is only the fallback when git history is unavailable.
   path: /cv.pdf
-  updated_fallback: 2026-09
+  updated_fallback: 2026-10
   label: CV
 
 site:
