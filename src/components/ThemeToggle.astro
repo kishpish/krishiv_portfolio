@@ -1,16 +1,16 @@
 ---
-// Light, dark, or whatever the machine says.
+// Light, dark, or colour-safe.
 //
-// Three states rather than two, because "follow the system" is a real answer
-// and a two-way switch cannot express it: once a reader touches a two-way
-// switch they are pinned to one theme for good, including at 2am when their
-// phone has already gone dark on its own.
+// Cream is the default and the first state, because that is the site. The
+// third is not a third mood: it is the palette with every hue-carried
+// distinction re-solved so no dichromacy collapses it, and with colour removed
+// as the only channel. See the block in global.css for how it was derived.
 //
 // It is a real <button> carrying aria-pressed-free semantics: the label says
 // which mode is active, and the live region announces the change, so it is
 // usable without seeing the icon at all. With JavaScript off the button is not
 // rendered at all, because a control that cannot do anything is worse than no
-// control, and the page still follows prefers-color-scheme on its own.
+// control, and the page is the cream default, which is what :root already is.
 ---
 
 <button
@@ -37,12 +37,15 @@
         fill="currentColor"
       />
     </svg>
-    <svg class="theme__i theme__i--system" viewBox="0 0 16 16" focusable="false">
-      <circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.4" />
-      <path d="M8 2.4a5.6 5.6 0 0 1 0 11.2z" fill="currentColor" />
+    {/* A disc split down the middle, solid on one side and open on the other:
+        the shape that means separation rather than brightness, and the one of
+        the three that cannot be mistaken for the sun. */}
+    <svg class="theme__i theme__i--cvd" viewBox="0 0 16 16" focusable="false">
+      <circle cx="8" cy="8" r="5.9" fill="none" stroke="currentColor" stroke-width="1.35" />
+      <path d="M8 2.1a5.9 5.9 0 0 1 0 11.8z" fill="currentColor" />
     </svg>
   </span>
-  <span class="theme__label" data-theme-label>System theme</span>
+  <span class="theme__label" data-theme-label>Light theme</span>
 </button>
 
 <style>
@@ -85,9 +88,10 @@
     white-space: nowrap;
   }
 
-  :global(html[data-theme='light']) .theme__i--light,
+  /* Cream is the default, so it is the state with no attribute. */
+  :global(html:not([data-theme])) .theme__i--light,
   :global(html[data-theme='dark']) .theme__i--dark,
-  :global(html:not([data-theme])) .theme__i--system {
+  :global(html[data-theme='cvd']) .theme__i--cvd {
     display: block;
   }
 

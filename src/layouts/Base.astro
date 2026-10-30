@@ -42,10 +42,10 @@ const { class: cls, mascot, ...head } = Astro.props;
       (function () {
         try {
           var v = localStorage.getItem('theme');
-          if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v);
+          if (v === 'dark' || v === 'cvd') document.documentElement.setAttribute('data-theme', v);
         } catch (e) {
-          /* private mode or blocked storage: the prefers-color-scheme rule in
-             the stylesheet is already the right answer */
+          /* private mode or blocked storage: no attribute is the cream default,
+             which is what :root already is */
         }
       })();
     </script>

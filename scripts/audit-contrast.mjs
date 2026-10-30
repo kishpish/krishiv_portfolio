@@ -108,15 +108,31 @@ const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromi
 let failures = 0;
 let checked = 0;
 
-for (const scheme of ['light', 'dark']) {
+// Light is the default and carries no attribute; the other two are set the way
+// the pre-paint script sets them, so the audit sees exactly what a reader does.
+const THEMES = [
+  { name: 'light', attr: null },
+  { name: 'dark', attr: 'dark' },
+  { name: 'cvd', attr: 'cvd' },
+];
+
+for (const theme of THEMES) {
+  const scheme = theme.name;
   const ctx = await browser.newContext({
     viewport: { width: 1280, height: 900 },
-    colorScheme: scheme,
     reducedMotion: 'reduce',
   });
+  if (theme.attr) await ctx.addInitScript((v) => localStorage.setItem('theme', v), theme.attr);
   const page = await ctx.newPage();
   for (const route of pages) {
     await page.goto(BASE + route, { waitUntil: 'load' });
+    // Belt and braces: the attribute must actually be on, or the run would
+    // silently audit the default three times and report a clean sweep.
+    const live = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+    if (live !== theme.attr) {
+      console.log(`FAIL setup  ${scheme} ${route}  data-theme is ${JSON.stringify(live)}, expected ${JSON.stringify(theme.attr)}`);
+      failures++;
+    }
     // Open every disclosure, so an abstract is audited too.
     await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true)));
     await page.waitForTimeout(60);
@@ -131,10 +147,10 @@ for (const scheme of ['light', 'dark']) {
 }
 await browser.close();
 
-console.log(`\naudited ${checked} page renders across light and dark` +
+console.log(`\naudited ${checked} page renders across ${THEMES.map((x) => x.name).join(', ')}` +
   (redirects.length ? `, skipped ${redirects.length} redirect page(s)` : ''));
 if (failures) {
   console.log(`${failures} contrast failures`);
   process.exit(1);
 }
-console.log('every rendered text node clears WCAG AA in both themes');
+console.log('every rendered text node clears WCAG AA in every theme');

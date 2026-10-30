@@ -65,7 +65,12 @@ const shots = PRESETS.map((q) => {
   };
 });
 
-const colors = ['var(--blue)', 'var(--orange)', '#0e7350'];
+// The three traces are the only place on the site where a third colour has to
+// carry meaning, which makes it the only place the palette can fail a
+// colour-blind reader. All three are tokens so the colour-safe theme can
+// re-solve them, and each also carries its own dash pattern in that theme, so
+// the chart still reads with no colour information at all.
+const colors = ['var(--blue)', 'var(--orange)', 'var(--series-3)'];
 
 // Ticks along the side view in feet, because that is how a mound is measured.
 // The labels are anchored away from the edges of the drawing, because on a
@@ -115,7 +120,7 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
       <path class="plab__flat" data-flat-side d={shots[0].flatSide} />
       {
         shots.map((s, i) => (
-          <path class="plab__trace" data-side={s.id} d={s.side} style={`--c:${colors[i]}`} />
+          <path class="plab__trace" data-side={s.id} data-series={i} d={s.side} style={`--c:${colors[i]}`} />
         ))
       }
       <path class="plab__trace plab__trace--live" data-live-side-path d="" />
@@ -155,7 +160,7 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
       </g>
       {
         shots.map((s, i) => (
-          <g style={`--c:${colors[i]}`}>
+          <g style={`--c:${colors[i]}`} data-series={i}>
             <path class="plab__vec" data-front={s.id} d={s.vector} />
             <circle class="plab__dot" data-dot={s.id} cx={frontX(s.end.y)} cy={frontY(s.end.z)} r="5" />
           </g>
@@ -175,7 +180,7 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
   <ul class="plab__legend">
     {
       shots.map((s, i) => (
-        <li style={`--c:${colors[i]}`}>
+        <li style={`--c:${colors[i]}`} data-series={i}>
           <span class="plab__key" />
           <span class="plab__name">{s.label}</span>
           <span class="plab__num">
@@ -389,6 +394,32 @@ const spoken = shots.map((s) => `${s.label}, ${s.mph} miles an hour: ${s.ride} a
     stroke-width: 1.6;
     opacity: 0.6;
   }
+  /* Colour-safe theme: a second channel for the three traces. The patterns are
+     chosen to stay apart at this stroke width, and the legend key carries the
+     same pattern so the two can be matched without seeing either colour. */
+  :global(html[data-theme='cvd']) .plab__trace[data-series='1'],
+  :global(html[data-theme='cvd']) [data-series='1'] .plab__vec {
+    stroke-dasharray: 7 4;
+  }
+  :global(html[data-theme='cvd']) .plab__trace[data-series='2'],
+  :global(html[data-theme='cvd']) [data-series='2'] .plab__vec {
+    stroke-dasharray: 1.6 3.4;
+  }
+  /* A 0.8em square is too small to hold a dash pattern, so in this theme the
+     key becomes a short rule, which is what it is standing for anyway. */
+  :global(html[data-theme='cvd']) .plab__key {
+    width: 2em;
+    height: 0.28em;
+    border-radius: 1px;
+    align-self: center;
+  }
+  :global(html[data-theme='cvd']) .plab__legend li[data-series='1'] .plab__key {
+    background: repeating-linear-gradient(90deg, var(--c) 0 7px, transparent 7px 11px);
+  }
+  :global(html[data-theme='cvd']) .plab__legend li[data-series='2'] .plab__key {
+    background: repeating-linear-gradient(90deg, var(--c) 0 2px, transparent 2px 5px);
+  }
+
   .plab__aim line {
     stroke: var(--ink-3);
     stroke-width: 1.2;

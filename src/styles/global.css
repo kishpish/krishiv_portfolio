@@ -166,6 +166,10 @@
      are a deltaE of 2.5 apart, which is below the threshold of noticing. */
   --blue-ink: #166dc8;
   --badge-accepted-ink: #0f5aa8;
+  /* The third trace in the pitch demo. Blue and orange are the site's pair;
+     this is the only place a third colour has to carry meaning, which makes it
+     the only place the palette can fail a colour-blind reader. */
+  --series-3: #0e7350;
 
   /* Elevation. A neutral black shadow goes grey and dead on cream, so these
      are warm, mixed from the ink rather than from black.
@@ -275,74 +279,6 @@
    tints sit BELOW the page. Here they sit a little above it: black is the floor
    in a dark theme, so a well dug below #191711 has nowhere to go and reads as a
    hole rather than a tint. Inline code and a badge lift instead. */
-/* And the same values again for a reader who has expressed no choice, which is
-   most of them. The attribute block above wins when they have, because an
-   attribute selector outranks nothing here: both are one specificity point, and
-   this one is written first on purpose so `data-theme="light"` can pull a
-   machine in dark mode back to cream. */
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme]) {
-  color-scheme: dark;
-
-  --paper: #191711;
-  --card: #201e17; /* 1.0747 on paper */
-  --paper-2: #1f1b13; /* 1.0448, a chip rather than a well */
-  --paper-3: #232016; /* 1.1004 */
-
-  --ink: #fbf9f3; /* 17.02 on paper, 15.47 on the lightest surface */
-  --ink-2: #c1bfb7; /* 9.73 / 8.84 */
-  --ink-3: #97938b; /* 5.86 / 5.32 */
-  --ink-4: #8c877e; /* 5.02 / 4.56 */
-  --rule: #312d25; /* 1.31 on paper, as in the light palette */
-  --rule-2: #454034; /* 1.74 */
-  --border-ui: #736c5d; /* 3.44 / 3.13 */
-
-  /* The brand blue is unchanged in hue and chroma and moved only in lightness,
-     because #1772d0 is 1.5:1 on this paper and unreadable. The orange needs no
-     move at all: it is 7.55 here against 2.11 on cream, which is the one place
-     the dark theme is simply better off. */
-  --blue: #3589ea; /* 5.05 / 4.59 */
-  --blue-ink: #398dee; /* 5.31 / 4.82 */
-  --orange: #f09228; /* 7.55 / 6.86, untouched */
-  --orange-ink: #d07400; /* 5.27 / 4.79 */
-  --badge-accepted-ink: #4194f7; /* 4.79 on the 10% blue the badge sits on */
-
-  --blue-08: rgb(53 137 234 / 0.1);
-  --blue-16: rgb(53 137 234 / 0.2);
-  --orange-12: rgb(240 146 40 / 0.14);
-
-  /* A pale yellow card would be a hole punched in the page, so the highlight is
-     a warm wash at the page's own end of the scale. */
-  --highlight: #3c3407;
-  --highlight-edge: #564c08;
-
-  --edge-hover: #74532e; /* 2.58 on paper, the same job the light 2.34 does */
-  /* The lit top edge survives, at a fifth of the alpha: on a dark card a
-     near-white hairline at 0.9 is a scar rather than a highlight. */
-  --edge-lit: 255 246 230;
-  --window-shade: rgb(0 0 0 / 0.3);
-  --window-shade-deep: rgb(0 0 0 / 0.45);
-
-  /* A warm brown cast is invisible on a dark page, so the shadows go black and
-     deeper. The ramp between resting and hover is the same shape. */
-  --cast-1:
-    0 1px 1px rgb(0 0 0 / 0.3),
-    0 2px 4px rgb(0 0 0 / 0.26),
-    0 8px 18px rgb(0 0 0 / 0.22);
-  --cast-2:
-    0 1px 2px rgb(0 0 0 / 0.36),
-    0 7px 14px rgb(0 0 0 / 0.4),
-    0 22px 44px rgb(0 0 0 / 0.5);
-  --card-shadow-1:
-    inset 0 1px 0 rgb(var(--edge-lit) / 0),
-    0 0 0 1px var(--rule-2),
-    var(--cast-1);
-  --card-shadow-2:
-    inset 0 1px 0 rgb(var(--edge-lit) / 0.16),
-    0 0 0 1px var(--edge-hover),
-    var(--cast-2);
-  }
-}
 
 html[data-theme='dark'] {
   color-scheme: dark;
@@ -369,6 +305,7 @@ html[data-theme='dark'] {
   --orange: #f09228; /* 7.55 / 6.86, untouched */
   --orange-ink: #d07400; /* 5.27 / 4.79 */
   --badge-accepted-ink: #4194f7; /* 4.79 on the 10% blue the badge sits on */
+  --series-3: #35b48a; /* the third trace, lifted to carry on a dark page */
 
   --blue-08: rgb(53 137 234 / 0.1);
   --blue-16: rgb(53 137 234 / 0.2);
@@ -404,6 +341,57 @@ html[data-theme='dark'] {
     inset 0 1px 0 rgb(var(--edge-lit) / 0.16),
     0 0 0 1px var(--edge-hover),
     var(--cast-2);
+}
+
+/* ---------- Colour vision
+   The cream page is unchanged: paper and ink are neutral and were never the
+   problem. What moves is the small set of places where a HUE carries meaning,
+   plus the places where colour was the only thing carrying it.
+
+   Measured first, on the palette that was already here. Blue against orange
+   survives every dichromacy comfortably, so the site's core pair needed
+   nothing. The pitch demo did: its three traces are blue, orange and a green,
+   and blue against that green separates by 0.060 in OKLab once tritanopia is
+   simulated, which is the same colour twice.
+
+   The fix is not a better set of hues. Forcing three hues to one lightness so
+   they all clear AA on cream makes it worse, not better: the Okabe-Ito set
+   scores 0.011 that way, because blue and green differ mainly on the
+   blue-yellow axis and that is the axis a tritanope does not have. So these
+   three are spread across hue AND lightness, which no dichromacy can collapse,
+   and the worst pair anywhere, across normal vision and all three simulated
+   deficiencies, is 0.231 rather than 0.060.
+
+   Hue is still not asked to work alone. In this theme the pitch traces also
+   carry distinct dash patterns, and every link is underlined rather than only
+   blue, so both survive a reader who sees no colour at all. */
+html[data-theme='cvd'] {
+  color-scheme: light;
+
+  --blue: #0071b8; /* 4.60 on paper, 4.76 on card */
+  --blue-ink: #006db3; /* 4.85 / 5.03 */
+  --orange: #b45009; /* 4.55 / 4.72, a vermillion rather than an amber */
+  --orange-ink: #af4b00; /* 4.87 / 5.04 */
+  --series-3: #541800; /* 12.36 on paper: the lightness cue the triple needs */
+  --badge-accepted-ink: #0065ab; /* 5.40 / 5.60 */
+
+  --blue-08: rgb(0 113 184 / 0.08);
+  --blue-16: rgb(0 113 184 / 0.16);
+  --orange-12: rgb(180 80 9 / 0.12);
+}
+
+/* Colour is never the only channel in this theme. A link that is merely a
+   different colour from the text around it is a link only to a reader who can
+   see that difference. */
+html[data-theme='cvd'] a:not(.card):not(.cv-link):not(.theme) {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+html[data-theme='cvd'] a:hover,
+html[data-theme='cvd'] a:focus-visible {
+  text-decoration-color: currentColor;
 }
 
 /* ---------- Reset */

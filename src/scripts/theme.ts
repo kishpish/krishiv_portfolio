@@ -15,47 +15,43 @@
 //   - If storage throws, which it does in private mode and with site data
 //     blocked, the toggle still works for the life of the page.
 
-export type Mode = 'light' | 'dark' | 'system';
+export type Mode = 'light' | 'dark' | 'cvd';
 
 const KEY = 'theme';
-const ORDER: Mode[] = ['system', 'light', 'dark'];
+/** Cream first, because that is the site. */
+const ORDER: Mode[] = ['light', 'dark', 'cvd'];
+const DEFAULT: Mode = 'light';
 const LABEL: Record<Mode, string> = {
-  system: 'System theme',
   light: 'Light theme',
   dark: 'Dark theme',
+  cvd: 'Colour-safe theme',
 };
 /** What the browser chrome should match, so the address bar is not the one
  *  light rectangle left on a dark page. */
-const THEME_COLOR: Record<'light' | 'dark', string> = {
+const THEME_COLOR: Record<Mode, string> = {
   light: '#f6f1e5',
   dark: '#191711',
+  cvd: '#f6f1e5',
 };
-
-const mq = (): MediaQueryList | null =>
-  typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
 export function stored(): Mode {
   try {
     const v = localStorage.getItem(KEY);
-    if (v === 'light' || v === 'dark') return v;
+    if (v === 'light' || v === 'dark' || v === 'cvd') return v;
   } catch {
-    // Private mode, or site data blocked. The system preference is the answer.
+    // Private mode, or site data blocked. The default is the answer.
   }
-  return 'system';
-}
-
-/** The theme a mode actually resolves to right now. */
-export function resolved(mode: Mode): 'light' | 'dark' {
-  if (mode !== 'system') return mode;
-  return mq()?.matches ? 'dark' : 'light';
+  return DEFAULT;
 }
 
 function paint(mode: Mode): void {
   const root = document.documentElement;
-  if (mode === 'system') root.removeAttribute('data-theme');
+  // The default needs no attribute: :root is already the cream theme, which is
+  // also what a reader with no JavaScript gets.
+  if (mode === DEFAULT) root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', mode);
   const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (meta) meta.content = THEME_COLOR[resolved(mode)];
+  if (meta) meta.content = THEME_COLOR[mode];
 }
 
 function label(mode: Mode): void {
@@ -76,7 +72,9 @@ export function apply(mode: Mode, persist: boolean): void {
   label(mode);
   if (!persist) return;
   try {
-    if (mode === 'system') localStorage.removeItem(KEY);
+    // The default is stored as an absence, so a reader who cycles back to it
+    // is not pinned to it if the default ever moves.
+    if (mode === DEFAULT) localStorage.removeItem(KEY);
     else localStorage.setItem(KEY, mode);
   } catch {
     // Not fatal: the choice holds for this page either way.
@@ -84,7 +82,7 @@ export function apply(mode: Mode, persist: boolean): void {
 }
 
 let wired = false;
-let current: Mode = 'system';
+let current: Mode = DEFAULT;
 
 export function initTheme(): void {
   current = stored();
@@ -105,14 +103,6 @@ export function initTheme(): void {
     apply(current, true);
     notify();
   });
-
-  // Following the system means following it, including when it changes while
-  // the page is open.
-  mq()?.addEventListener('change', () => {
-    if (current !== 'system') return;
-    paint(current);
-    notify();
-  });
 }
 
 /**
@@ -121,5 +111,5 @@ export function initTheme(): void {
  * when those properties change underneath them.
  */
 function notify(): void {
-  document.dispatchEvent(new CustomEvent('theme:change', { detail: { theme: resolved(current) } }));
+  document.dispatchEvent(new CustomEvent('theme:change', { detail: { theme: current } }));
 }

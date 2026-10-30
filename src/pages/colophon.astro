@@ -140,8 +140,20 @@ const conflicts = Object.entries(data.conflicts);
           the one colour that does not move at all. Two things stay light on purpose: a
           published figure keeps its paper, because these are plots drawn on white and composited
           with <code>multiply</code>, and the generated figure bakes its colours at build time.
-          The control in the header carries three states rather than two, because following the
-          machine is a real answer and a two-way switch cannot express it.
+          Cream is the default, so the control in the header reads light, dark, colour-safe.
+        </p>
+        <p>
+          The third one is not a third mood. Blue against orange already survives every
+          dichromacy, so the site's own pair needed nothing; the pitch demo did, because its
+          three traces are blue, orange and a green, and blue against that green separates by
+          0.060 in OKLab once tritanopia is simulated, which is the same colour twice. Better
+          hues are not the fix: forcing three of them to one lightness so they all clear AA on
+          cream makes it worse, and the Okabe-Ito set scores 0.011 that way, because blue and
+          green differ mainly on the axis a tritanope does not have. So those three are spread
+          across hue and lightness together, which no dichromacy collapses, and the worst pair
+          anywhere is 0.231. Hue is still not asked to work alone: in that theme the traces
+          carry distinct dash patterns and every link is underlined, so the chart and the text
+          both survive a reader who sees no colour at all.
         </p>
 
         <h2 id="built">Built with</h2>
