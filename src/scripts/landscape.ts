@@ -1,29 +1,117 @@
-// Live hero: the same Langevin walker and well-tempered metadynamics that the
-// static figure was drawn with, run in the browser over the build-time SVG.
+// Live hero: the same Langevin walker and well-tempered metadynamics the static
+// figure was drawn with, run in the browser over the build-time SVG — and, under
+// it, the gradient field itself made visible as a flow of tracers.
+//
+// The idea is that an energy landscape is a thing everything falls down. The
+// contour map says where the slopes are; the flow says what the slopes do. A
+// few thousand tracers released on the surface and advected by -grad(V) draw
+// their own streamlines, pour over the saddles, and pile up in the three
+// basins, so the shape of the surface arrives as motion rather than as a
+// legend. The walker is then the one object with a name, crossing a field that
+// is visibly pulling on it.
 //
 // Rules this file keeps:
 //   - It never runs under prefers-reduced-motion, and it stops the moment the
 //     preference changes.
 //   - It pauses when off-screen, when the tab is hidden, and on demand.
 //   - If anything throws, the static SVG is still there and still correct.
-import { DOMAIN, LEVELS, MINIMA, SADDLES, V, isIndexLevel } from '../lib/landscape/mb';
+//   - The streaks are drawn into their own buffer and composited, so the
+//     contours, the labels and the axes underneath are never painted over.
+import { DOMAIN, V, gradV } from '../lib/landscape/mb';
 import { BiasGrid, DEFAULT_PARAMS, Walker, basinOf } from '../lib/landscape/sim';
-import { isoSegments, joinSegments, sampleGrid } from '../lib/landscape/contours';
-import { stringMethod } from '../lib/landscape/string-method';
-import { depthFraction, fitView, project, shade, solidity, type Projected, type View } from '../lib/landscape/surface3d';
 
-const TRAIL = 900; // trajectory points kept
+const TRAIL = 300; // trajectory points kept: about a second of history, so the
+// walker reads as a comet rather than filling its basin with orange
 const MAX_STEP_MS = 34; // never integrate more than ~2 frames of catch-up
+
+// --- the flow field -------------------------------------------------------
+/** Tracers per CSS px² of figure, so a phone does proportionally less work. */
+const TRACE_DENSITY = 1700 / 150000;
+const TRACE_MIN = 380;
+const TRACE_MAX = 2100;
+/** Never thin the field below this: it still has to read as a flow. */
+const TRACE_FLOOR = 150;
+/** How much of the population is released on the first frame. The rest arrives
+ *  over the next couple of seconds, if the device turns out to afford it — so
+ *  the figure is cheapest exactly while the page is still loading, which is the
+ *  window that decides whether the page feels fast. */
+const TRACE_OPENING = 0.3;
+/** Milliseconds per frame the figure is allowed to want. Two numbers, because
+ *  there are two costs and they are not the same: COST is the time spent in
+ *  the frame callback, and GAP is the interval between frames, which is the
+ *  one that also catches the rasterizing — and on a device with no compositing
+ *  GPU, rasterizing a few thousand strokes is most of what a canvas costs.
+ *  Above either ceiling the figure sheds tracers; it only takes more back when
+ *  both are comfortable. */
+const COST_CEIL = 8.5;
+const COST_FLOOR = 5;
+const GAP_CEIL = 20.5;
+const GAP_FLOOR = 17.5;
+/** Frames between one adjustment and the next. */
+const TUNE_EVERY = 20;
+/** Having shed, the figure will not climb back to the population that was too
+ *  expensive: it keeps a ceiling just under it. Vertical sync quantises the
+ *  frame interval — you are either at the refresh rate or you have dropped a
+ *  frame, with nothing in between — so without a ceiling the governor would
+ *  grow until it dropped frames, shed, and grow again for ever, and the field
+ *  would be visibly breathing. The ceiling heals at this fraction of the full
+ *  population per adjustment, which lets a machine that was merely busy for a
+ *  moment get its density back within half a minute. */
+const CEIL_HEAL = 0.01;
+/** Frames between one cut of the bias contours and the next. */
+const BIAS_EVERY = 7;
+/** World units per frame a tracer covers on ground steep enough to saturate. */
+const SPEED = 0.0165;
+/** The gradient magnitude at which that top speed is reached. */
+const SPEED_KNEE = 125;
+/** A random walk added each frame, so the streams braid instead of collapsing
+ *  onto a handful of identical lines. */
+const JITTER = 0.0024;
+/** Below this gradient a tracer has arrived, and is retired shortly after. */
+const SETTLED = 11;
+/** Fraction of the streak buffer's alpha removed per frame: the tail length. */
+const DECAY = 0.055;
+/** Streaks are grouped into this many alpha/width bands, so a frame costs a
+ *  fixed handful of strokes rather than one per tracer. */
+const BANDS = 6;
+
+const G: [number, number] = [0, 0];
 
 interface Ctx {
   root: HTMLElement;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  /** The flow's own canvas, under the main one. Streaks accumulate here and
+   *  decay in place, so it is never cleared and never composited by hand. */
+  buf: HTMLCanvasElement;
+  bctx: CanvasRenderingContext2D;
   walker: Walker;
   bias: BiasGrid;
   trail: Float32Array;
   trailN: number;
   trailHead: number;
+  /** tracer state, parallel arrays rather than objects */
+  tx: Float32Array;
+  ty: Float32Array;
+  tage: Float32Array;
+  tlife: Float32Array;
+  tn: number;
+  /** Tracers are stepped in a prefix of those arrays; this is its length, and
+   *  it is what the frame-cost governor actually moves. */
+  active: number;
+  /** Exponential mean of the milliseconds spent inside frame(). */
+  cost: number;
+  /** Exponential mean of the interval between frames. */
+  gap: number;
+  /** The most tracers this device has shown it can afford. */
+  cap: number;
+  tune: number;
+  /** Bias contours, cut a few times a second and stroked from here between. */
+  biasPaths: { path: Path2D; t: number }[];
+  biasAt: number;
+  /** one coordinate buffer per alpha band, refilled every frame */
+  band: Float32Array[];
+  bandN: number[];
   raf: number;
   last: number;
   running: boolean;
@@ -36,59 +124,49 @@ interface Ctx {
   w: number;
   h: number;
   dpr: number;
-  /** the page colour, re-read whenever the theme changes */
+  /** palette, re-read whenever the theme changes */
   paper: string;
-
-  // ---- the surface
-  view: View;
-  /** where the view is easing to, so the pointer never yanks the camera */
-  wantYaw: number;
-  wantPitch: number;
-  /** the terrain, contours, path and markers, redrawn only when the view moves */
-  relief: HTMLCanvasElement | null;
-  reliefYaw: number;
-  reliefPitch: number;
-  reliefW: number;
-  reliefH: number;
-  /** contour polylines in world coordinates, with the level each sits at.
-   *  Built on the first frame that needs them rather than at startup: a page
-   *  that never scrolls to the figure, or a reader with motion off, should not
-   *  pay for marching squares and a string relaxation. */
-  contours: { level: number; index: boolean; pts: Float64Array }[] | null;
-  /** the minimum-energy path, A over both saddles to B */
-  mep: Float64Array | null;
-  palette: Palette;
+  blue: string;
 }
 
-interface Palette {
-  paper: string;
-  ink: string;
-  deep: [number, number, number];
-  high: [number, number, number];
-  hot: string;
-  rule: string;
-}
-
-/** The page colour as the browser has resolved it under the current theme. */
-function surfaceColour(): string {
-  return getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f6f1e5';
+/** A palette value as the browser has resolved it under the current theme. */
+function token(name: string, fallback: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 }
 
 function setup(root: HTMLElement): Ctx | null {
   const canvas = root.querySelector<HTMLCanvasElement>('[data-landscape-canvas]');
   const ctx = canvas?.getContext('2d', { alpha: true });
-  if (!canvas || !ctx) return null;
+  const buf = root.querySelector<HTMLCanvasElement>('[data-landscape-flow]');
+  const bctx = buf?.getContext('2d', { alpha: true });
+  if (!canvas || !ctx || !buf || !bctx) return null;
   const bias = new BiasGrid(121, 110);
   const walker = new Walker(0.623, 0.028, DEFAULT_PARAMS, bias, 19);
   return {
     root,
     canvas,
     ctx,
+    buf,
+    bctx,
     walker,
     bias,
     trail: new Float32Array(TRAIL * 2),
     trailN: 0,
     trailHead: 0,
+    tx: new Float32Array(0),
+    ty: new Float32Array(0),
+    tage: new Float32Array(0),
+    tlife: new Float32Array(0),
+    tn: 0,
+    active: 0,
+    cost: 0,
+    gap: 0,
+    cap: 0,
+    tune: TUNE_EVERY,
+    biasPaths: [],
+    biasAt: 0,
+    band: [],
+    bandN: [],
     raf: 0,
     last: 0,
     running: false,
@@ -101,21 +179,96 @@ function setup(root: HTMLElement): Ctx | null {
     w: 0,
     h: 0,
     dpr: 1,
-    paper: surfaceColour(),
-    // Looking down at the surface from the front left, which is where the
-    // light comes from and where a relief map is conventionally lit.
-    view: { yaw: 0.85, pitch: 1.0, w: 0, h: 0, relief: 0.46, fit: { scale: 1, dx: 0, dy: 0 } },
-    wantYaw: 0.85,
-    wantPitch: 1.0,
-    relief: null,
-    reliefYaw: NaN,
-    reliefPitch: NaN,
-    reliefW: 0,
-    reliefH: 0,
-    contours: null,
-    mep: null,
-    palette: readPalette(),
+    paper: token('--paper', '#f6f1e5'),
+    blue: token('--blue', '#1772d0'),
   };
+}
+
+/**
+ * Put a tracer somewhere on the surface, preferring steep ground.
+ *
+ * A uniform scatter wastes most of its tracers in the basins, where they arrive
+ * at once and have nothing left to draw. Taking the steepest of a few candidate
+ * points biases the release onto the slopes, which is where a streamline is
+ * worth seeing, without ever excluding the flats.
+ */
+function spawn(c: Ctx, i: number): void {
+  let bx = 0;
+  let by = 0;
+  let best = -1;
+  for (let k = 0; k < 5; k++) {
+    const x = DOMAIN.x0 + Math.random() * (DOMAIN.x1 - DOMAIN.x0);
+    const y = DOMAIN.y0 + Math.random() * (DOMAIN.y1 - DOMAIN.y0);
+    gradV(x, y, G);
+    const m = Math.hypot(G[0], G[1]);
+    if (m > best) {
+      best = m;
+      bx = x;
+      by = y;
+    }
+    if (m > 90) break; // steep enough; no need to keep looking
+  }
+  c.tx[i] = bx;
+  c.ty[i] = by;
+  c.tage[i] = 0;
+  c.tlife[i] = 55 + Math.random() * 170;
+}
+
+/** Size the tracer population to the figure and release it. */
+function seed(c: Ctx): void {
+  const want = Math.max(TRACE_MIN, Math.min(TRACE_MAX, Math.round(c.w * c.h * TRACE_DENSITY)));
+  if (want === c.tn) return;
+  c.tn = want;
+  c.tx = new Float32Array(want);
+  c.ty = new Float32Array(want);
+  c.tage = new Float32Array(want);
+  c.tlife = new Float32Array(want);
+  c.band = [];
+  c.bandN = [];
+  for (let b = 0; b < BANDS; b++) {
+    c.band.push(new Float32Array(want * 4));
+    c.bandN.push(0);
+  }
+  for (let i = 0; i < want; i++) {
+    spawn(c, i);
+    // Stagger the first generation's ages so they do not all retire together.
+    c.tage[i] = Math.random() * c.tlife[i];
+  }
+  c.active = Math.max(TRACE_FLOOR, Math.min(want, Math.round(want * TRACE_OPENING)));
+  c.cost = 0;
+  c.gap = 0;
+  c.cap = want;
+  c.tune = TUNE_EVERY;
+}
+
+/**
+ * Spend as much of the frame on tracers as the device can actually give.
+ *
+ * A fixed population is a guess about a machine this code has never seen: the
+ * count that holds sixty frames on a laptop is the count that janks a phone,
+ * and a phone is also where it matters most. So the figure measures what its
+ * own frame costs and moves the population until that cost sits in a band.
+ * It opens low and grows, rather than opening high and shedding, because the
+ * expensive first second is the one the reader feels.
+ */
+function govern(c: Ctx, spent: number, interval: number): void {
+  c.cost = c.cost ? c.cost * 0.85 + spent * 0.15 : spent;
+  c.gap = c.gap ? c.gap * 0.85 + interval * 0.15 : interval;
+  if (--c.tune > 0) return;
+  c.tune = TUNE_EVERY;
+  if (c.gap > GAP_CEIL || c.cost > COST_CEIL) {
+    c.cap = Math.max(TRACE_FLOOR, Math.min(c.cap, Math.round(c.active * 0.9)));
+    c.active = Math.max(TRACE_FLOOR, Math.round(c.active * 0.78));
+    return;
+  }
+  c.cap = Math.min(c.tn, c.cap + c.tn * CEIL_HEAL);
+  if (c.gap < GAP_FLOOR && c.cost < COST_FLOOR && c.active < c.cap) {
+    const was = c.active;
+    c.active = Math.min(Math.floor(c.cap), Math.round(c.active * 1.2) + 8);
+    // The ones coming back have stale positions, most of them settled in a
+    // basin from before they were parked. Release them afresh.
+    for (let i = was; i < c.active; i++) spawn(c, i);
+  }
 }
 
 function resize(c: Ctx): void {
@@ -127,12 +280,20 @@ function resize(c: Ctx): void {
   if (w === c.canvas.width && h === c.canvas.height) return;
   c.canvas.width = w;
   c.canvas.height = h;
+  c.buf.width = w;
+  c.buf.height = h;
   c.w = rect.width;
   c.h = rect.height;
   c.dpr = dpr;
-  c.view.w = rect.width;
-  c.view.h = rect.height;
+  // The cached contours are in CSS pixels, so a new box invalidates them.
+  c.biasAt = 0;
+  seed(c);
 }
+
+const toPx = (c: Ctx, x: number, y: number): [number, number] => [
+  ((x - DOMAIN.x0) / (DOMAIN.x1 - DOMAIN.x0)) * c.w,
+  c.h - ((y - DOMAIN.y0) / (DOMAIN.y1 - DOMAIN.y0)) * c.h,
+];
 
 const toWorld = (c: Ctx, px: number, py: number): [number, number] => [
   DOMAIN.x0 + (px / c.w) * (DOMAIN.x1 - DOMAIN.x0),
@@ -146,278 +307,121 @@ function pushTrail(c: Ctx, x: number, y: number): void {
   if (c.trailN < TRAIL) c.trailN++;
 }
 
-/** Read the palette out of the stylesheet, so all three themes drive it. */
-function readPalette(): Palette {
-  const cs = getComputedStyle(document.documentElement);
-  const tok = (n: string, f: string) => cs.getPropertyValue(n).trim() || f;
-  const rgb = (hex: string): [number, number, number] => {
-    const h = hex.replace('#', '');
-    const v = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
-    return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)];
-  };
-  const blue = rgb(tok('--blue', '#1772d0'));
-  const paper = tok('--paper', '#f6f1e5');
-  // The deepest ground is the brand blue; the high ground fades towards the
-  // page, so the surface sits in the paper rather than on it.
-  return {
-    paper,
-    ink: tok('--ink-2', '#45433d'),
-    deep: blue,
-    high: rgb(paper),
-    hot: tok('--orange', '#f09228'),
-    rule: tok('--rule-2', '#c4b89c'),
-  };
-}
+/**
+ * Advance every tracer one step and record the segment it covered.
+ *
+ * Velocity is -grad(V) with its magnitude saturated, so a tracer is fast on a
+ * steep face and slow on a shallow one — the field's own structure, legible as
+ * speed — without the integrator exploding on the walls where the potential
+ * climbs into the thousands. The cursor's repulsive Gaussian, the same one that
+ * pushes the walker, is added here too: push on the surface and the flow parts
+ * around your hand.
+ */
+function advect(c: Ctx, dtf: number): void {
+  for (let b = 0; b < BANDS; b++) c.bandN[b] = 0;
+  const e = c.walker.external;
+  for (let i = 0; i < c.active; i++) {
+    const x = c.tx[i];
+    const y = c.ty[i];
+    gradV(x, y, G);
+    const m = Math.hypot(G[0], G[1]) || 1e-6;
+    // speed/magnitude, so direction is -grad and |v| = min(SPEED, m * k)
+    const k = Math.min(SPEED, (m / SPEED_KNEE) * SPEED) / m;
+    let vx = -G[0] * k;
+    let vy = -G[1] * k;
+    if (e && e.h !== 0) {
+      const dx = x - e.x;
+      const dy = y - e.y;
+      const g = (0.6 * Math.exp(-(dx * dx + dy * dy) / (2 * e.s * e.s))) / (e.s * e.s);
+      vx += g * dx * 0.012;
+      vy += g * dy * 0.012;
+    }
+    const nx = x + vx * dtf + (Math.random() - 0.5) * JITTER * dtf;
+    const ny = y + vy * dtf + (Math.random() - 0.5) * JITTER * dtf;
 
-/** Contour polylines in world coordinates, computed once. */
-function buildContours(): { level: number; index: boolean; pts: Float64Array }[] {
-  const nx = 121;
-  const ny = Math.round((nx * (DOMAIN.y1 - DOMAIN.y0)) / (DOMAIN.x1 - DOMAIN.x0));
-  const grid = sampleGrid(V, nx, ny, DOMAIN);
-  const sx = (DOMAIN.x1 - DOMAIN.x0) / (nx - 1);
-  const sy = (DOMAIN.y1 - DOMAIN.y0) / (ny - 1);
-  const out: { level: number; index: boolean; pts: Float64Array }[] = [];
-  for (const level of LEVELS) {
-    const seg = isoSegments(grid.values, nx, ny, level);
-    if (!seg.length) continue;
-    for (const line of joinSegments(seg)) {
-      if (line.length < 4) continue;
-      const pts = new Float64Array(line.length);
-      for (let i = 0; i < line.length; i += 2) {
-        pts[i] = DOMAIN.x0 + line[i] * sx;
-        pts[i + 1] = DOMAIN.y0 + line[i + 1] * sy;
-      }
-      out.push({ level, index: isIndexLevel(level), pts });
+    const t = Math.min(1, Math.hypot(vx, vy) / SPEED);
+    const bi = Math.min(BANDS - 1, (t * BANDS) | 0);
+    const buf = c.band[bi];
+    let n = c.bandN[bi];
+    const [ax, ay] = toPx(c, x, y);
+    const [bx2, by2] = toPx(c, nx, ny);
+    buf[n] = ax;
+    buf[n + 1] = ay;
+    buf[n + 2] = bx2;
+    buf[n + 3] = by2;
+    c.bandN[bi] = n + 4;
+
+    c.tx[i] = nx;
+    c.ty[i] = ny;
+    c.tage[i] += dtf;
+    const out =
+      nx < DOMAIN.x0 || nx > DOMAIN.x1 || ny < DOMAIN.y0 || ny > DOMAIN.y1 || !Number.isFinite(nx);
+    // A tracer that has arrived keeps drawing for a moment — that is what makes
+    // the three wells glow — and is then recycled onto a slope.
+    if (out || c.tage[i] > c.tlife[i] || (m < SETTLED && Math.random() < 0.035 * dtf)) {
+      spawn(c, i);
     }
   }
-  return out;
 }
 
-/** A over the first saddle, through C, over the second, down into B. */
-function buildMep(): Float64Array {
-  const legs = [
-    stringMethod(MINIMA.A, MINIMA.C, { images: 36, steps: 900 }),
-    stringMethod(MINIMA.C, MINIMA.B, { images: 36, steps: 900 }),
-  ];
-  const pts: number[] = [];
-  legs.forEach((leg, i) => {
-    for (const p of leg.slice(i ? 1 : 0)) pts.push(p.x, p.y);
-  });
-  return Float64Array.from(pts);
-}
+/** Decay what is already in the streak buffer, then stroke this frame's step. */
+function paintFlow(c: Ctx, dtf: number): void {
+  const { bctx, buf } = c;
+  bctx.save();
+  bctx.setTransform(1, 0, 0, 1, 0, 0);
+  bctx.globalCompositeOperation = 'destination-out';
+  bctx.fillStyle = '#000';
+  bctx.globalAlpha = Math.min(0.35, DECAY * dtf);
+  bctx.fillRect(0, 0, buf.width, buf.height);
+  bctx.restore();
 
-const P0: Projected = { sx: 0, sy: 0, depth: 0 };
-const P1: Projected = { sx: 0, sy: 0, depth: 0 };
-
-/** Blend by energy, then light, and return one colour. Doing the light as a
- *  second translucent fill over the same path double-blends every shared edge
- *  and leaves the tessellation visible as a lattice. */
-function faceColour(pal: Palette, t: number, lum: number, solid: number): string {
-  const k = Math.pow(t, 0.72);
-  const out: number[] = [];
-  for (let i = 0; i < 3; i++) {
-    const base = pal.deep[i] + (pal.high[i] - pal.deep[i]) * k;
-    const lit = lum > 0.62 ? base + (255 - base) * (lum - 0.62) * 0.9 : base * (1 - (0.62 - lum) * 0.9);
-    // Fading is done by mixing towards the page rather than by lowering the
-    // alpha. Every face is filled AND hairline-stroked to close the seam
-    // between neighbours, and at alpha below one those two passes composite
-    // twice along every shared edge, which turns the whole surface into a
-    // visible weave. Mixing keeps each face opaque, and the page is what is
-    // behind it anyway, so the result on screen is the same fade.
-    out.push(Math.max(0, Math.min(255, Math.round(lit + (pal.high[i] - lit) * (1 - solid)))));
+  bctx.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+  bctx.globalCompositeOperation = 'source-over';
+  bctx.strokeStyle = c.blue;
+  bctx.lineCap = 'round';
+  for (let b = 0; b < BANDS; b++) {
+    const n = c.bandN[b];
+    if (n === 0) continue;
+    const t = (b + 0.5) / BANDS;
+    bctx.globalAlpha = 0.075 + 0.3 * t;
+    bctx.lineWidth = 0.7 + 0.55 * t;
+    const arr = c.band[b];
+    bctx.beginPath();
+    for (let k = 0; k < n; k += 4) {
+      bctx.moveTo(arr[k], arr[k + 1]);
+      bctx.lineTo(arr[k + 2], arr[k + 3]);
+    }
+    bctx.stroke();
   }
-  return `rgb(${out[0]} ${out[1]} ${out[2]})`;
+  bctx.globalAlpha = 1;
 }
 
 /**
- * The terrain itself: quads over a grid, drawn back to front so nearer ground
- * covers what is behind it, each face flat-shaded from the analytic gradient.
- * Contour lines, the minimum-energy path and the stationary points go on in
- * the same pass because they move only when the view does.
+ * Rebuild the bias contours.
+ *
+ * This is the point of the animation: you watch the basin the walker is sitting
+ * in fill up with hills until it is shallow enough to escape over a saddle.
+ *
+ * Marching squares over the whole bias grid is far too much work to repeat
+ * sixty times a second, and it is work nobody can see, because the field grows
+ * by one Gaussian per deposit and barely moves between frames. So the contours
+ * are cut into paths a few times a second and stroked from the cache in
+ * between.
  */
-function renderRelief(c: Ctx): void {
-  const { view } = c;
-  if (view.w < 2 || view.h < 2) return;
-  // Everything projected this frame, here and in draw(), shares this fit.
-  fitView(view, V);
-  c.contours ??= buildContours();
-  c.mep ??= buildMep();
-  const contours = c.contours;
-  const mep = c.mep;
-  const off = c.relief ?? document.createElement('canvas');
-  off.width = Math.round(view.w * c.dpr);
-  off.height = Math.round(view.h * c.dpr);
-  const g = off.getContext('2d');
-  if (!g) return;
-  g.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
-  g.clearRect(0, 0, view.w, view.h);
-
-  // Coarser where there is less to spend: a phone does not need 3,500 faces.
-  const wide = view.w >= 520;
-  const NX = wide ? 58 : 40;
-  const NY = Math.max(24, Math.round((NX * (DOMAIN.y1 - DOMAIN.y0)) / (DOMAIN.x1 - DOMAIN.x0)));
-  const dx = (DOMAIN.x1 - DOMAIN.x0) / NX;
-  const dy = (DOMAIN.y1 - DOMAIN.y0) / NY;
-  g.lineWidth = 0.6;
-  g.lineJoin = 'round';
-
-  // Project the whole lattice once; every face then reads four corners out of
-  // it instead of projecting its own.
-  const px = new Float64Array((NX + 1) * (NY + 1));
-  const py = new Float64Array((NX + 1) * (NY + 1));
-  const pv = new Float64Array((NX + 1) * (NY + 1));
-  const pd = new Float64Array((NX + 1) * (NY + 1));
-  for (let j = 0; j <= NY; j++) {
-    const y = DOMAIN.y0 + j * dy;
-    for (let i = 0; i <= NX; i++) {
-      const x = DOMAIN.x0 + i * dx;
-      const v = V(x, y);
-      project(view, x, y, v, P0);
-      const k = j * (NX + 1) + i;
-      px[k] = P0.sx;
-      py[k] = P0.sy;
-      pv[k] = v;
-      pd[k] = P0.depth;
-    }
-  }
-
-  // Back to front, by the depth each face actually projects to.
-  //
-  // Walking the rows and columns in the right order is almost right, and the
-  // "almost" shows: where the surface folds over itself, as the near wall of
-  // A's well does, a face can be nearer than one in the row behind it and the
-  // wrong one wins, which punched white notches along that rim. Sorting costs
-  // one pass over a few thousand faces and only happens when the view moves.
-  const faces = new Int32Array(NX * NY);
-  const fd = new Float64Array(NX * NY);
-  for (let j = 0, n = 0; j < NY; j++) {
-    for (let i = 0; i < NX; i++, n++) {
-      const a = j * (NX + 1) + i;
-      faces[n] = a;
-      fd[n] = pd[a] + pd[a + 1] + pd[a + NX + 1] + pd[a + NX + 2];
-    }
-  }
-  const order = Array.from(faces.keys()).sort((m, n) => fd[n] - fd[m]);
-  for (const n of order) {
-    {
-      const a = faces[n];
-      const i = a % (NX + 1);
-      const j = (a - i) / (NX + 1);
-      const b = a + 1;
-      const d = a + NX + 1;
-      const e = d + 1;
-      const vm = (pv[a] + pv[b] + pv[d] + pv[e]) / 4;
-      const lum = shade(view, DOMAIN.x0 + (i + 0.5) * dx, DOMAIN.y0 + (j + 0.5) * dy);
-      const t = depthFraction(vm);
-      // Deep ground is saturated and dark, high ground washes out towards the
-      // page. Light is applied on top, so the shape reads even where the
-      // energy is flat.
-      const solid = solidity(vm);
-      if (solid <= 0.004) continue;
-      const col = faceColour(c.palette, t, lum, solid);
-      g.fillStyle = col;
-      g.strokeStyle = col;
-      g.beginPath();
-      g.moveTo(px[a], py[a]);
-      g.lineTo(px[b], py[b]);
-      g.lineTo(px[e], py[e]);
-      g.lineTo(px[d], py[d]);
-      g.closePath();
-      g.fill();
-      // A hairline in the fill's own colour closes the sub-pixel gap between
-      // neighbouring faces, which otherwise shows the page through as a mesh.
-      g.stroke();
-    }
-  }
-  g.globalAlpha = 1;
-
-  // Contours, each at its own level, so they lie on the surface exactly.
-  g.lineJoin = 'round';
-  g.lineCap = 'round';
-  for (const line of contours) {
-    const fade = solidity(line.level);
-    if (fade <= 0.02) continue;
-    g.globalAlpha = (line.index ? 0.5 : 0.26) * fade;
-    g.strokeStyle = c.palette.ink;
-    g.lineWidth = line.index ? 1.15 : 0.7;
-    g.beginPath();
-    for (let i = 0; i < line.pts.length; i += 2) {
-      project(view, line.pts[i], line.pts[i + 1], line.level, P0);
-      if (i === 0) g.moveTo(P0.sx, P0.sy);
-      else g.lineTo(P0.sx, P0.sy);
-    }
-    g.stroke();
-  }
-  g.globalAlpha = 1;
-
-  // The minimum-energy path, lying in the valleys and over both passes.
-  g.setLineDash([2, 5]);
-  g.strokeStyle = c.palette.ink;
-  g.lineWidth = 1.5;
-  g.globalAlpha = 0.85;
-  g.beginPath();
-  for (let i = 0; i < mep.length; i += 2) {
-    const x = mep[i];
-    const y = mep[i + 1];
-    project(view, x, y, V(x, y), P0);
-    if (i === 0) g.moveTo(P0.sx, P0.sy);
-    else g.lineTo(P0.sx, P0.sy);
-  }
-  g.stroke();
-  g.setLineDash([]);
-  g.globalAlpha = 1;
-
-  // The stationary points the path runs between.
-  g.font = `600 ${Math.max(10, Math.round(view.w * 0.021))}px ${
-    getComputedStyle(document.documentElement).getPropertyValue('--sans') || 'system-ui'
-  }`;
-  g.textAlign = 'center';
-  g.textBaseline = 'middle';
-  const marks: [string, number, number][] = [
-    ['A', MINIMA.A.x, MINIMA.A.y],
-    ['B', MINIMA.B.x, MINIMA.B.y],
-    ['C', MINIMA.C.x, MINIMA.C.y],
-    ['\u2021', SADDLES.S1.x, SADDLES.S1.y],
-    ['\u2021', SADDLES.S2.x, SADDLES.S2.y],
-  ];
-  for (const [label, x, y] of marks) {
-    project(view, x, y, V(x, y), P0);
-    const r = Math.max(8, view.w * 0.015);
-    g.fillStyle = c.palette.ink;
-    g.beginPath();
-    g.arc(P0.sx, P0.sy, r, 0, Math.PI * 2);
-    g.fill();
-    g.fillStyle = c.palette.paper;
-    g.fillText(label, P0.sx, P0.sy + 0.5);
-  }
-
-  c.relief = off;
-  c.reliefYaw = view.yaw;
-  c.reliefPitch = view.pitch;
-  c.reliefW = view.w;
-  c.reliefH = view.h;
-}
-
-/**
- * Draw the metadynamics bias as filled contours. This is the point of the
- * animation: you watch the basin the walker is sitting in fill up with hills
- * until it is shallow enough to escape over a saddle.
- */
-function drawBias(c: Ctx): void {
-  const { ctx, bias } = c;
+function buildBias(c: Ctx): void {
+  c.biasPaths.length = 0;
+  const { bias } = c;
   if (bias.hills === 0) return;
-  // Wider apart than the flat figure used. In plan the rings nested tidily;
-  // in relief they stack into the basin and a 7-unit interval reads as
-  // scribble rather than as filling.
-  const step = 16; // bias contour interval, in potential units
-  const max = Math.max(...bias.values);
+  const step = 7; // bias contour interval, in potential units
+  let max = 0;
+  for (let i = 0; i < bias.values.length; i++) if (bias.values[i] > max) max = bias.values[i];
   if (max < step) return;
   const cols = bias.nx;
   const rows = bias.ny;
-  ctx.save();
-  ctx.lineWidth = 1;
+  const cw = c.w / (cols - 1);
+  const ch = c.h / (rows - 1);
   for (let level = step; level <= max; level += step) {
-    ctx.beginPath();
+    const path = new Path2D();
     for (let j = 0; j < rows - 1; j++) {
       for (let i = 0; i < cols - 1; i++) {
         const v0 = bias.values[j * cols + i];
@@ -430,8 +434,8 @@ function drawBias(c: Ctx): void {
         if (v2 > level) code |= 4;
         if (v3 > level) code |= 8;
         if (code === 0 || code === 15) continue;
-        const X = (gi: number) => DOMAIN.x0 + (gi / (cols - 1)) * (DOMAIN.x1 - DOMAIN.x0);
-        const Y = (gj: number) => DOMAIN.y0 + (gj / (rows - 1)) * (DOMAIN.y1 - DOMAIN.y0);
+        const X = (gi: number) => gi * cw;
+        const Y = (gj: number) => c.h - gj * ch;
         const bx = X(i + (level - v0) / (v1 - v0));
         const ry = Y(j + (level - v1) / (v2 - v1));
         const tx = X(i + (level - v3) / (v2 - v3));
@@ -446,49 +450,38 @@ function drawBias(c: Ctx): void {
           case 7: case 8: seg.push(X(i), ly, tx, Y(j + 1)); break;
           default: seg.push(X(i), ly, bx, Y(j), X(i + 1), ry, tx, Y(j + 1));
         }
-        // Metadynamics raises the floor of whatever basin the walker is in,
-        // so each ring is drawn at the height the bias has actually reached:
-        // the ground under it plus the level it encloses. They stack up the
-        // inside of the well, and when the pile reaches a saddle the walker
-        // leaves over it, which is the whole thing the figure is showing.
         for (let k = 0; k < seg.length; k += 4) {
-          project(c.view, seg[k], seg[k + 1], V(seg[k], seg[k + 1]) + level, P0);
-          project(c.view, seg[k + 2], seg[k + 3], V(seg[k + 2], seg[k + 3]) + level, P1);
-          ctx.moveTo(P0.sx, P0.sy);
-          ctx.lineTo(P1.sx, P1.sy);
+          path.moveTo(seg[k], seg[k + 1]);
+          path.lineTo(seg[k + 2], seg[k + 3]);
         }
       }
     }
-    const t = Math.min(1, level / 110);
-    ctx.strokeStyle = `rgba(240, 146, 40, ${(0.16 + 0.3 * (1 - t)).toFixed(3)})`;
-    ctx.stroke();
+    c.biasPaths.push({ path, t: Math.min(1, level / 110) });
+  }
+}
+
+function drawBias(c: Ctx): void {
+  if (c.biasPaths.length === 0) return;
+  const { ctx } = c;
+  ctx.save();
+  ctx.lineWidth = 1;
+  for (const b of c.biasPaths) {
+    ctx.strokeStyle = `rgba(240, 146, 40, ${0.1 + 0.26 * (1 - b.t)})`;
+    ctx.stroke(b.path);
   }
   ctx.restore();
 }
 
 function draw(c: Ctx): void {
   const { ctx } = c;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, c.canvas.width, c.canvas.height);
   ctx.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
-  ctx.clearRect(0, 0, c.w, c.h);
-
-  // The terrain is the expensive part and only changes when the view does, so
-  // it is drawn once into its own canvas and composited from there.
-  if (
-    !c.relief ||
-    c.reliefW !== c.view.w ||
-    c.reliefH !== c.view.h ||
-    Math.abs(c.reliefYaw - c.view.yaw) > 0.014 ||
-    Math.abs(c.reliefPitch - c.view.pitch) > 0.014
-  ) {
-    renderRelief(c);
-  }
-  if (c.relief) ctx.drawImage(c.relief, 0, 0, c.w, c.h);
 
   drawBias(c);
 
-  // trail, fading from old to new
+  // trail, tapering and brightening towards the head
   if (c.trailN > 1) {
-    ctx.lineWidth = 1.7;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     const segments = 14;
@@ -500,23 +493,29 @@ function draw(c: Ctx): void {
       ctx.beginPath();
       for (let k = from; k < to; k++) {
         const idx = (c.trailHead - c.trailN + k + TRAIL * 2) % TRAIL;
-        const tx = c.trail[idx * 2];
-        const ty = c.trail[idx * 2 + 1];
-        project(c.view, tx, ty, V(tx, ty), P0);
-        if (k === from) ctx.moveTo(P0.sx, P0.sy);
-        else ctx.lineTo(P0.sx, P0.sy);
+        const [px, py] = toPx(c, c.trail[idx * 2], c.trail[idx * 2 + 1]);
+        if (k === from) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
       }
-      ctx.strokeStyle = `rgba(240, 146, 40, ${(0.06 + 0.72 * ((s + 1) / segments)).toFixed(3)})`;
+      const t = (s + 1) / segments;
+      ctx.lineWidth = 0.6 + 1.3 * t;
+      ctx.strokeStyle = `rgba(240, 146, 40, ${(0.04 + 0.78 * t).toFixed(3)})`;
       ctx.stroke();
     }
   }
 
-  // the walker, standing on the ground rather than floating over a map
-  project(c.view, c.walker.x, c.walker.y, V(c.walker.x, c.walker.y), P0);
-  const px = P0.sx;
-  const py = P0.sy;
+  // the walker: a soft halo so it carries across the flow, then the dot
+  const [px, py] = toPx(c, c.walker.x, c.walker.y);
+  const halo = ctx.createRadialGradient(px, py, 0, px, py, 15);
+  halo.addColorStop(0, 'rgba(240, 146, 40, 0.42)');
+  halo.addColorStop(0.45, 'rgba(240, 146, 40, 0.16)');
+  halo.addColorStop(1, 'rgba(240, 146, 40, 0)');
+  ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(px, py, 4.6, 0, Math.PI * 2);
+  ctx.arc(px, py, 15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px, py, 4.2, 0, Math.PI * 2);
   ctx.fillStyle = '#f09228';
   ctx.fill();
   ctx.lineWidth = 1.6;
@@ -540,7 +539,11 @@ function readout(c: Ctx, now: number): void {
 function frame(c: Ctx, now: number): void {
   c.raf = 0;
   if (!c.running) return;
-  const dtMs = Math.min(MAX_STEP_MS, c.last ? now - c.last : 16);
+  const t0 = performance.now();
+  // The raw interval is what the governor reads; the physics gets a capped
+  // version so a long stall cannot be integrated in one jump.
+  const raw = c.last ? Math.min(100, now - c.last) : 16;
+  const dtMs = Math.min(MAX_STEP_MS, raw);
   c.last = now;
   // integrate a fixed number of substeps per millisecond of wall clock, so the
   // motion looks the same on a 60Hz and a 120Hz display
@@ -549,20 +552,22 @@ function frame(c: Ctx, now: number): void {
     c.walker.step();
     if (s % 9 === 0) pushTrail(c, c.walker.x, c.walker.y);
   }
+  if (--c.biasAt <= 0) {
+    c.biasAt = BIAS_EVERY;
+    buildBias(c);
+  }
+  const dtf = Math.max(0.25, Math.min(2, dtMs / 16.7));
+  advect(c, dtf);
+  paintFlow(c, dtf);
   // Keep the bias bounded: once it is deep enough that the walker roams freely,
   // relax it so the figure keeps breathing instead of flattening the surface.
   if (c.bias.hills > 2600) {
     c.bias.scale(0.55);
     c.bias.hills = Math.round(c.bias.hills * 0.55);
   }
-  // The camera eases towards where the pointer asked it to be, rather than
-  // tracking it. A surface that snapped to the cursor would be a toy; one that
-  // drifts a few degrees behind reads as something with weight.
-  const ease = 1 - Math.pow(0.0016, dtMs / 1000);
-  c.view.yaw += (c.wantYaw - c.view.yaw) * ease;
-  c.view.pitch += (c.wantPitch - c.view.pitch) * ease;
   draw(c);
   readout(c, now);
+  govern(c, performance.now() - t0, raw);
   c.raf = requestAnimationFrame((t) => frame(c, t));
 }
 
@@ -570,6 +575,7 @@ function start(c: Ctx): void {
   if (c.running || !c.visible || !c.wanted) return;
   resize(c);
   if (c.w < 1) return;
+  seed(c);
   c.running = true;
   c.last = 0;
   c.root.setAttribute('data-live', '');
@@ -587,10 +593,11 @@ export function initLandscape(root: HTMLElement): void {
   const c = setup(root);
   if (!c) return;
 
-  // The surface colour is read once rather than every frame, so it has to be
-  // told when the palette moves under it.
+  // The palette is read once rather than every frame, so it has to be told when
+  // it moves underneath.
   document.addEventListener('theme:change', () => {
-    c.paper = surfaceColour();
+    c.paper = token('--paper', '#f6f1e5');
+    c.blue = token('--blue', '#1772d0');
   });
 
   const toggle = root.querySelector<HTMLButtonElement>('[data-landscape-toggle]');
@@ -619,11 +626,29 @@ export function initLandscape(root: HTMLElement): void {
     }
   });
 
+  // The very first start waits for the page to go quiet. The hero is in view
+  // the moment the document loads, so an animation that begins there is
+  // competing with the stylesheet, the fonts and the intro for one thread, in
+  // exactly the second that decides whether the page feels fast. Every later
+  // start — scrolling back to it, returning to the tab — is immediate.
+  let opened = false;
+  const opening = (fn: () => void) => {
+    if (opened) return fn();
+    opened = true;
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(() => fn(), { timeout: 1500 });
+    } else {
+      window.setTimeout(fn, 700);
+    }
+  };
+
   const io = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
         c.visible = e.isIntersecting;
-        if (e.isIntersecting && !motionOff.matches) start(c);
+        // start() re-checks visibility, so scrolling away before the idle
+        // callback lands simply means it never starts.
+        if (e.isIntersecting && !motionOff.matches) opening(() => start(c));
         else stop(c);
       }
     },
@@ -651,34 +676,17 @@ export function initLandscape(root: HTMLElement): void {
   });
 
   // The cursor is a repulsive Gaussian: push on the surface and the walker is
-  // driven out of the basin it is sitting in.
+  // driven out of the basin it is sitting in, while the flow parts around it.
   const stage = root.querySelector<HTMLElement>('.landscape__stage') ?? root;
-  const BASE_YAW = 0.85;
-  const BASE_PITCH = 1.0;
   const onMove = (ev: PointerEvent) => {
     if (ev.pointerType === 'touch') return;
     const rect = c.canvas.getBoundingClientRect();
-    if (rect.width < 1 || rect.height < 1) return;
-    const fx = (ev.clientX - rect.left) / rect.width;
-    const fy = (ev.clientY - rect.top) / rect.height;
     const [x, y] = toWorld(c, ev.clientX - rect.left, ev.clientY - rect.top);
     c.walker.external = { x, y, h: 520, s: 0.26 };
-    // A few degrees of parallax, so moving across the figure looks around it.
-    // Bounded tightly: the lighting and the labels are placed for this view.
-    c.wantYaw = BASE_YAW + (fx - 0.5) * 0.5;
-    c.wantPitch = Math.max(0.6, Math.min(1.22, BASE_PITCH + (fy - 0.5) * 0.42));
   };
   stage.addEventListener('pointermove', onMove, { passive: true });
   stage.addEventListener('pointerleave', () => {
     c.walker.external = null;
-    c.wantYaw = BASE_YAW;
-    c.wantPitch = BASE_PITCH;
-  });
-
-  // The surface is drawn from the palette, so a theme change rebuilds it.
-  document.addEventListener('theme:change', () => {
-    c.palette = readPalette();
-    c.relief = null;
   });
 }
 
