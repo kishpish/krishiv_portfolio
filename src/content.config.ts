@@ -61,6 +61,21 @@ const research = defineCollection({
      *  folded into the summary above, which is the reader's first impression
      *  and is not the place for it. */
     abstract_note: z.string().optional(),
+    /** A conference poster for this project, shown whole and linking to the
+     *  full sheet. It is a rendering of a PDF that lives elsewhere, so the
+     *  image is a preview and `href` is the thing itself. */
+    poster: z
+      .object({
+        src: z.string(),
+        width: z.number(),
+        height: z.number(),
+        fallback: z.enum(['jpg', 'png']).default('jpg'),
+        href: z.url(),
+        label: z.string(),
+        caption: z.string(),
+        alt: z.string(),
+      })
+      .optional(),
     figure: z
       .object({
         id: z.string(), // key into src/lib/figures

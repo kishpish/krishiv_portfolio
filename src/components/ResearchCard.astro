@@ -11,6 +11,7 @@ import ProjectPlate from './ProjectPlate.astro';
 import ProjectMedia from './ProjectMedia.astro';
 import LinkRow from './LinkRow.astro';
 import Abstract from './Abstract.astro';
+import ProjectPoster from './ProjectPoster.astro';
 
 interface Props {
   entry: CollectionEntry<'research'>;
@@ -117,6 +118,22 @@ const authorHtml = (a: string[]) =>
             caption={clean(d.figure.caption)}
             alt={clean(d.figure.alt)}
             n={`${n}b`}
+            class="rcard__fig2"
+          />
+        )}
+
+        {/* The poster is the whole argument on one sheet, so it sits under the
+            figure that argues one piece of it. */}
+        {d.poster && (
+          <ProjectPoster
+            src={d.poster.src}
+            width={d.poster.width}
+            height={d.poster.height}
+            fallback={d.poster.fallback}
+            href={d.poster.href}
+            label={d.poster.label}
+            caption={d.poster.caption}
+            alt={d.poster.alt}
             class="rcard__fig2"
           />
         )}

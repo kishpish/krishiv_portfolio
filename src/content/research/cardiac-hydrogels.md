@@ -1,5 +1,5 @@
 ---
-title: "Inverse design of cardiac-repair biomaterials"
+title: "Patient-specific hydrogels for post-infarction cardiac repair"
 short: "Cardiac biomaterials"
 order: 2
 period: "May 2025 to Feb 2026"
@@ -8,20 +8,17 @@ kind: independent
 paper: hydrogel-bibm-2026
 honor: "1st Place, Texas Science and Engineering Fair 2026"
 summary: >-
-  Scar replaces muscle permanently after a heart attack, and the gel you would
-  inject interacts with the geometry of one patient's damage, so the experiment
-  you actually want is the one you cannot run. This work pairs HYDRA-BERT, a
-  chemical language model adapted from a frozen 86M-parameter polymer
-  transformer, with a geometry pipeline that turns patient
-  surface meshes into ten solver-ready tetrahedral hearts totalling 3.66
-  million elements, each carrying fibre architecture and a scar and border zone
-  inferred from wall thinning rather than read off contrast-enhanced imaging,
-  so a cohort that has only surface geometry can still be taken through
-  mechanics and electrophysiology solvers. Candidates are scored against
-  outcome and safety thresholds fixed in code, which turns an open-ended
-  material search into a ranked shortlist. What that gives a lab is an order to
-  work in: which of the 24 formulations to put in front of a given heart first,
-  and a list short enough that the full solver can be run on whatever survives.
+  Scar replaces muscle permanently after a heart attack, and the gel you would inject interacts
+  with the geometry of one patient's damage, so the experiment you actually want is the one you
+  cannot run. This is the first pipeline that runs from a patient's cardiac MRI to a hydrogel
+  prescription for that particular heart, with the ranking it produces checked against full
+  finite-element simulation rather than asserted. HYDRA-BERT, a chemical language model adapted
+  from a frozen polyBERT trunk and refined with reinforcement learning, screens ten million
+  formulations per patient at 19,608 designs a second and predicts the gain on patients it has
+  never seen at R² 0.89, which is one new MRI to one deliverable design in about 37 minutes.
+  Across 60 heart models the selected gels raised ejection fraction by 9.1 points and cut
+  border-zone wall stress by 30.1%, and in 210 sealed simulations the recorded ranking held
+  inside every patient at ρ = 0.93 to 0.98, including two hearts the model was never trained on.
 problem: >-
   Scar replaces muscle permanently after a myocardial infarction. An injectable
   hydrogel could support the wall while the tissue remodels, but a gel is not
@@ -30,51 +27,74 @@ problem: >-
   material to a heart is years of trial and error, and the one test you want,
   trying it on that patient, is the one you cannot run.
 approach: >-
-  Close the loop in silico. On one side, a chemical language model fine-tuned
-  from a pretrained polymer model proposes and scores formulations across the
-  design space. That model is HYDRA-BERT, built on a frozen 86M-parameter
-  polyBERT trunk with low-rank adapters and a fusion network over it, trained
-  across 16 A100s. On the other, a geometry pipeline
-  turns each patient's surface meshes into a tetrahedral heart with inferred
-  scar, border zone, transmural coordinates, and helical fibre architecture,
-  ready for mechanical and electrophysiology solvers. A design is only a candidate if it clears
-  thresholds on both sides.
+  Close the loop in silico. On one side, a chemical language model proposes and scores
+  formulations across the design space. That model is HYDRA-BERT, built on a frozen
+  86.1M-parameter polyBERT trunk with 1.18M trainable low-rank adapters over it, then refined
+  with proximal policy optimization and run down a six-stage cascade that takes ten million
+  candidates to one. On the other, a geometry pipeline turns each patient's surface meshes into
+  a tetrahedral heart with inferred scar, border zone, transmural coordinates, and helical fibre
+  architecture, ready for mechanical and electrophysiology solvers. A design is only a candidate
+  if it clears thresholds on both sides, and infeasible layouts are rejected rather than
+  clipped.
 result: >-
-  Ten patient-specific hearts built end to end, 3.66 million tetrahedral
-  elements across them, with scar and border zone labelled automatically from
-  wall geometry, fibre fields reconstructed, and injection sites selected
-  geodesically. Designs are scored against a therapeutic bar set at a 5-point
-  absolute improvement in ejection fraction, with wall-stress and strain
-  criteria alongside it and explicit safety limits.
+  Ten patient-specific hearts built end to end, 3.66 million tetrahedral elements across them
+  with none inverted, eight personalized to their imaged volumes and six carried through design
+  and verification. Injection sites are placed from curvature-corrected wall stress and
+  heat-method geodesics: 17 sites, 82.4% in the border zone and none in scar, with 99.5% of
+  1,927 simulated depots landing in the border zone. The ranking was sealed with a SHA-256 hash
+  before the first solve, and all 210 finite-element simulations converged. The optimized design
+  beat a clinical-style 4 kPa alginate in all six patients.
 landscape: >-
   This one is a search rather than a trajectory: a design space with a scoring
   surface over it, and the question is which point moves a patient from one
   state to a better one.
-headline: "3.66M elements"
+headline: "+9.1 points"
 evidence:
-  - value: "10"
-    label: "patient-specific heart models built end to end"
-  - value: "3.66M"
-    label: "tetrahedral elements across the ten meshes"
-  - value: "24"
-    label: "hydrogel formulations across the searched design space"
-  - value: "16× A100"
-    label: "distributed training configuration"
-abstract_kind: summary
+  - value: "+9.1 pts"
+    label: "ejection fraction across 60 heart models, p < 0.0001"
+  - value: "10 million"
+    label: "formulations screened per patient, narrowed to one prescription"
+  - value: "0.93 to 0.98"
+    label: "rank correlation of the sealed prediction, inside every patient"
+  - value: "210"
+    label: "finite-element verification solves, all converged"
+abstract_kind: paper
 abstract: >-
-    Scar replaces contractile muscle permanently after a myocardial infarction. An injectable
-    hydrogel can support the wall mechanically, but its chemistry, stiffness, degradation,
-    conductivity, thickness and coverage all interact with the geometry of one patient's damage,
-    so the experiment worth running is the one that cannot be run. This work closes that loop in
-    simulation. A geometry pipeline turns ten patient left-ventricle surfaces into solver-ready
-    tetrahedral meshes totalling 3.66 million elements, each carrying fibre architecture and a
-    scar and border zone inferred from wall thinning along a computed transmural coordinate
-    rather than read off contrast-enhanced imaging. A pretrained polymer chemical language
-    model, fine-tuned and then refined with reinforcement learning, scores candidate
-    formulations against outcome and safety thresholds fixed in code, which turns an open-ended
-    material search into a ranked shortlist. Because the search runs on surrogate predictions
-    rather than a full simulation for every design, a shortlisted formulation is a hypothesis
-    for the solver rather than a result from it.
+    Injectable hydrogels can thicken the infarcted left-ventricular (LV) wall and reduce the
+    stress that drives heart failure, but injection sites are selected visually and formulations
+    empirically. We present, to our knowledge, the first pipeline from cardiac magnetic
+    resonance imaging (MRI) to a patient-specific hydrogel prescription with a design ranking
+    verified by finite-element (FE) simulation. It (i) converts sparse atlas data into LV models
+    personalized to imaged volumes, (ii) selects injection sites from curvature-corrected wall
+    stress and heat-method geodesics, (iii) searches 10⁷ formulations per patient with
+    HYDRA-BERT (HYdrogel Domain Refined Adaptation of BERT), a low-rank-adapted chemical
+    language model coupled to reinforcement learning (hold-out R² = 0.89), and (iv) verifies a
+    design ranking with 210 FE simulations whose predictions were recorded in advance. In the
+    surrogate-based HYDRA-BERT evaluation over 60 models (50 synthetic), selected designs
+    increased ejection fraction by 9.1 ± 0.4 percentage points and reduced border-zone stress by
+    30.1%. In the FE program, recorded predictions ranked designs within each patient with ρ =
+    0.93–0.98, including two patients excluded from training, and the effect at the catheter
+    dose was small and largely unfavorable, governed by gel volume offset by stiffness and
+    limited by border-zone thickness.
+poster:
+  src: "/media/fig-cardiac-poster"
+  width: 1100
+  height: 1555
+  fallback: jpg
+  href: "https://kishpish.github.io/ai-heart-repair/assets/docs/potluri-2026-ieee-bibm-poster.pdf"
+  label: "IEEE BIBM 2026, poster P229"
+  caption: >-
+    The conference poster, in full. Introduction and pipeline across the top, the two frameworks
+    through the middle, and the results and sealed verification along the bottom. Open it for the
+    readable A0 sheet.
+  alt: >-
+    An A0 conference poster titled AI-Driven Inverse Design of Patient-Specific Hydrogels for
+    Post-Infarction Cardiac Repair, laid out in three bands. The top band covers myocardial
+    infarction and the Law of Laplace beside the four pipeline contributions. The middle band
+    shows the automated cardiac physics framework, with MRI contours, a scar and border-zone
+    map, gel depots and an infarct cut-away, next to the HYDRA-BERT architecture. The bottom
+    band holds the outcome table, a chart of per-patient rank correlations from 0.929 to 0.983,
+    and the mechanistic insights.
 plate:
   source: Figure 2
   caption: >-

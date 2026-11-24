@@ -1,0 +1,117 @@
+---
+// A conference poster, shown whole.
+//
+// The image is a rendering of a PDF that lives somewhere else, so the whole
+// figure is a link: at this width the poster is a picture of a poster, and the
+// only useful thing a reader can do with it is open the real one. That makes
+// the link the point rather than a footnote, which is why it wraps the image
+// and the label rather than sitting under them.
+//
+// It does not lift under the cursor the way a card does. The page already uses
+// elevation to mean "this is a card that goes somewhere", and a figure that
+// rose would be making the same promise twice; what it does instead is warm
+// its edge and let the sheet brighten, which reads as an invitation to look.
+import { clean } from '../lib/canonical';
+import { url } from '../lib/urls';
+
+interface Props {
+  src: string;
+  width: number;
+  height: number;
+  fallback: 'jpg' | 'png';
+  href: string;
+  label: string;
+  caption: string;
+  alt: string;
+  n?: string;
+  class?: string;
+}
+const { src, width, height, fallback, href, label, caption, alt, n, class: cls = '' } = Astro.props;
+---
+
+<figure class:list={['poster', cls]}>
+  <a class="poster__link" href={href} target="_blank" rel="noopener">
+    <span class="poster__frame">
+      <picture>
+        <source srcset={url(`${src}.webp`)} type="image/webp" />
+        <img src={url(`${src}.${fallback}`)} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+      </picture>
+    </span>
+    <span class="poster__cta">
+      {label}
+      <span class="poster__arrow" aria-hidden="true">↗</span>
+      <span class="visually-hidden">, opens the full poster as a PDF</span>
+    </span>
+  </a>
+  <figcaption class="fig__caption">
+    {n && <span class="fig__n">Fig. {n}</span>}{clean(caption)}
+  </figcaption>
+</figure>
+
+<style>
+  .poster {
+    margin: 0;
+  }
+  .poster__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The sheet keeps its own paper in every theme, like the project figures:
+     the poster is printed artwork and inverting it would be a different
+     document. */
+  .poster__frame {
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--figure-paper);
+    overflow: hidden;
+    transition:
+      border-color var(--dur-edge) var(--ease-out),
+      box-shadow var(--dur-lift-out) var(--ease-out);
+  }
+  .poster__frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .poster__cta {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+    margin-top: var(--sp-3);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    color: var(--blue-ink);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+    text-underline-offset: 0.18em;
+    transition: color var(--dur-lift-out) var(--ease-out);
+  }
+  .poster__arrow {
+    font-size: 0.85em;
+  }
+
+  .poster__link:hover .poster__frame,
+  .poster__link:focus-visible .poster__frame {
+    border-color: var(--edge-hover);
+    box-shadow: var(--shadow-1);
+  }
+  .poster__link:hover .poster__cta,
+  .poster__link:focus-visible .poster__cta {
+    color: var(--orange-ink);
+    text-decoration-color: currentColor;
+  }
+  .poster__link:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 4px;
+    border-radius: var(--radius);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .poster__frame,
+    .poster__cta {
+      transition: none;
+    }
+  }
+</style>

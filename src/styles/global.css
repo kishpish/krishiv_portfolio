@@ -217,15 +217,22 @@
   --card-radius: 10px;
   --lift: -6px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* The curve above is nearly exponential: most of the distance is gone in the
+     first fifth of the duration. That is right for something arriving on the
+     page, which should resolve and stop. It is too eager for something a
+     cursor is holding open, where the fast part reads as a flinch. So the
+     hover and the disclosure use a plain cubic ease-out, which leaves at a
+     speed a hand can follow. */
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
   /* Slower in than out. Arriving should feel considered, leaving should feel
      immediate, which is what stops a big lift feeling twitchy on a grid. */
-  --dur-lift: 0.26s;
-  --dur-lift-out: 0.16s;
+  --dur-lift: 0.32s;
+  --dur-lift-out: 0.2s;
   --media-zoom: 1.035;
   /* The edge resolves before the body lands, and the figure starts behind both,
      so the hover is three beats in and one beat out instead of one switch. */
-  --dur-edge: 0.18s;
-  --delay-media: 50ms;
+  --dur-edge: 0.22s;
+  --delay-media: 60ms;
   --dur-reveal: 0.52s;
 
   /* type */
@@ -1007,8 +1014,8 @@ hr {
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow-1);
   transition:
-    transform var(--dur-lift-out) var(--ease-out),
-    box-shadow var(--dur-lift-out) var(--ease-out);
+    transform var(--dur-lift-out) var(--ease-soft),
+    box-shadow var(--dur-lift-out) var(--ease-soft);
 }
 /* Hover for pointers, focus-visible for keyboards, focus-within for a card
    whose link sits inside it. All three get the same physical response.

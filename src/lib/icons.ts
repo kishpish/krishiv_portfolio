@@ -44,7 +44,7 @@ export function linkKind(label: string, href: string): LinkKind {
   const l = label.toLowerCase();
   if (h.includes('github.com')) return 'code';
   if (h.includes('biorxiv') || h.includes('arxiv') || h.includes('doi.org') || h.endsWith('.pdf')) return 'paper';
-  if (l.includes('preprint') || l.includes('paper') || l.includes('pdf')) return 'paper';
+  if (l.includes('preprint') || l.includes('paper') || l.includes('pdf') || l.includes('poster')) return 'paper';
   if (l.includes('code') || l.includes('repo')) return 'code';
   if (l.includes('award') || l.includes('isef') || l.includes('prize') || l.includes('finalist')) return 'award';
   return 'external';

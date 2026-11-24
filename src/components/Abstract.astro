@@ -79,7 +79,7 @@ const word = kind === 'paper' ? 'Full abstract' : 'About the paper';
   .abs__chev {
     width: 0.7em;
     height: 0.7em;
-    transition: transform var(--dur-lift) var(--ease-out);
+    transition: transform var(--dur-lift) var(--ease-soft);
   }
   .abs[open] .abs__chev {
     transform: rotate(-180deg);
@@ -103,6 +103,37 @@ const word = kind === 'paper' ? 'Full abstract' : 'About the paper';
     line-height: 1.55;
     color: var(--ink-3);
     text-wrap: pretty;
+  }
+
+  /* Opening used to be a jump cut: the whole abstract appeared between one
+     frame and the next, which is the most abrupt thing on the page. This
+     animates the disclosure itself.
+
+     It needs three newer pieces working together, so it is all inside one
+     @supports: `interpolate-size` to make `height: auto` a thing that can be
+     animated to, `::details-content` to get at the part that opens, and
+     `transition-behavior: allow-discrete` so `content-visibility` flips at the
+     right end of the transition rather than immediately. A browser missing any
+     of them opens the way it always did, instantly, which is not a failure. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
+      .abs {
+        interpolate-size: allow-keywords;
+      }
+      .abs::details-content {
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition:
+          height var(--dur-lift) var(--ease-soft),
+          opacity var(--dur-lift) var(--ease-soft),
+          content-visibility var(--dur-lift) allow-discrete;
+      }
+      .abs[open]::details-content {
+        height: auto;
+        opacity: 1;
+      }
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

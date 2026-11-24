@@ -53,8 +53,8 @@ images:
   portrait:
     src: /media/me
     alt: Krishiv Potluri
-    width: 400
-    height: 400
+    width: 480
+    height: 480
   portrait_child:
     src: /media/me-kid
     alt: A kid in a Texas Rangers cap buckled into the back seat of a car after a game, a glove in his lap
@@ -194,19 +194,24 @@ publications:
     project: expression-benchmark
 
   - id: hydrogel-bibm-2026
+    # The camera-ready title, which differs from the one the CV carried before
+    # the paper was finalized.
     title: >-
-      AI-Driven Inverse Design of Bio-Instructive Hydrogels for Myocardial
-      Regeneration
+      AI-Driven Inverse Design of Patient-Specific Hydrogels for Post-Infarction
+      Cardiac Repair
     authors: [Krishiv Potluri]
     venue: IEEE BIBM 2026
     venue_long: IEEE International Conference on Bioinformatics and Biomedicine (BIBM)
     year: 2026
     status: accepted
     links:
+      - { label: paper, href: "https://kishpish.github.io/ai-heart-repair/assets/docs/potluri-2026-ieee-bibm-short-paper.pdf" }
+      - { label: poster, href: "https://kishpish.github.io/ai-heart-repair/assets/docs/potluri-2026-ieee-bibm-poster.pdf" }
+      - { label: project site, href: "https://kishpish.github.io/ai-heart-repair/" }
       - { label: model code, href: "https://github.com/kishpish/HYDRA-BERT" }
       - { label: simulation code, href: "https://github.com/kishpish/MESH_FIBER_INJECTION" }
       - { label: TXSEF award, href: "https://txsef.tamu.edu/awards/2026-category-awards/" }
-    note: 1st Place, Texas Science and Engineering Fair 2026
+    note: Poster P229. 1st Place, Texas Science and Engineering Fair 2026
     project: cardiac-hydrogels
 
 talks:
