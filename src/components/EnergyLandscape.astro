@@ -54,7 +54,8 @@ const canvasBox = {
         saddle points are marked with a double dagger. A dashed line traces the minimum-energy path
         from basin A over the first saddle, through basin C, over the second saddle, and down into
         basin B. An orange trajectory shows a particle dropped onto the upper right of the surface
-        descending into basin A.
+        descending into basin A. Where motion is allowed, the same surface is drawn in relief and a
+        particle walks it live, filling whichever basin it is in until it can cross a saddle.
       </desc>
 
       <!-- shading: low energy is darker, so basins read as basins -->
@@ -221,9 +222,23 @@ const canvasBox = {
   .landscape[data-live] .landscape__canvas {
     opacity: 1;
   }
-  .landscape[data-live] .landscape__traj {
+  /* Once the live layer is up it draws the surface itself, in relief, so the
+     flat map underneath would show through it. The SVG is not removed: it is
+     the figure for a reader with no script, with reduced motion set, and for
+     the first paint before anything has run, so it only fades while something
+     better is actually on top of it.
+
+     The canvas also grows to the whole stage here. In plan it covered the
+     plotted square and the SVG drew the axis furniture around it; in relief
+     there are no axes to draw, and the surface wants the room. */
+  .landscape[data-live] .landscape__svg {
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.45s ease;
+  }
+  .landscape[data-live] .landscape__canvas {
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
   }
 
   .landscape__readout {

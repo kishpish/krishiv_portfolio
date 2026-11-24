@@ -16,7 +16,7 @@ const conflicts = Object.entries(data.conflicts);
     <PageHeader
       eyebrow="Colophon"
       title="About the figure"
-      lede="Why there is a contour map on the front page, what it is computing, and what the rest of the site is made of."
+      lede="Why there is an energy landscape on the front page, what it is computing, and what the rest of the site is made of."
     />
 
     <div class="col__grid">
@@ -86,6 +86,19 @@ const conflicts = Object.entries(data.conflicts);
           Moving the cursor over the figure adds a repulsive Gaussian at the pointer, which
           pushes the walker out of wherever it has settled. That is the leukemia project's
           framing made literal: a drug as a force that collapses a basin.
+        </p>
+        <p>
+          The live figure is also drawn in relief rather than in plan, because a surface is
+          easier to read as a surface. The height is the potential, so a contour at a given
+          energy is drawn at that energy and lies on the terrain rather than being draped over
+          it, and the shading is Lambert from the analytic gradient, which the simulation is
+          computing anyway: for a height field the gradient and the surface normal are the same
+          quantity. Two compromises are worth naming. Basin A is far deeper than the other two,
+          so the energy is raised to a power before it becomes a height, or A would be a chasm
+          with the rest of the landscape flattened onto its wall. And everything above the band
+          the basins occupy is faded out instead of being drawn, because the walls of this
+          potential climb into the hundreds and the edge of a clamp is not a feature of the
+          function. The printed figure, the one without motion, stays a contour map.
         </p>
 
         <h2 id="degradation">How it degrades</h2>
